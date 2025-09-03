@@ -1,0 +1,102 @@
+[
+  {
+    "title": "Test Tävling",
+    "description": "Hej",
+    "date": "2025-09-06",
+    "registrationDeadline": "2025-09-04",
+    "organizer": "Borås BS",
+    "location": "Borås",
+    "status": "upcoming",
+    "category": "indoor",
+    "maxParticipants": 40,
+    "registrationUrl": "https://www.borasbs.se",
+    "resultsUrl": "",
+    "contactEmail": "tavling@borasbs.se",
+    "fee": "300",
+    "equipment": [
+      "ytyty"
+    ],
+    "rules": "ytytyty",
+    "imageUrl": "/uploads/news/1756904325397-280dou-bbs-logo-300x300.webp",
+    "imageAlt": "bbs",
+    "id": "1756904364826"
+  },
+  {
+    "id": "1",
+    "title": "Hyundai World Archery Championships",
+    "description": "Världsmästerskapet i bågskytte arrangeras av World Archery Federation.",
+    "date": "2025-09-05",
+    "registrationDeadline": "2025-08-20",
+    "organizer": "World Archery",
+    "location": "Berlin, Tyskland",
+    "status": "upcoming",
+    "category": "outdoor",
+    "maxParticipants": 500,
+    "registrationUrl": "https://worldarchery.sport",
+    "contactEmail": "info@worldarchery.sport",
+    "fee": "2500 SEK",
+    "equipment": [
+      "Recurve bow",
+      "Arrows",
+      "Arm guard",
+      "Finger tab"
+    ],
+    "rules": "World Archery Rules gäller. Se hemsidan för fullständiga regler."
+  },
+  {
+    "id": "2",
+    "title": "3D-SM",
+    "description": "Svenska mästerskapet i 3D-bågskytte.",
+    "date": "2025-09-06",
+    "registrationDeadline": "2025-08-25",
+    "organizer": "Huskvarna BK",
+    "location": "Huskvarna",
+    "status": "upcoming",
+    "category": "3d",
+    "maxParticipants": 200,
+    "contactEmail": "info@huskvarnabk.se",
+    "fee": "400 SEK",
+    "equipment": [
+      "Alla bågtyper tillåtna",
+      "Arrows"
+    ],
+    "rules": "Svenska Bågskytteförbundets 3D-regler gäller."
+  },
+  {
+    "id": "3",
+    "title": "DM tavla NSBF utomhus 2025",
+    "description": "Distriktsmästerskap tavla utomhus för Norra Svealands Bågskytteförbund.",
+    "date": "2025-09-13",
+    "registrationDeadline": "2025-09-01",
+    "organizer": "Sigtuna BSK",
+    "location": "Sigtuna",
+    "status": "upcoming",
+    "category": "outdoor",
+    "maxParticipants": 150,
+    "contactEmail": "tavling@sigtunabrsk.se",
+    "fee": "200 SEK",
+    "equipment": [
+      "Recurve bow",
+      "Compound bow",
+      "Arrows"
+    ],
+    "rules": "Gällande DM-regler enligt NSBF."
+  },
+  {
+    "id": "4",
+    "title": "Distriktsmästerskap 3D",
+    "description": "Distriktsmästerskap i 3D-bågskytte som avslutades framgångsrikt.",
+    "date": "2025-08-31",
+    "organizer": "Motala BSK",
+    "location": "Motala",
+    "status": "completed",
+    "category": "3d",
+    "resultsUrl": "https://results.motalabrsk.se/dm3d2025",
+    "fee": "350 SEK",
+    "equipment": [
+      "Alla bågtyper",
+      "Arrows"
+    ],
+    "rules": "Svenska Bågskytteförbundets 3D-regler."
+  }
+]
