@@ -20,14 +20,18 @@ export interface Competition {
   location: string
   registrationDeadline: string
   maxParticipants?: number
-  currentParticipants: number
-  category: 'upcoming' | 'ongoing' | 'completed'
+  currentParticipants?: number
+  category: 'outdoor' | 'indoor' | '3d' | 'field' | 'other'
+  status: 'upcoming' | 'ongoing' | 'completed'
   organizer: string
   contactEmail: string
   registrationUrl?: string
   resultsUrl?: string
   imageUrl?: string
   imageAlt?: string
+  fee?: string
+  equipment?: string[]
+  rules?: string
 }
 
 export interface DistrictRecord {

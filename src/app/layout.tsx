@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import 'leaflet/dist/leaflet.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import ToastContainer from '@/components/ui/ToastContainer'
 

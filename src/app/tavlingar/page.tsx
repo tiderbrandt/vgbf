@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import CompetitionsMap from '@/components/CompetitionsMap'
 import { Competition } from '@/types'
 
 export default function CompetitionsPage() {
@@ -196,6 +197,17 @@ export default function CompetitionsPage() {
                   <option value="other">Övrigt</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* Map Section */}
+          <div className="mb-8">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-vgbf-blue mb-4">Hitta tävlingar på kartan</h2>
+              <p className="text-gray-600 mb-4">
+                Se var tävlingar äger rum. Klicka på markeringarna för mer information och direktlänkar till anmälan och resultat.
+              </p>
+              <CompetitionsMap competitions={filteredCompetitions} />
             </div>
           </div>
 

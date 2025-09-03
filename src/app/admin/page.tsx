@@ -156,113 +156,128 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-vgbf-blue">Administration</h1>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Nyheter</h2>
-              <p className="text-gray-600 mb-4">Hantera nyheter och meddelanden</p>
-              <div className="flex gap-3">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 items-stretch">
+            {/* Card: Nyheter */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Nyheter</h2>
+                <p className="text-gray-600 mb-4">Hantera nyheter och meddelanden</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
                 <Link
                   href="/admin/news/new"
-                  className="bg-vgbf-blue text-white px-4 py-2 rounded-lg hover:bg-vgbf-green transition-colors font-semibold text-sm"
+                  className="bg-vgbf-blue text-white px-4 py-2 rounded-lg hover:bg-vgbf-green transition-colors font-semibold text-sm text-center"
                 >
                   Ny nyhet
                 </Link>
                 <Link
                   href="/admin/news"
-                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
                 >
                   Hantera alla
                 </Link>
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 text-center">
                 Totalt: {news.length} nyheter
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Tävlingar</h2>
-              <p className="text-gray-600 mb-4">Hantera tävlingar och evenemang</p>
-              <div className="flex gap-3">
+            {/* Card: Tävlingar */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Tävlingar</h2>
+                <p className="text-gray-600 mb-4">Hantera tävlingar och evenemang</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
                 <Link
                   href="/admin/competitions/new"
-                  className="bg-vgbf-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm"
+                  className="bg-vgbf-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-semibold text-sm text-center"
                 >
                   Ny tävling
                 </Link>
                 <Link
                   href="/admin/competitions"
-                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
                 >
                   Hantera alla
                 </Link>
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 text-center">
                 Totalt: {competitions.length} tävlingar
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Klubbar</h2>
-              <p className="text-gray-600 mb-4">Hantera klubbar och föreningar</p>
-              <div className="flex gap-3">
+            {/* Card: Klubbar */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Klubbar</h2>
+                <p className="text-gray-600 mb-4">Hantera klubbar och föreningar</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
                 <Link
                   href="/admin/clubs/new"
-                  className="bg-vgbf-gold text-vgbf-blue px-4 py-2 rounded-lg hover:bg-yellow-300 transition-colors font-semibold text-sm"
+                  className="bg-vgbf-gold text-vgbf-blue px-4 py-2 rounded-lg hover:bg-yellow-300 transition-colors font-semibold text-sm text-center"
                 >
                   Ny klubb
                 </Link>
                 <Link
                   href="/admin/clubs"
-                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
                 >
                   Hantera alla
                 </Link>
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 text-center">
                 Totalt: {clubs.length} klubbar
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Distriktsrekord</h2>
-              <p className="text-gray-600 mb-4">Hantera distriktsrekord</p>
-              <div className="flex gap-3">
+            {/* Card: Distriktsrekord */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Distriktsrekord</h2>
+                <p className="text-gray-600 mb-4">Hantera distriktsrekord</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
                 <Link
                   href="/admin/records/new"
-                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm"
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm text-center"
                 >
                   Nytt rekord
                 </Link>
                 <Link
                   href="/admin/records"
-                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
                 >
                   Hantera alla
                 </Link>
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 text-center">
                 Se distriktsrekord
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Kalender</h2>
-              <p className="text-gray-600 mb-4">Hantera evenemang och aktiviteter</p>
-              <div className="flex gap-3">
+            {/* Card: Kalender */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Kalender</h2>
+                <p className="text-gray-600 mb-4">Hantera evenemang och aktiviteter</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
                 <Link
                   href="/admin/calendar"
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm text-center"
                 >
                   Hantera kalender
                 </Link>
                 <Link
                   href="/kalender"
-                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
                 >
                   Se offentlig vy
                 </Link>
               </div>
-              <div className="mt-4 text-sm text-gray-500">
+              <div className="mt-4 text-sm text-gray-500 text-center">
                 Lägg till och redigera evenemang
               </div>
             </div>
@@ -281,81 +296,65 @@ export default function AdminPage() {
             </div>
 
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rubrik
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Datum
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Författare
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Åtgärder
-                    </th>
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3 truncate">Rubrik</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Datum</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Författare</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Åtgärder</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {news.slice(0, 5).map((article) => (
+                  <tr key={article.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 truncate max-w-xs">
+                      <div className="text-sm font-medium text-gray-900 truncate">
+                        {article.title}
+                      </div>
+                      <div className="text-sm text-gray-500 truncate">
+                        {article.excerpt.substring(0, 60)}...
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-500">
+                      {new Date(article.date).toLocaleDateString('sv-SE')}
+                    </td>
+                    <td className="px-4 py-4 text-sm text-gray-500">
+                      {article.author || '-'}
+                    </td>
+                    <td className="px-4 py-4">
+                      {article.featured && (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Viktigt</span>
+                      )}
+                      {article.imageUrl && (
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 ml-2">Med bild</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4 text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => router.push(`/admin/news/${article.id}/edit`)}
+                        className="text-vgbf-blue hover:text-vgbf-green"
+                      >
+                        Redigera
+                      </button>
+                      <button
+                        onClick={() => window.open(`/nyheter/${article.slug}`, '_blank')}
+                        className="text-green-600 hover:text-green-900"
+                      >
+                        Visa
+                      </button>
+                      <button
+                        onClick={() => handleDeleteNews(article)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Ta bort
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {news.slice(0, 5).map((article) => (
-                    <tr key={article.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {article.title}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {article.excerpt.substring(0, 60)}...
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(article.date).toLocaleDateString('sv-SE')}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {article.author || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {article.featured && (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            Viktigt
-                          </span>
-                        )}
-                        {article.imageUrl && (
-                          <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 ml-2">
-                            Med bild
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button
-                          onClick={() => router.push(`/admin/news/${article.id}/edit`)}
-                          className="text-vgbf-blue hover:text-vgbf-green"
-                        >
-                          Redigera
-                        </button>
-                        <button
-                          onClick={() => window.open(`/nyheter/${article.slug}`, '_blank')}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          Visa
-                        </button>
-                        <button
-                          onClick={() => handleDeleteNews(article)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Ta bort
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {news.length === 0 && (

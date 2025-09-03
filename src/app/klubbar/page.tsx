@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ClubsMap from '@/components/ClubsMap'
 import { Club } from '@/types'
 
 export default function ClubsPage() {
@@ -143,6 +144,17 @@ export default function ClubsPage() {
             <div className="bg-white rounded-lg shadow-md p-6 text-center">
               <div className="text-3xl font-bold text-vgbf-gold mb-2">{locations.length}</div>
               <div className="text-gray-600">Orter representerade</div>
+            </div>
+          </div>
+
+          {/* Map Section */}
+          <div className="mb-8">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-vgbf-blue mb-4">Hitta klubbar på kartan</h2>
+              <p className="text-gray-600 mb-4">
+                Klicka på markeringarna för att se mer information om varje klubb.
+              </p>
+              <ClubsMap clubs={filteredClubs} />
             </div>
           </div>
 

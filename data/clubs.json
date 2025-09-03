@@ -56,12 +56,12 @@
     "location": "Borås",
     "contactPerson": "Ann Hansson",
     "email": "info@borasbagskytte.se",
-    "phone": "033-456 78 90",
-    "website": "https://borasbagskytte.se",
+    "phone": "033-12 66 66",
+    "website": "https://www.borasbs.se",
     "address": "Idrottsgatan 5",
     "postalCode": "503 32",
     "city": "Borås",
-    "established": "1925",
+    "established": "1948",
     "activities": [
       "Utomhusbågskytte",
       "Inomhusbågskytte",
@@ -91,13 +91,20 @@
         "day": "Söndag",
         "time": "10:00-14:00",
         "type": "Familjeträning"
+      },
+      {
+        "day": "Måndag",
+        "time": "18:00 - 19:00",
+        "type": "Prova-På"
       }
     ],
     "memberCount": 145,
-    "membershipFee": "1100 SEK/år",
+    "membershipFee": "200 SEK/år",
     "welcomesNewMembers": true,
     "facebook": "https://facebook.com/borasbs",
-    "instagram": "@boras_bs"
+    "instagram": "",
+    "imageUrl": "",
+    "imageAlt": ""
   },
   {
     "id": "vanersborg-bk",
