@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 
 export default function Header() {
@@ -11,15 +12,22 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Logo and Title */}
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-vgbf-gold rounded-full flex items-center justify-center">
-              <span className="text-vgbf-blue font-bold text-xl">🏹</span>
+          <Link href="/" className="flex items-center space-x-4 hover:opacity-90 transition-opacity">
+            <div className="w-12 h-12 relative">
+              <Image
+                src="/vgbf-logo.png"
+                alt="VGBF Logo"
+                width={48}
+                height={48}
+                className="object-contain"
+                priority
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold">Västra Götalands</h1>
               <h2 className="text-sm">Bågskytteförbund</h2>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6">
@@ -34,6 +42,12 @@ export default function Header() {
             </Link>
             <Link href="/klubbar" className="hover:text-vgbf-gold transition-colors">
               Klubbar
+            </Link>
+            <Link href="/kalender" className="hover:text-vgbf-gold transition-colors">
+              Kalender
+            </Link>
+            <Link href="/distriktsrekord" className="hover:text-vgbf-gold transition-colors">
+              Distriktsrekord
             </Link>
             <Link href="/styrelsen" className="hover:text-vgbf-gold transition-colors">
               Styrelsen
@@ -69,6 +83,12 @@ export default function Header() {
               </Link>
               <Link href="/klubbar" className="hover:text-vgbf-gold transition-colors">
                 Klubbar
+              </Link>
+              <Link href="/kalender" className="hover:text-vgbf-gold transition-colors">
+                Kalender
+              </Link>
+              <Link href="/distriktsrekord" className="hover:text-vgbf-gold transition-colors">
+                Distriktsrekord
               </Link>
               <Link href="/styrelsen" className="hover:text-vgbf-gold transition-colors">
                 Styrelsen

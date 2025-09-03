@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -8,8 +9,14 @@ export default function Footer() {
           {/* Organization Info */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-vgbf-gold rounded-full flex items-center justify-center">
-                <span className="text-vgbf-blue font-bold">🏹</span>
+              <div className="w-8 h-8 relative">
+                <Image
+                  src="/vgbf-logo.png"
+                  alt="VGBF Logo"
+                  width={32}
+                  height={32}
+                  className="object-contain"
+                />
               </div>
               <span className="font-bold">VGBF</span>
             </div>
@@ -29,7 +36,11 @@ export default function Footer() {
               <li><Link href="/nyheter" className="text-gray-300 hover:text-vgbf-gold transition-colors">Nyheter</Link></li>
               <li><Link href="/tavlingar" className="text-gray-300 hover:text-vgbf-gold transition-colors">Tävlingar</Link></li>
               <li><Link href="/klubbar" className="text-gray-300 hover:text-vgbf-gold transition-colors">Klubbar</Link></li>
+              <li><Link href="/kalender" className="text-gray-300 hover:text-vgbf-gold transition-colors">Kalender</Link></li>
+              <li><Link href="/distriktsrekord" className="text-gray-300 hover:text-vgbf-gold transition-colors">Distriktsrekord</Link></li>
               <li><Link href="/styrelsen" className="text-gray-300 hover:text-vgbf-gold transition-colors">Styrelsen</Link></li>
+              <li><Link href="/kontakt" className="text-gray-300 hover:text-vgbf-gold transition-colors">Kontakt</Link></li>
+              <li><Link href="/admin" className="text-gray-300 hover:text-vgbf-gold transition-colors">Administration</Link></li>
             </ul>
           </div>
 

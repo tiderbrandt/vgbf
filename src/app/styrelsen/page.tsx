@@ -1,0 +1,253 @@
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+
+export default function StylesenPage() {
+  const boardMembers = [
+    {
+      title: 'Ordförande',
+      name: 'Bengt Idéhn',
+      club: 'BS Gothia',
+      email: 'VastraGotalandsBF@bagskytte.se',
+      phone: '0705 46 34 66',
+      description: 'Ansvarar för förbundets strategiska riktning och representation.'
+    },
+    {
+      title: 'Sekreterare',
+      name: 'Peter Svahn',
+      club: 'Vänersborg BK',
+      description: 'Ansvarar för protokoll och kommunikation.'
+    },
+    {
+      title: 'Kassör',
+      name: 'Ann Hansson',
+      club: 'Borås BS',
+      description: 'Ansvarar för förbundets ekonomi och bokföring.'
+    },
+    {
+      title: 'Ordinarie ledamot',
+      name: 'Kristian Isaksson',
+      club: 'Lindome BSK',
+      description: 'Bidrar till styrelsearbetet inom olika ansvarsområden.'
+    },
+    {
+      title: 'Ordinarie ledamot',
+      name: 'Kenth Olofsson',
+      club: 'Halmstad BF',
+      description: 'Bidrar till styrelsearbetet inom olika ansvarsområden.'
+    }
+  ]
+
+  const substitutes = [
+    {
+      name: 'Peter Bohman',
+      club: 'Tibro BS'
+    },
+    {
+      name: 'Julia Christensen',
+      club: 'Borås BS'
+    }
+  ]
+
+  const auditors = [
+    {
+      name: 'Eijvor Carlsson',
+      club: 'Borås BS'
+    },
+    {
+      name: 'Bo Carlsson',
+      club: 'Borås BS'
+    }
+  ]
+
+  const nominationCommittee = [
+    {
+      name: 'Ellinor Ryrå',
+      club: 'BS Gothia',
+      role: 'Ordförande för valberedningen'
+    },
+    {
+      name: 'Morgan Elf',
+      club: 'Tibro BS'
+    }
+  ]
+
+  return (
+    <main className="min-h-screen bg-white">
+      <Header />
+      <div className="bg-gray-50">
+        {/* Hero Section */}
+        <div className="bg-vgbf-blue text-white py-8">
+          <div className="container mx-auto px-4">
+            <h1 className="text-3xl font-bold">Styrelsen</h1>
+            <p className="text-blue-100 mt-2">
+              Västra Götalands Bågskytteförbund styrelse sammansatt efter årsmötet 30/3 2025
+            </p>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 py-8">
+          {/* Introduction */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-semibold text-vgbf-blue mb-4">Om styrelsen</h2>
+            <p className="text-gray-600 mb-4">
+              Styrelsen för Västra Götalands Bågskytteförbund arbetar för att främja bågskyttet 
+              i regionen och stödja våra medlemsklubbar. Vi träffas regelbundet för att diskutera 
+              förbundets verksamhet, ekonomi och framtida utveckling.
+            </p>
+            <p className="text-gray-600">
+              Har du frågor eller förslag till styrelsen? Kontakta oss gärna via e-post eller telefon.
+            </p>
+          </div>
+
+          {/* Board Members */}
+          <div className="bg-white rounded-lg shadow-md mb-8">
+            <div className="bg-vgbf-green text-white px-6 py-3 rounded-t-lg">
+              <h3 className="text-lg font-semibold">Styrelseledamöter</h3>
+            </div>
+            <div className="p-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {boardMembers.map((member, index) => (
+                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="mb-3">
+                      <h4 className="font-semibold text-vgbf-blue text-lg">{member.name}</h4>
+                      <p className="text-sm font-medium text-vgbf-green">{member.title}</p>
+                      <p className="text-sm text-gray-600">{member.club}</p>
+                    </div>
+                    
+                    {member.description && (
+                      <p className="text-sm text-gray-600 mb-3">{member.description}</p>
+                    )}
+                    
+                    {(member.email || member.phone) && (
+                      <div className="text-sm">
+                        {member.email && (
+                          <p className="mb-1">
+                            <span className="font-medium">E-post:</span>{' '}
+                            <a href={`mailto:${member.email}`} className="text-vgbf-blue hover:underline">
+                              {member.email}
+                            </a>
+                          </p>
+                        )}
+                        {member.phone && (
+                          <p>
+                            <span className="font-medium">Telefon:</span>{' '}
+                            <a href={`tel:${member.phone}`} className="text-vgbf-blue hover:underline">
+                              {member.phone}
+                            </a>
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Other Roles */}
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {/* Substitutes */}
+            <div className="bg-white rounded-lg shadow-md">
+              <div className="bg-vgbf-gold text-vgbf-blue px-6 py-3 rounded-t-lg">
+                <h3 className="text-lg font-semibold">Suppleanter</h3>
+              </div>
+              <div className="p-6">
+                {substitutes.map((substitute, index) => (
+                  <div key={index} className="mb-3 last:mb-0">
+                    <p className="font-medium text-gray-900">{substitute.name}</p>
+                    <p className="text-sm text-gray-600">{substitute.club}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Auditors */}
+            <div className="bg-white rounded-lg shadow-md">
+              <div className="bg-vgbf-gold text-vgbf-blue px-6 py-3 rounded-t-lg">
+                <h3 className="text-lg font-semibold">Revisorer</h3>
+              </div>
+              <div className="p-6">
+                {auditors.map((auditor, index) => (
+                  <div key={index} className="mb-3 last:mb-0">
+                    <p className="font-medium text-gray-900">{auditor.name}</p>
+                    <p className="text-sm text-gray-600">{auditor.club}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Nomination Committee */}
+            <div className="bg-white rounded-lg shadow-md">
+              <div className="bg-vgbf-gold text-vgbf-blue px-6 py-3 rounded-t-lg">
+                <h3 className="text-lg font-semibold">Valberedning</h3>
+              </div>
+              <div className="p-6">
+                {nominationCommittee.map((member, index) => (
+                  <div key={index} className="mb-3 last:mb-0">
+                    <p className="font-medium text-gray-900">{member.name}</p>
+                    <p className="text-sm text-gray-600">{member.club}</p>
+                    {member.role && (
+                      <p className="text-xs text-vgbf-green font-medium">{member.role}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-xl font-semibold text-vgbf-blue mb-4">Kontaktinformation</h3>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2">Postadress</h4>
+                <p className="text-gray-600">
+                  Bengt Idéhn<br />
+                  Änghagsliden 114<br />
+                  423 49 Torslanda
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-2">Kontakt</h4>
+                <p className="text-gray-600 mb-2">
+                  <span className="font-medium">Telefon:</span>{' '}
+                  <a href="tel:0705463466" className="text-vgbf-blue hover:underline">
+                    0705 46 34 66
+                  </a>
+                </p>
+                <p className="text-gray-600 mb-2">
+                  <span className="font-medium">E-post:</span>{' '}
+                  <a href="mailto:VastraGotalandsBF@bagskytte.se" className="text-vgbf-blue hover:underline">
+                    VastraGotalandsBF@bagskytte.se
+                  </a>
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-medium">Organisationsnummer:</span> 857500-2954
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Meeting Information */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 className="text-xl font-semibold text-vgbf-blue mb-4">Styrelsemöten</h3>
+            <p className="text-gray-600 mb-4">
+              Styrelsen träffas regelbundet via Teams för att diskutera löpande frågor 
+              och planera förbundets verksamhet. Styrelseprotokoll finns tillgängliga 
+              för medlemsklubbar.
+            </p>
+            <p className="text-gray-600">
+              <span className="font-medium">Mötesplats:</span> Via Teams
+            </p>
+          </div>
+
+          {/* Last Updated */}
+          <div className="text-center text-sm text-gray-500">
+            Sidan uppdaterad 20 augusti 2025
+          </div>
+        </div>
+      </div>
+      <Footer />
+    </main>
+  )
+}

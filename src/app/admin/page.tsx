@@ -156,7 +156,7 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-vgbf-blue">Administration</h1>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold text-vgbf-blue mb-4">Nyheter</h2>
               <p className="text-gray-600 mb-4">Hantera nyheter och meddelanden</p>
@@ -220,6 +220,50 @@ export default function AdminPage() {
               </div>
               <div className="mt-4 text-sm text-gray-500">
                 Totalt: {clubs.length} klubbar
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Distriktsrekord</h2>
+              <p className="text-gray-600 mb-4">Hantera distriktsrekord</p>
+              <div className="flex gap-3">
+                <Link
+                  href="/admin/records/new"
+                  className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold text-sm"
+                >
+                  Nytt rekord
+                </Link>
+                <Link
+                  href="/admin/records"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                >
+                  Hantera alla
+                </Link>
+              </div>
+              <div className="mt-4 text-sm text-gray-500">
+                Se distriktsrekord
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-vgbf-blue mb-4">Kalender</h2>
+              <p className="text-gray-600 mb-4">Hantera evenemang och aktiviteter</p>
+              <div className="flex gap-3">
+                <Link
+                  href="/admin/calendar"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm"
+                >
+                  Hantera kalender
+                </Link>
+                <Link
+                  href="/kalender"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm"
+                >
+                  Se offentlig vy
+                </Link>
+              </div>
+              <div className="mt-4 text-sm text-gray-500">
+                Lägg till och redigera evenemang
               </div>
             </div>
           </div>

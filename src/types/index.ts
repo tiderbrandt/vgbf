@@ -17,20 +17,31 @@ export interface Competition {
   title: string
   description: string
   date: string
-  registrationDeadline?: string
-  organizer: string
   location: string
-  status: 'upcoming' | 'ongoing' | 'completed'
-  category: 'outdoor' | 'indoor' | '3d' | 'field' | 'other'
+  registrationDeadline: string
   maxParticipants?: number
+  currentParticipants: number
+  category: 'upcoming' | 'ongoing' | 'completed'
+  organizer: string
+  contactEmail: string
   registrationUrl?: string
   resultsUrl?: string
-  contactEmail?: string
-  fee?: string
-  equipment?: string[]
-  rules?: string
   imageUrl?: string
   imageAlt?: string
+}
+
+export interface DistrictRecord {
+  id: string
+  category: string // e.g., "Utomhus SBF 70m/60m/50m/40m/30m 72/15 pilar", "Inomhus SBF 18m/12m 15 pilar"
+  class: string // e.g., "Herrar Recurve", "Damer Compound", "U21 Herrar Barebow"
+  name: string
+  club: string
+  score: string // e.g., "675", "589/600"
+  date: string // ISO date string
+  competition: string
+  competitionUrl?: string // Link to resultat.bagskytte.se
+  organizer: string
+  notes?: string
 }
 
 export interface Club {
@@ -60,4 +71,26 @@ export interface Club {
   memberCount?: number
   membershipFee?: string
   welcomesNewMembers: boolean
+}
+
+export interface CalendarEvent {
+  id: string
+  title: string
+  description: string
+  date: string
+  endDate?: string
+  time: string
+  endTime?: string
+  location?: string
+  type: 'competition' | 'meeting' | 'training' | 'course' | 'social' | 'other'
+  organizer?: string
+  contactEmail?: string
+  registrationRequired: boolean
+  registrationUrl?: string
+  maxParticipants?: number
+  currentParticipants?: number
+  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled'
+  isPublic: boolean
+  createdAt: string
+  updatedAt: string
 }
