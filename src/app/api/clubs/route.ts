@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClubs, addClub, updateClub, deleteClub, getClubById } from '@/lib/clubs-storage'
+import { getAllClubs as getClubs, addClub, updateClub, deleteClub, getClubById } from '@/lib/clubs-storage-blob'
 import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
