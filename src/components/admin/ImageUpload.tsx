@@ -47,8 +47,8 @@ export default function ImageUpload({ onImageUploaded, currentImageUrl, currentI
 
       // Upload file
       const formData = new FormData()
-      formData.append('image', file)
-      formData.append('contentType', contentType)
+      formData.append('file', file)
+      formData.append('type', contentType)
 
       const response = await authenticatedUpload('/api/upload', formData)
 
