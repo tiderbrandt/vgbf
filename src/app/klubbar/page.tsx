@@ -317,7 +317,7 @@ export default function ClubsPage() {
 
           {/* Call to Action */}
           <div className="mt-12 bg-vgbf-blue text-white rounded-lg p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Vill din klubb synas här?</h2>
+            <h2 className="text-2xl font-bold mb-4">Uppdatera uppgifter?</h2>
             <p className="text-blue-100 mb-6">
               Kontakta Västra Götalands Bågskytteförbund för att lägga till eller uppdatera klubbinformation.
             </p>
