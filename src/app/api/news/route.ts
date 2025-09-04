@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, deleteNews } from '@/lib/news-storage-blob'
+import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, deleteNews } from '@/lib/news-storage'
 import { NewsArticle } from '@/types'
 import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
 

@@ -4,7 +4,7 @@ import { BlobStorage } from './blob-storage'
 // Initialize blob storage for news
 const newsStorage = new BlobStorage<NewsArticle>('data/news.json')
 
-// Default news data (same as before)
+// Default news data
 const defaultNewsArticles: NewsArticle[] = [
   {
     id: '1',
@@ -17,11 +17,14 @@ Alla klubbar i VGBF fick ett mail den 22 maj med text enligt nedan!
 1. Deltagande i NUM (Nationella ungdomsmästerskapet) subventioneras av VGBF med 500 kr per deltagare.
 2. Ansökan ska skickas till distriktet senast 2 veckor före tävlingen.
 3. Faktura eller kvitto ska bifogas ansökan.
-4. Maximal subvention per klubb är 5000 kr per år.
 
-För mer information kontakta styrelsen på VastraGotalandsBF@bagskytte.se`,
-    date: '2025-08-20',
-    author: 'VGBF Styrelsen',
+Ansökan skickas till vgbf.info@gmail.com
+
+Tack för er uppmärksamhet och lycka till med tävlingarna!
+
+VGBF Styrelsen`,
+    date: '2024-12-15',
+    author: 'VGBF',
     slug: 'num-subventioneras-av-vgbf',
     featured: true,
     tags: ['NUM', 'Subvention', 'Ungdom']
@@ -29,13 +32,10 @@ För mer information kontakta styrelsen på VastraGotalandsBF@bagskytte.se`,
   {
     id: '2',
     title: 'Tjejhelg med Lina Björklund',
-    excerpt: 'När: 23-24 november Var: Borås Bågskyttesällskap',
-    content: `Vi är glada att kunna meddela att Lina Björklund kommer att hålla en tjejhelg hos Borås Bågskyttesällskap!
+    excerpt: 'Borås Bågskyttesällskap arrangerar tjejhelg med Lina Björklund 16-17 november!',
+    content: `Vi är glada att meddela att Borås Bågskyttesällskap arrangerar en tjejhelg med Lina Björklund den 16-17 november!
 
-**När:** 23-24 november 2024
-**Var:** Borås Bågskyttesällskap
-
-Under helgen kommer deltagarna att få:
+**Program:**
 - Teknisk träning med Lina
 - Mentala träningspass
 - Gemenskap och erfarenhetsutbyte
@@ -74,18 +74,13 @@ Tack till alla klubbar som ställt upp som arrangörer!`,
   {
     id: '4',
     title: 'Domarkurs i Borås 17-18/2 2024',
-    excerpt: 'Domarkurs genomfördes i Borås lördag och söndag 17-18/2. Det blev 15 deltagare från 6 klubbar.',
-    content: `Domarkurs genomfördes i Borås lördag och söndag 17-18/2.
+    excerpt: 'Lyckad domarkurs genomfördes i Borås med deltagare från flera klubbar.',
+    content: `En mycket lyckad domarkurs genomfördes i Borås den 17-18 februari 2024.
 
-**Resultat:**
-- 15 deltagare från 6 klubbar
-- Lyckad genomgång av alla moment
-- Alla deltagare godkända
-
-**Klubbar som deltog:**
+**Deltagande klubbar:**
 - Borås Bågskyttesällskap
-- Göteborg BSK
-- Trollhättans BSK
+- Göteborg Bågskyttar
+- Trollhättan BSK
 - Uddevalla BSK
 - Alingsås BSK
 - Vårgårda BSK
@@ -107,25 +102,26 @@ Nästa domarkurs planeras till hösten 2024.`,
 
 **Datum:** Lördag 15 mars 2025
 **Tid:** 10:00
-**Plats:** Meddelas senare
+**Plats:** Borås Bågskyttesällskap
 
-**Preliminär dagordning:**
+**Dagordning:**
 1. Mötets öppnande
-2. Val av mötesordförande och sekreterare
-3. Fastställande av röstlängd
-4. Fastställande av dagordning
-5. Styrelsens verksamhetsberättelse
-6. Styrelsens ekonomiska berättelse
-7. Revisorernas berättelse
-8. Ansvarsfrihet för styrelsen
-9. Fastställande av verksamhetsplan
-10. Fastställande av budget
-11. Fastställande av avgifter
-12. Val av styrelse
-13. Val av revisorer
+2. Val av mötesordförande
+3. Val av mötessekreterare
+4. Godkännande av föredragningslista
+5. Fastställande av röstlängd
+6. Verksamhetsberättelse
+7. Ekonomisk berättelse
+8. Revisionsberättelse
+9. Ansvarsfrihet
+10. Verksamhetsplan
+11. Budget
+12. Motioner
+13. Val
 14. Övriga frågor
+15. Mötets avslutande
 
-Motioner ska vara styrelsen tillhanda senast 15 februari 2025.
+Handlingar kommer att skickas ut senast 2 veckor före mötet.
 
 Välkomna!`,
     date: '2025-01-15',
@@ -149,7 +145,8 @@ async function initializeNewsData(): Promise<NewsArticle[]> {
 
 // Get all news articles
 export async function getAllNews(): Promise<NewsArticle[]> {
-  return await initializeNewsData()
+  const news = await initializeNewsData()
+  return news.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
 // Add a new news article
@@ -170,33 +167,15 @@ export async function updateNews(id: string, newsData: Partial<NewsArticle>): Pr
     newsData
   )
 }
-  
-  if (index === -1) return null
-  
-  news[index] = { ...news[index], ...newsData }
-  await writeNewsToFile(news)
-  return news[index]
-}
 
 // Delete a news article
 export async function deleteNews(id: string): Promise<boolean> {
-  const news = await readNewsFromFile()
-  const filteredNews = news.filter(article => article.id !== id)
-  
-  if (filteredNews.length === news.length) return false
-  
-  await writeNewsToFile(filteredNews)
-  return true
+  return await newsStorage.delete((article) => article.id === id)
 }
 
-// Utility functions for news management
-export async function getAllNews(): Promise<NewsArticle[]> {
-  const news = await readNewsFromFile()
-  return news.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-}
-
+// Get featured news
 export async function getFeaturedNews(): Promise<NewsArticle[]> {
-  const news = await readNewsFromFile()
+  const news = await getAllNews()
   return news
     .filter(article => article.featured)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -208,18 +187,14 @@ export async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | undefined> {
-  const news = await readNewsFromFile()
-  return news.find(article => article.slug === slug)
+  return await newsStorage.findOne(article => article.slug === slug)
 }
 
 export async function getNewsById(id: string): Promise<NewsArticle | undefined> {
-  const news = await readNewsFromFile()
-  return news.find(article => article.id === id)
+  return await newsStorage.findOne(article => article.id === id)
 }
 
 export async function getNewsByTag(tag: string): Promise<NewsArticle[]> {
-  const news = await readNewsFromFile()
-  return news
-    .filter(article => article.tags?.includes(tag))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  const news = await newsStorage.findMany(article => article.tags?.includes(tag) ?? false)
+  return news.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
