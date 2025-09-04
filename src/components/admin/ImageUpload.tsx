@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Image from 'next/image'
+import Cookies from 'js-cookie'
 import { useToast } from '@/contexts/ToastContext'
 import { authenticatedUpload } from '@/lib/api'
 
@@ -46,7 +47,13 @@ export default function ImageUpload({ onImageUploaded, currentImageUrl, currentI
       reader.readAsDataURL(file)
 
       // Upload file using the Vercel Blob pattern with authentication
-      const token = document.cookie.split('auth-token=')[1]?.split(';')[0] || '';
+      const token = Cookies.get('auth-token');
+      
+      if (!token) {
+        error('Ej inloggad', 'Du måste vara inloggad för att ladda upp bilder.');
+        setUploading(false);
+        return;
+      }
       
       const response = await fetch(
         `/api/upload?filename=${encodeURIComponent(file.name)}&type=${encodeURIComponent(contentType)}`,
