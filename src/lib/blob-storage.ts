@@ -1,16 +1,27 @@
 import { put, head, BlobNotFoundError } from '@vercel/blob';
+import { LocalFileStorage } from './local-storage';
 
 /**
  * Generic blob storage utility for JSON data
- * This replaces filesystem-based storage for Vercel deployment
+ * Automatically falls back to local file storage in development when no blob token is available
  */
 
-export class BlobStorage<T> {
+export class BlobStorage<T extends { id: string }> {
   private fileName: string;
   private blobUrl: string | null = null;
+  private localStorage: LocalFileStorage<T>;
+  private useLocal: boolean = false;
 
   constructor(fileName: string) {
     this.fileName = fileName;
+    this.localStorage = new LocalFileStorage<T>(fileName);
+    
+    // Check if we should use local storage (no blob token available)
+    this.useLocal = !process.env.BLOB_READ_WRITE_TOKEN;
+    
+    if (this.useLocal) {
+      console.log(`Using local file storage for ${fileName} (no BLOB_READ_WRITE_TOKEN found)`);
+    }
   }
 
   /**
@@ -36,9 +47,13 @@ export class BlobStorage<T> {
   }
 
   /**
-   * Read data from blob storage
+   * Read data from storage (blob or local file)
    */
   async read(): Promise<T[]> {
+    if (this.useLocal) {
+      return this.localStorage.read();
+    }
+
     try {
       const url = await this.getBlobUrl();
       if (!url) {
@@ -65,9 +80,13 @@ export class BlobStorage<T> {
   }
 
   /**
-   * Write data to blob storage
+   * Write data to storage (blob or local file)
    */
   async write(data: T[]): Promise<void> {
+    if (this.useLocal) {
+      return this.localStorage.write(data);
+    }
+
     try {
       const jsonString = JSON.stringify(data, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
