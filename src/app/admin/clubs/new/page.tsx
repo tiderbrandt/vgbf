@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ImageUpload from '@/components/admin/ImageUpload'
@@ -56,6 +57,7 @@ export default function NewClubPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('auth-token')}`,
         },
         body: JSON.stringify(clubData),
       })

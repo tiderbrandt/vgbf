@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
+import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ImageUpload from '@/components/admin/ImageUpload'
@@ -64,6 +65,7 @@ export default function EditSponsorPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('auth-token')}`,
         },
         body: JSON.stringify(formData),
       })

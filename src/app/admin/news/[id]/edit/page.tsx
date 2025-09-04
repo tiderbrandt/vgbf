@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { NewsArticle } from '@/types'
@@ -120,6 +121,7 @@ export default function EditNewsPage({ params }: Props) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('auth-token')}`,
         },
         body: JSON.stringify(newsData),
       })
