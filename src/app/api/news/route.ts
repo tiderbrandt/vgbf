@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, deleteNews } from '@/lib/news-storage'
 import { NewsArticle } from '@/types'
+import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -40,6 +41,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
     const newsData: Omit<NewsArticle, 'id'> = {
@@ -74,6 +81,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
     
@@ -116,6 +129,12 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')

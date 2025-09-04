@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import 'leaflet/dist/leaflet.css'
 import { ToastProvider } from '@/contexts/ToastContext'
+import { AuthProvider } from '@/contexts/AuthContext'
 import ToastContainer from '@/components/ui/ToastContainer'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -21,8 +22,10 @@ export default function RootLayout({
     <html lang="sv">
       <body className={inter.className}>
         <ToastProvider>
-          {children}
-          <ToastContainer />
+          <AuthProvider>
+            {children}
+            <ToastContainer />
+          </AuthProvider>
         </ToastProvider>
       </body>
     </html>

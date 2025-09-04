@@ -98,3 +98,16 @@ export interface CalendarEvent {
   createdAt: string
   updatedAt: string
 }
+
+export interface Sponsor {
+  id: string
+  name: string
+  description?: string
+  website?: string
+  logoUrl?: string
+  logoAlt?: string
+  priority: number // For ordering sponsors (lower = higher priority)
+  isActive: boolean
+  addedDate: string
+  updatedAt: string
+}

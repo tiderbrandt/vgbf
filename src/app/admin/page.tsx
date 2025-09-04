@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { NewsArticle, Competition, Club } from '@/types'
+import { NewsArticle, Competition, Club, Sponsor } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
 
 export default function AdminPage() {
@@ -14,6 +14,7 @@ export default function AdminPage() {
   const [news, setNews] = useState<NewsArticle[]>([])
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [clubs, setClubs] = useState<Club[]>([])
+  const [sponsors, setSponsors] = useState<Sponsor[]>([])
   const [loading, setLoading] = useState(true)
 
   // Load news on component mount
@@ -21,6 +22,7 @@ export default function AdminPage() {
     loadNews()
     loadCompetitions()
     loadClubs()
+    loadSponsors()
   }, [])
 
   const loadNews = async () => {
@@ -58,6 +60,18 @@ export default function AdminPage() {
       console.error('Error loading clubs:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadSponsors = async () => {
+    try {
+      const response = await fetch('/api/sponsors')
+      const data = await response.json()
+      if (data.success) {
+        setSponsors(data.data)
+      }
+    } catch (error) {
+      console.error('Error loading sponsors:', error)
     }
   }
 
@@ -279,6 +293,34 @@ export default function AdminPage() {
               </div>
               <div className="mt-4 text-sm text-gray-500 text-center">
                 Lägg till och redigera evenemang
+              </div>
+            </div>
+          </div>
+
+          {/* Second row of cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 items-stretch">
+            {/* Card: Sponsorer */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Sponsorer</h2>
+                <p className="text-gray-600 mb-4">Hantera sponsorer och partners</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
+                <Link
+                  href="/admin/sponsors/new"
+                  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-semibold text-sm text-center"
+                >
+                  Ny sponsor
+                </Link>
+                <Link
+                  href="/admin/sponsors"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
+                >
+                  Hantera alla
+                </Link>
+              </div>
+              <div className="mt-4 text-sm text-gray-500 text-center">
+                Totalt: {sponsors.length} sponsorer
               </div>
             </div>
           </div>

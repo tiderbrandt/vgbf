@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs/promises'
 import path from 'path'
+import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
 
 // Ensure uploads directory exists
 async function ensureUploadsDirectory(contentType: string = 'news') {
@@ -38,6 +39,12 @@ function isValidFileSize(file: File): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get('image') as File

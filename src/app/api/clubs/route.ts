@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getClubs, addClub, updateClub, deleteClub, getClubById } from '@/lib/clubs-storage'
+import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -48,6 +49,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
     
@@ -77,6 +84,12 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
     const { id, ...updates } = body
@@ -108,6 +121,12 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  // Check authentication
+  const authHeader = request.headers.get('authorization')
+  if (!verifyAdminToken(authHeader)) {
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
     const { id } = body

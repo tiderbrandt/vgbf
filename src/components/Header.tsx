@@ -3,9 +3,15 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const { isAuthenticated, logout } = useAuth()
+  
+  const isAdminPage = pathname?.startsWith('/admin')
 
   return (
     <header className="bg-vgbf-blue text-white shadow-lg">
@@ -30,7 +36,7 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-6">
+          <nav className="hidden md:flex space-x-6 items-center">
             <Link href="/" className="hover:text-vgbf-gold transition-colors">
               Hem
             </Link>
@@ -55,6 +61,14 @@ export default function Header() {
             <Link href="/kontakt" className="hover:text-vgbf-gold transition-colors">
               Kontakt
             </Link>
+            {isAdminPage && isAuthenticated && (
+              <button
+                onClick={logout}
+                className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors text-sm"
+              >
+                Logga ut
+              </button>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -96,6 +110,14 @@ export default function Header() {
               <Link href="/kontakt" className="hover:text-vgbf-gold transition-colors">
                 Kontakt
               </Link>
+              {isAdminPage && isAuthenticated && (
+                <button
+                  onClick={logout}
+                  className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition-colors text-sm mt-2"
+                >
+                  Logga ut
+                </button>
+              )}
             </div>
           </nav>
         )}
