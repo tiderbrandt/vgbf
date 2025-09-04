@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import 'leaflet/dist/leaflet.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ToastContainer from '@/components/ui/ToastContainer'
+import ErrorBoundary from '@/components/ui/ErrorBoundary'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,12 +21,14 @@ export default function RootLayout({
   return (
     <html lang="sv">
       <body className={inter.className}>
-        <ToastProvider>
-          <AuthProvider>
-            {children}
-            <ToastContainer />
-          </AuthProvider>
-        </ToastProvider>
+        <ErrorBoundary>
+          <ToastProvider>
+            <AuthProvider>
+              {children}
+              <ToastContainer />
+            </AuthProvider>
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

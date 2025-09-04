@@ -134,13 +134,19 @@ Välkomna!`,
 
 // Initialize news data if not exists
 async function initializeNewsData(): Promise<NewsArticle[]> {
-  const existingNews = await newsStorage.read()
-  if (existingNews.length === 0) {
-    console.log('Initializing news data with defaults...')
-    await newsStorage.write(defaultNewsArticles)
+  try {
+    const existingNews = await newsStorage.read()
+    if (existingNews.length === 0) {
+      console.log('Initializing news data with defaults...')
+      await newsStorage.write(defaultNewsArticles)
+      return defaultNewsArticles
+    }
+    return existingNews
+  } catch (error) {
+    console.error('Error initializing news data:', error)
+    // Return default data on error to prevent crashes
     return defaultNewsArticles
   }
-  return existingNews
 }
 
 // Get all news articles
@@ -182,8 +188,14 @@ export async function getFeaturedNews(): Promise<NewsArticle[]> {
 }
 
 export async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
-  const allNews = await getAllNews()
-  return allNews.slice(0, limit)
+  try {
+    const allNews = await getAllNews()
+    return allNews.slice(0, limit)
+  } catch (error) {
+    console.error('Error getting recent news:', error)
+    // Return default news on error to prevent crashes
+    return defaultNewsArticles.slice(0, limit)
+  }
 }
 
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | undefined> {

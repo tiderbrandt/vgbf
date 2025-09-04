@@ -3,7 +3,38 @@ import Image from 'next/image'
 import { getRecentNews } from '@/lib/news-storage'
 
 export default async function NewsSection() {
-  const news = await getRecentNews(4)
+  let news
+  try {
+    news = await getRecentNews(4)
+  } catch (error) {
+    console.error('Error loading news:', error)
+    // Return a fallback UI instead of crashing
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Nyheter</h2>
+            <p className="text-gray-600">
+              Kunde inte ladda nyheter just nu. Försök igen senare.
+            </p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (!news || news.length === 0) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Nyheter</h2>
+            <p className="text-gray-600">Inga nyheter att visa just nu.</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 bg-gray-50">
