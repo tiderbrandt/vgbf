@@ -5,6 +5,7 @@
 You need to add these environment variables to your Vercel project:
 
 ### 1. Authentication Variables
+
 ```
 JWT_SECRET=bbe428a7bc78d8b3247de5c80551299845e6cdc5bce963ac7f77701cf7e092f67034038f2ee0d98952c5378c4f1d86822c402a66358d5b64aa95fb176bd690ce
 ADMIN_USERNAME=admin
@@ -13,17 +14,20 @@ NEXT_PUBLIC_APP_URL=https://vgbf.vercel.app
 ```
 
 ### 2. Vercel Blob Storage Variable
+
 **CRITICAL: This is required for image uploads to work!**
 
 To get your `BLOB_READ_WRITE_TOKEN`:
 
 #### Option A: Automatic (Recommended)
+
 1. Install Vercel CLI: `npm i -g vercel`
 2. Link your project: `vercel link`
 3. Pull environment variables: `vercel env pull`
 4. This will automatically add the `BLOB_READ_WRITE_TOKEN` to your local `.env.local`
 
 #### Option B: Manual via Dashboard
+
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
 2. Select your `vgbf` project
 3. Go to **Storage** tab
@@ -35,6 +39,7 @@ To get your `BLOB_READ_WRITE_TOKEN`:
 ## How to Add Environment Variables
 
 ### Via Vercel Dashboard:
+
 1. Go to https://vercel.com/dashboard
 2. Select your `vgbf` project
 3. Go to **Settings** → **Environment Variables**
@@ -45,6 +50,7 @@ To get your `BLOB_READ_WRITE_TOKEN`:
    - Click **Save**
 
 ### Via Vercel CLI:
+
 ```bash
 # First, link your project and pull existing env vars
 vercel link
@@ -52,7 +58,7 @@ vercel env pull
 
 # Add each variable (you'll be prompted for the value)
 vercel env add JWT_SECRET
-vercel env add ADMIN_USERNAME  
+vercel env add ADMIN_USERNAME
 vercel env add ADMIN_PASSWORD
 vercel env add NEXT_PUBLIC_APP_URL
 vercel env add BLOB_READ_WRITE_TOKEN
@@ -61,10 +67,13 @@ vercel env add BLOB_READ_WRITE_TOKEN
 ## After Adding Environment Variables
 
 1. **Redeploy your application:**
+
    ```bash
    git push origin main
    ```
+
    OR
+
    ```bash
    vercel --prod
    ```
@@ -78,18 +87,22 @@ vercel env add BLOB_READ_WRITE_TOKEN
 ## Troubleshooting Image Uploads
 
 ### Error: "Blob storage not configured"
+
 - **Cause**: Missing `BLOB_READ_WRITE_TOKEN`
 - **Solution**: Add the token to Vercel environment variables
 
 ### Error: "Unauthorized"
+
 - **Cause**: Missing JWT authentication variables
 - **Solution**: Add `JWT_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`
 
 ### Error: "File too large"
+
 - **Cause**: File exceeds 4.5MB limit for server uploads
 - **Solution**: Resize image or use client-side upload for larger files
 
 ### Error: Network/Upload fails
+
 - **Cause**: Various network or configuration issues
 - **Solution**: Check browser console and Vercel function logs
 
@@ -98,11 +111,13 @@ vercel env add BLOB_READ_WRITE_TOKEN
 To test the Blob functionality locally:
 
 1. **Get your environment variables:**
+
    ```bash
    vercel env pull
    ```
 
 2. **Start development server:**
+
    ```bash
    npm run dev
    ```
