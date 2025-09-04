@@ -74,6 +74,8 @@ export class BlobStorage<T> {
       
       const result = await put(this.fileName, blob, {
         access: 'public',
+        addRandomSuffix: false, // Keep consistent filename
+        allowOverwrite: true,   // Allow overwriting existing files
       });
       
       // Update our cached URL
