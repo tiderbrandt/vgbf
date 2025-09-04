@@ -7,16 +7,19 @@ Your Vercel deployment is missing required environment variables. You need to ad
 ### Required Environment Variables
 
 1. **JWT_SECRET**
+
    ```
    bbe428a7bc78d8b3247de5c80551299845e6cdc5bce963ac7f77701cf7e092f67034038f2ee0d98952c5378c4f1d86822c402a66358d5b64aa95fb176bd690ce
    ```
 
 2. **ADMIN_USERNAME**
+
    ```
    admin
    ```
 
 3. **ADMIN_PASSWORD**
+
    ```
    admin123
    ```
@@ -54,6 +57,7 @@ vercel env add NEXT_PUBLIC_APP_URL
 ```
 
 After adding environment variables, redeploy:
+
 ```bash
 vercel --prod
 ```
@@ -69,16 +73,19 @@ vercel --prod
 ## Troubleshooting
 
 ### 401 Unauthorized Errors
+
 - Verify all environment variables are set in Vercel
 - Check that JWT_SECRET matches between local and production
 - Ensure you're logged in as admin before making API calls
 
 ### Image Loading Issues
+
 - The Next.js configuration has been updated to allow Vercel Blob Storage domains
 - Redeploy after updating next.config.js
 - Verify image URLs are valid Vercel Blob Storage URLs
 
 ### After Configuration
+
 1. Add all environment variables to Vercel
 2. Redeploy the application
 3. Test admin login functionality
