@@ -1,7 +1,10 @@
 import jwt from 'jsonwebtoken'
 
 export function verifyAdminToken(authHeader: string | null): boolean {
+  console.log('Auth verification started:', { authHeader: authHeader ? 'Present' : 'Missing' })
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Auth failed: No valid auth header')
     return false
   }
 
@@ -9,13 +12,16 @@ export function verifyAdminToken(authHeader: string | null): boolean {
   const jwtSecret = process.env.JWT_SECRET
 
   if (!jwtSecret) {
+    console.log('Auth failed: No JWT_SECRET in environment')
     return false
   }
 
   try {
     const decoded = jwt.verify(token, jwtSecret) as any
+    console.log('Auth successful:', { username: decoded.username, role: decoded.role })
     return decoded.role === 'admin'
   } catch (error) {
+    console.log('Auth failed: Token verification error:', error)
     return false
   }
 }

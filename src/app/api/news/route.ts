@@ -4,6 +4,7 @@ import { NewsArticle } from '@/types'
 import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
+  console.log('GET /api/news called')
   const { searchParams } = new URL(request.url)
   const type = searchParams.get('type')
   const limit = searchParams.get('limit')
@@ -41,14 +42,23 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('POST /api/news called')
+  
   // Check authentication
   const authHeader = request.headers.get('authorization')
+  console.log('Auth header present:', !!authHeader)
+  
   if (!verifyAdminToken(authHeader)) {
+    console.log('Authentication failed')
     return createUnauthorizedResponse()
   }
 
+  console.log('Authentication successful')
+
   try {
     const body = await request.json()
+    console.log('Request body received:', { title: body.title })
+    
     const newsData: Omit<NewsArticle, 'id'> = {
       title: body.title,
       excerpt: body.excerpt,
@@ -63,6 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newArticle = await addNews(newsData)
+    console.log('News article created successfully:', newArticle.id)
 
     return NextResponse.json({
       success: true,
@@ -73,7 +84,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to create news article' 
+        error: 'Failed to create news article',
+        details: error instanceof Error ? error.message : 'Unknown error'
       }, 
       { status: 500 }
     )
