@@ -8,8 +8,12 @@ export async function apiCall(url: string, options: ApiOptions = {}) {
   const { requireAuth = false, ...fetchOptions } = options
   
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(fetchOptions.headers as Record<string, string>),
+  }
+
+  // Only add Content-Type for JSON requests
+  if (fetchOptions.body && typeof fetchOptions.body === 'string') {
+    headers['Content-Type'] = 'application/json'
   }
 
   if (requireAuth) {
@@ -50,3 +54,20 @@ export const put = (url: string, data: any, requireAuth = false) =>
 
 export const del = (url: string, requireAuth = false) => 
   apiCall(url, { method: 'DELETE', requireAuth })
+
+// Special function for authenticated file uploads
+export const authenticatedUpload = (url: string, formData: FormData) => {
+  const token = Cookies.get('auth-token')
+  
+  const headers: Record<string, string> = {}
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+
+  return fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+  })
+}

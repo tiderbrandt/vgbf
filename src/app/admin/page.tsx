@@ -7,6 +7,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { NewsArticle, Competition, Club, Sponsor } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
+import { authenticatedApiCall } from '@/lib/api'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -79,7 +80,7 @@ export default function AdminPage() {
     if (!confirm('Är du säker på att du vill ta bort denna nyhet?')) return
     
     try {
-      const response = await fetch(`/api/news?id=${article.id}`, {
+      const response = await authenticatedApiCall(`/api/news?id=${article.id}`, {
         method: 'DELETE',
       })
       
@@ -100,11 +101,8 @@ export default function AdminPage() {
     if (!confirm('Är du säker på att du vill ta bort denna tävling?')) return
     
     try {
-      const response = await fetch('/api/competitions', {
+      const response = await authenticatedApiCall('/api/competitions', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ id: competition.id }),
       })
       
@@ -125,11 +123,8 @@ export default function AdminPage() {
     if (!confirm('Är du säker på att du vill ta bort denna klubb?')) return
     
     try {
-      const response = await fetch('/api/clubs', {
+      const response = await authenticatedApiCall('/api/clubs', {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ id: club.id }),
       })
       

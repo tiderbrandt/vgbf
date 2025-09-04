@@ -7,6 +7,7 @@ import Footer from '@/components/Footer'
 import { NewsArticle } from '@/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
+import { authenticatedApiCall } from '@/lib/api'
 
 export default function NewNewsPage() {
   const router = useRouter()
@@ -74,11 +75,8 @@ export default function NewNewsPage() {
         id: Date.now().toString(),
       }
 
-      const response = await fetch('/api/news', {
+      const response = await authenticatedApiCall('/api/news', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(newsData),
       })
       

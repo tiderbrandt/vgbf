@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { useToast } from '@/contexts/ToastContext'
+import { authenticatedUpload } from '@/lib/api'
 
 interface ImageUploadProps {
   onImageUploaded: (imageUrl: string, imageAlt: string) => void
@@ -49,10 +50,7 @@ export default function ImageUpload({ onImageUploaded, currentImageUrl, currentI
       formData.append('image', file)
       formData.append('contentType', contentType)
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
+      const response = await authenticatedUpload('/api/upload', formData)
 
       const data = await response.json()
 
