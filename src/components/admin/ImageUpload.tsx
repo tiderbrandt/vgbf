@@ -45,12 +45,19 @@ export default function ImageUpload({ onImageUploaded, currentImageUrl, currentI
       }
       reader.readAsDataURL(file)
 
-      // Upload file
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('type', contentType)
-
-      const response = await authenticatedUpload('/api/upload', formData)
+      // Upload file using the Vercel Blob pattern with authentication
+      const token = document.cookie.split('auth-token=')[1]?.split(';')[0] || '';
+      
+      const response = await fetch(
+        `/api/upload?filename=${encodeURIComponent(file.name)}&type=${encodeURIComponent(contentType)}`,
+        {
+          method: 'POST',
+          body: file,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        },
+      );
 
       const data = await response.json()
 
