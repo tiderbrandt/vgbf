@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDistrictRecords, addRecord, deleteRecord } from '@/lib/records-storage'
+import { getDistrictRecords, addRecord, deleteRecord } from '@/lib/records-storage-blob'
 
 export async function GET() {
   try {

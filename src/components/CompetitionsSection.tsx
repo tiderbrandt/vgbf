@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getUpcomingCompetitions, getCompletedCompetitions } from '@/lib/competitions-storage'
+import { getUpcomingCompetitions, getCompletedCompetitions } from '@/lib/competitions-storage-blob'
 
 export default async function CompetitionsSection() {
   const upcomingCompetitions = await getUpcomingCompetitions()

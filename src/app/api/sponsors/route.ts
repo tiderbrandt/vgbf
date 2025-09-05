@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllSponsors, saveSponsor, deleteSponsor, generateSponsorId } from '@/lib/sponsors-storage'
+import { getAllSponsors, saveSponsor, deleteSponsor, generateSponsorId } from '@/lib/sponsors-storage-blob'
 import { Sponsor } from '@/types'
 
 export async function GET() {
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     const sponsor: Sponsor = {
-      id: generateSponsorId(name),
+      id: generateSponsorId(),
       name,
       description: description || '',
       website: website || '',

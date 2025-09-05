@@ -1,6 +1,6 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { getNewsBySlug, getAllNews } from '@/lib/news-storage'
+import { getNewsBySlug, getAllNews } from '@/lib/news-storage-blob'
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'

@@ -5,7 +5,7 @@ import {
   addEvent, 
   updateEvent, 
   deleteEvent 
-} from '@/lib/calendar-storage'
+} from '@/lib/calendar-storage-blob'
 import { CalendarEvent } from '@/types'
 
 export async function GET(request: NextRequest) {
@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     let events: CalendarEvent[]
     
     if (publicOnly) {
-      events = getPublicEvents()
+      events = await getPublicEvents()
     } else {
-      events = getAllEvents()
+      events = await getAllEvents()
     }
     
     // Filter by year and month if provided

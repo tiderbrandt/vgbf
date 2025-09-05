@@ -7,7 +7,7 @@ import {
   addCompetition,
   updateCompetition,
   deleteCompetition
-} from '@/lib/competitions-storage'
+} from '@/lib/competitions-storage-blob'
 import { Competition } from '@/types'
 
 export async function GET(request: NextRequest) {
