@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllClubs as getClubs, addClub, updateClub, deleteClub, getClubById } from '@/lib/clubs-storage-blob'
-import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
+import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -49,9 +49,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  if (!verifyAdminToken(authHeader)) {
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
     return createUnauthorizedResponse()
   }
 
@@ -84,9 +83,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  if (!verifyAdminToken(authHeader)) {
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
     return createUnauthorizedResponse()
   }
 
@@ -121,9 +119,8 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  if (!verifyAdminToken(authHeader)) {
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
     return createUnauthorizedResponse()
   }
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, deleteNews } from '@/lib/news-storage-blob'
 import { NewsArticle } from '@/types'
-import { verifyAdminToken, createUnauthorizedResponse } from '@/lib/auth'
+import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   console.log('GET /api/news called')
@@ -44,12 +44,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   console.log('POST /api/news called')
   
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  console.log('Auth header present:', !!authHeader)
-  
-  if (!verifyAdminToken(authHeader)) {
-    console.log('Authentication failed')
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('POST auth failed')
     return createUnauthorizedResponse()
   }
 
@@ -93,9 +90,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  if (!verifyAdminToken(authHeader)) {
+  console.log('PUT /api/news called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('PUT auth failed')
     return createUnauthorizedResponse()
   }
 
@@ -141,15 +140,19 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  if (!verifyAdminToken(authHeader)) {
+  console.log('DELETE /api/news called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('DELETE auth failed')
     return createUnauthorizedResponse()
   }
 
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
+    
+    console.log('Deleting news with ID:', id)
     
     if (!id) {
       return NextResponse.json(
@@ -173,6 +176,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    console.log('News deleted successfully:', id)
     return NextResponse.json({
       success: true,
       message: 'News article deleted successfully'
