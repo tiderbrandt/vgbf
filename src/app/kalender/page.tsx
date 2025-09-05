@@ -33,15 +33,18 @@ const EVENT_TYPE_LABELS = {
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [events, setEvents] = useState<CalendarEvent[]>([])
+  const [externalCompetitions, setExternalCompetitions] = useState<any[]>([])
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'month' | 'list'>('month')
+  const [showExternal, setShowExternal] = useState(true)
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
 
   useEffect(() => {
     fetchEvents()
+    fetchExternalCompetitions()
   }, [year, month])
 
   const fetchEvents = async () => {
@@ -56,6 +59,20 @@ export default function CalendarPage() {
       console.error('Error fetching events:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchExternalCompetitions = async () => {
+    try {
+      const response = await fetch('/api/external-competitions')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success) {
+          setExternalCompetitions(data.data)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching external competitions:', error)
     }
   }
 
@@ -93,11 +110,19 @@ export default function CalendarPage() {
 
   const getEventsForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
-    return events.filter(event => {
+    const localEvents = events.filter(event => {
       const eventStart = event.date
       const eventEnd = event.endDate || event.date
       return dateStr >= eventStart && dateStr <= eventEnd
     })
+    
+    const extEvents = showExternal ? externalCompetitions.filter(comp => {
+      const eventStart = comp.date
+      const eventEnd = comp.endDate || comp.date
+      return dateStr >= eventStart && dateStr <= eventEnd
+    }) : []
+    
+    return [...localEvents, ...extEvents]
   }
 
   const formatTime = (time: string, endTime?: string) => {
@@ -143,7 +168,7 @@ export default function CalendarPage() {
         </div>
 
         <div className="container mx-auto px-4 py-8">
-          {/* View Toggle */}
+          {/* View Toggle and External Events Toggle */}
           <div className="flex justify-between items-center mb-6">
             <div className="flex space-x-2">
               <button
@@ -166,25 +191,37 @@ export default function CalendarPage() {
               </button>
             </div>
 
-            {view === 'month' && (
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => navigateMonth('prev')}
-                  className="p-2 rounded hover:bg-gray-200"
-                >
-                  ←
-                </button>
-                <h2 className="text-xl font-semibold">
-                  {MONTHS[month]} {year}
-                </h2>
-                <button
-                  onClick={() => navigateMonth('next')}
-                  className="p-2 rounded hover:bg-gray-200"
-                >
-                  →
-                </button>
-              </div>
-            )}
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={showExternal}
+                  onChange={(e) => setShowExternal(e.target.checked)}
+                  className="mr-2 h-4 w-4 text-vgbf-blue focus:ring-vgbf-blue border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-700">Visa rikstävlingar</span>
+              </label>
+              
+              {view === 'month' && (
+                <>
+                  <button
+                    onClick={() => navigateMonth('prev')}
+                    className="p-2 rounded hover:bg-gray-200"
+                  >
+                    ←
+                  </button>
+                  <h2 className="text-xl font-semibold">
+                    {MONTHS[month]} {year}
+                  </h2>
+                  <button
+                    onClick={() => navigateMonth('next')}
+                    className="p-2 rounded hover:bg-gray-200"
+                  >
+                    →
+                  </button>
+                </>
+              )}
+            </div>
           </div>
 
           {loading && (
@@ -225,18 +262,28 @@ export default function CalendarPage() {
                       </div>
                       
                       <div className="space-y-1">
-                        {dayEvents.slice(0, 3).map(event => (
-                          <div
-                            key={event.id}
-                            onClick={() => setSelectedEvent(event)}
-                            className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 ${
-                              EVENT_TYPE_COLORS[event.type]
-                            }`}
-                          >
-                            <div className="font-medium truncate">{event.title}</div>
-                            <div className="truncate">{formatTime(event.time, event.endTime)}</div>
-                          </div>
-                        ))}
+                        {dayEvents.slice(0, 3).map(event => {
+                          const eventType = event.external ? 'competition' : (event.type || 'other')
+                          const colorClass = EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other
+                          const isExternal = event.external
+                          
+                          return (
+                            <div
+                              key={event.id}
+                              onClick={() => setSelectedEvent(event)}
+                              className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 ${colorClass} ${
+                                isExternal ? 'border-2 border-dashed' : ''
+                              }`}
+                            >
+                              <div className="font-medium truncate">
+                                {isExternal && '🏆 '}{event.title}
+                              </div>
+                              <div className="truncate">
+                                {event.time ? formatTime(event.time, event.endTime) : 'Heldag'}
+                              </div>
+                            </div>
+                          )
+                        })}
                         {dayEvents.length > 3 && (
                           <div className="text-xs text-gray-500">
                             +{dayEvents.length - 3} fler

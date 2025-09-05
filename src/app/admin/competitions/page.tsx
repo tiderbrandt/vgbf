@@ -1,33 +1,74 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ProtectedRoute from '@/components/admin/ProtectedRoute'
 import { Competition } from '@/types'
+import { useToast } from '@/contexts/ToastContext'
+import Cookies from 'js-cookie'
 
 export default function CompetitionsAdminPage() {
   const router = useRouter()
+  const { success, error } = useToast()
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
 
-  useEffect(() => {
-    loadCompetitions()
-  }, [])
-
-  const loadCompetitions = async () => {
+  const loadCompetitions = useCallback(async () => {
     try {
-      const response = await fetch('/api/competitions')
+      setLoading(true)
+      const response = await fetch('/api/competitions', {
+        headers: {
+          'Authorization': `Bearer ${Cookies.get('auth-token')}`
+        }
+      })
       const data = await response.json()
       if (data.success) {
         setCompetitions(data.data)
+      } else {
+        error('Kunde inte ladda tävlingar')
       }
-    } catch (error) {
-      console.error('Error loading competitions:', error)
+    } catch (err) {
+      console.error('Error loading competitions:', err)
+      error('Fel vid laddning av tävlingar')
     } finally {
       setLoading(false)
+    }
+  }, [error])
+
+  useEffect(() => {
+    loadCompetitions()
+  }, [loadCompetitions])
+
+  const importExternalCompetitions = async () => {
+    if (!confirm('Vill du importera tävlingar från resultat.bagskytte.se? Detta kommer att lägga till externa tävlingar till din kalender.')) {
+      return
+    }
+
+    try {
+      setImporting(true)
+      const response = await fetch('/api/external-competitions')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.data.length > 0) {
+          // Here you could add logic to actually import them to your competitions
+          // For now, we'll just show a success message
+          success(`${data.data.length} externa tävlingar hittades!`, 'Du kan nu se dem i kalendern under "Visa rikstävlingar"')
+        } else {
+          error('Inga externa tävlingar hittades')
+        }
+      } else {
+        error('Kunde inte hämta externa tävlingar')
+      }
+    } catch (err) {
+      console.error('Error importing competitions:', err)
+      error('Fel vid import av externa tävlingar')
+    } finally {
+      setImporting(false)
     }
   }
 
@@ -42,6 +83,7 @@ export default function CompetitionsAdminPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get('auth-token')}`
         },
         body: JSON.stringify({ id }),
       })
@@ -49,13 +91,13 @@ export default function CompetitionsAdminPage() {
       const data = await response.json()
       if (data.success) {
         setCompetitions(prev => prev.filter(comp => comp.id !== id))
-        alert('Tävling borttagen!')
+        success('Tävling borttagen!')
       } else {
-        alert('Fel vid borttagning: ' + data.error)
+        error('Fel vid borttagning: ' + data.error)
       }
-    } catch (error) {
-      console.error('Error deleting competition:', error)
-      alert('Fel vid borttagning av tävling')
+    } catch (err) {
+      console.error('Error deleting competition:', err)
+      error('Fel vid borttagning av tävling')
     } finally {
       setDeleting(null)
     }
@@ -107,43 +149,61 @@ export default function CompetitionsAdminPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vgbf-blue mx-auto"></div>
-            <p className="mt-4 text-gray-600">Laddar tävlingar...</p>
+      <ProtectedRoute>
+        <main className="min-h-screen bg-gray-50">
+          <Header />
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vgbf-blue mx-auto"></div>
+              <p className="mt-4 text-gray-600">Laddar tävlingar...</p>
+            </div>
           </div>
-        </div>
-        <Footer />
-      </main>
+          <Footer />
+        </main>
+      </ProtectedRoute>
     )
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold text-vgbf-blue">Hantera tävlingar</h1>
-              <div className="flex gap-4">
-                <Link
-                  href="/admin/competitions/new"
-                  className="bg-vgbf-green text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-                >
-                  Ny tävling
-                </Link>
-                <Link
+    <ProtectedRoute>
+      <main className="min-h-screen bg-gray-50">
+        <Header />
+        
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-vgbf-blue">Tävlingar</h1>
+                <p className="text-gray-600 mt-2">Hantera tävlingar och evenemang</p>
+              </div>
+              <div className="flex gap-3">
+                <Link 
                   href="/admin"
-                  className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
                 >
                   Tillbaka till admin
                 </Link>
+                <button
+                  onClick={importExternalCompetitions}
+                  disabled={importing}
+                  className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50"
+                >
+                  {importing ? 'Importerar...' : 'Importera rikstävlingar'}
+                </button>
+                <Link
+                  href="/admin/competitions/new"
+                  className="bg-vgbf-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Ny tävling
+                </Link>
               </div>
             </div>
+
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-6 bg-gray-50 border-b">
+                <h2 className="text-xl font-semibold text-gray-800">Tävlingar</h2>
+              </div>
 
             {competitions.length === 0 ? (
               <div className="text-center py-12">
@@ -224,5 +284,6 @@ export default function CompetitionsAdminPage() {
       
       <Footer />
     </main>
+  </ProtectedRoute>
   )
 }
