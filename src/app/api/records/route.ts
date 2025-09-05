@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDistrictRecords, addRecord, deleteRecord } from '@/lib/records-storage-blob'
+import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET() {
   try {
@@ -15,8 +16,17 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('POST /api/records called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('POST records auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
+    console.log('Adding record:', { category: body.category, name: body.name })
     
     // Validate required fields
     const required = ['category', 'class', 'name', 'club', 'score', 'date', 'competition', 'organizer']
@@ -30,6 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const newRecord = await addRecord(body)
+    console.log('Record added successfully:', newRecord.id)
     return NextResponse.json({ success: true, data: newRecord })
   } catch (error) {
     console.error('Error adding record:', error)
@@ -41,8 +52,17 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  console.log('DELETE /api/records called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('DELETE records auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
+    console.log('Deleting record with ID:', body.id)
     
     if (!body.id) {
       return NextResponse.json(
@@ -59,6 +79,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    console.log('Record deleted successfully:', body.id)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting record:', error)

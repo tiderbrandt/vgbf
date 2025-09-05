@@ -7,6 +7,7 @@ import {
   deleteEvent 
 } from '@/lib/calendar-storage-blob'
 import { CalendarEvent } from '@/types'
+import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -44,8 +45,18 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('POST /api/calendar called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('POST calendar auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const eventData = await request.json()
+    
+    console.log('Adding calendar event:', { title: eventData.title })
     
     // Basic validation
     if (!eventData.title || !eventData.date || !eventData.time) {
@@ -67,6 +78,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  console.log('PUT /api/calendar called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('PUT calendar auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
@@ -99,9 +118,19 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  console.log('DELETE /api/calendar called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('DELETE calendar auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
+    
+    console.log('Deleting calendar event with ID:', id)
     
     if (!id) {
       return NextResponse.json(

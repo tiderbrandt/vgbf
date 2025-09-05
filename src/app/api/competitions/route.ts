@@ -9,6 +9,7 @@ import {
   deleteCompetition
 } from '@/lib/competitions-storage-blob'
 import { Competition } from '@/types'
+import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -52,8 +53,18 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('POST /api/competitions called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('POST competitions auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
+    console.log('Adding competition:', { title: body.title })
+    
     const competitionData: Omit<Competition, 'id'> = {
       title: body.title,
       description: body.description,
@@ -93,6 +104,14 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  console.log('PUT /api/competitions called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('PUT competitions auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const body = await request.json()
     
@@ -135,9 +154,19 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  console.log('DELETE /api/competitions called')
+  
+  // Check authentication using both header and cookie
+  if (!verifyAdminAuth(request)) {
+    console.log('DELETE competitions auth failed')
+    return createUnauthorizedResponse()
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
+    
+    console.log('Deleting competition with ID:', id)
     
     if (!id) {
       return NextResponse.json(
