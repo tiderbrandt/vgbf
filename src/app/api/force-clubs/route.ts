@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { BlobStorage } from '@/lib/blob-storage'
 import { Club } from '@/types'
 
-const clubsStorage = new BlobStorage<Club>('clubs.json')
+const clubsStorage = new BlobStorage<Club>('data/clubs.json')
 
 // Import all clubs from local storage
 async function getAllClubs(): Promise<Club[]> {
