@@ -10,13 +10,22 @@ import { Competition } from '@/types'
 
 export default function CompetitionsPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
+  const [externalCompetitions, setExternalCompetitions] = useState<Competition[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingExternal, setLoadingExternal] = useState(false)
+  const [showExternal, setShowExternal] = useState(false)
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('all')
   const [categoryFilter, setCategoryFilter] = useState<'all' | Competition['category']>('all')
 
   useEffect(() => {
     loadCompetitions()
   }, [])
+
+  useEffect(() => {
+    if (showExternal && externalCompetitions.length === 0) {
+      loadExternalCompetitions()
+    }
+  }, [showExternal, externalCompetitions.length])
 
   const loadCompetitions = async () => {
     try {
@@ -32,7 +41,27 @@ export default function CompetitionsPage() {
     }
   }
 
-  const filteredCompetitions = competitions.filter(competition => {
+  const loadExternalCompetitions = async () => {
+    try {
+      setLoadingExternal(true)
+      const response = await fetch('/api/external-competitions')
+      const data = await response.json()
+      if (data.success) {
+        setExternalCompetitions(data.data)
+      }
+    } catch (error) {
+      console.error('Error loading external competitions:', error)
+    } finally {
+      setLoadingExternal(false)
+    }
+  }
+
+  // Combine local and external competitions when showing external
+  const allCompetitions = showExternal 
+    ? [...competitions, ...externalCompetitions]
+    : competitions
+
+  const filteredCompetitions = allCompetitions.filter(competition => {
     const statusMatch = filter === 'all' || competition.status === filter
     const categoryMatch = categoryFilter === 'all' || competition.category === categoryFilter
     return statusMatch && categoryMatch
@@ -197,6 +226,23 @@ export default function CompetitionsPage() {
                   <option value="other">Övrigt</option>
                 </select>
               </div>
+
+              <div className="flex gap-2 items-center">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showExternal}
+                    onChange={(e) => setShowExternal(e.target.checked)}
+                    className="w-4 h-4 text-vgbf-blue border-gray-300 rounded focus:ring-vgbf-blue"
+                  />
+                  <span className="font-medium text-gray-700">
+                    Visa rikstävlingar
+                    {loadingExternal && (
+                      <span className="ml-2 inline-block w-4 h-4 border-2 border-gray-300 border-t-vgbf-blue rounded-full animate-spin"></span>
+                    )}
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -238,7 +284,16 @@ export default function CompetitionsPage() {
                   )}
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-xl font-bold text-vgbf-blue">{competition.title}</h3>
+                      <div>
+                        <h3 className="text-xl font-bold text-vgbf-blue">{competition.title}</h3>
+                        {competition.isExternal && (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                              🔗 Rikstävling
+                            </span>
+                          </div>
+                        )}
+                      </div>
                       <div className="flex flex-col gap-1">
                         {getStatusBadge(competition.status)}
                         {getCategoryBadge(competition.category)}

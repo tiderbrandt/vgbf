@@ -60,13 +60,13 @@ function parseICS(icsContent: string) {
 
 // Convert ICS event to our Competition format
 function convertToCompetition(icsEvent: any, index: number) {
-  const name = icsEvent.summary || 'Okänd tävling'
+  const title = icsEvent.summary || 'Okänd tävling'
   const description = icsEvent.description || ''
   const location = icsEvent.location || ''
   
   // Determine category based on name/description
   let category: 'outdoor' | 'indoor' | '3d' | 'field' | 'other' = 'other'
-  const nameAndDesc = (name + ' ' + description).toLowerCase()
+  const nameAndDesc = (title + ' ' + description).toLowerCase()
   
   if (nameAndDesc.includes('utomhus') || nameAndDesc.includes('outdoor')) {
     category = 'outdoor'
@@ -92,16 +92,17 @@ function convertToCompetition(icsEvent: any, index: number) {
   
   return {
     id: `ext-${icsEvent.uid || index}`,
-    name,
+    title, // Match existing Competition interface
     description,
-    startDate: icsEvent.dtstart,
+    date: icsEvent.dtstart, // Match existing Competition interface
     endDate: icsEvent.dtend || icsEvent.dtstart,
     location,
     category,
     status,
     organizer: 'Svenska Bågskytteförbundet',
+    contactEmail: '', // Not available in ICS
     registrationDeadline: '', // Not available in ICS
-    maxParticipants: null, // Not available in ICS
+    maxParticipants: undefined, // Not available in ICS
     isExternal: true
   }
 }
@@ -142,12 +143,12 @@ export async function GET(request: NextRequest) {
     oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
     
     const filteredCompetitions = competitions.filter(comp => {
-      const startDate = new Date(comp.startDate)
+      const startDate = new Date(comp.date)
       return startDate >= thirtyDaysAgo && startDate <= oneYearFromNow
     })
     
     // Sort by start date
-    filteredCompetitions.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    filteredCompetitions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     
     console.log(`Returning ${filteredCompetitions.length} filtered competitions`)
 
@@ -190,11 +191,11 @@ export async function GET(request: NextRequest) {
           oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1)
           
           const filteredCompetitions = competitions.filter(comp => {
-            const startDate = new Date(comp.startDate)
+            const startDate = new Date(comp.date)
             return startDate >= thirtyDaysAgo && startDate <= oneYearFromNow
           })
           
-          filteredCompetitions.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+          filteredCompetitions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
           
           return NextResponse.json({
             success: true,
@@ -214,30 +215,32 @@ export async function GET(request: NextRequest) {
     const mockCompetitions = [
       {
         id: 'ext-fallback-1',
-        name: 'SM Fältbågskytte (Extern)',
+        title: 'SM Fältbågskytte (Extern)',
         description: 'Svenska mästerskapen i fältbågskytte',
-        startDate: '2025-09-20',
+        date: '2025-09-20',
         endDate: '2025-09-21',
         location: 'Göteborg',
         category: 'field' as const,
         status: 'upcoming' as const,
         organizer: 'Svenska Bågskytteförbundet',
+        contactEmail: '',
         registrationDeadline: '',
-        maxParticipants: null,
+        maxParticipants: undefined,
         isExternal: true
       },
       {
         id: 'ext-fallback-2',
-        name: 'DM Västra Götaland Utomhus',
+        title: 'DM Västra Götaland Utomhus',
         description: 'Distriktsmästerskap utomhusbågskytte',
-        startDate: '2025-09-15',
+        date: '2025-09-15',
         endDate: '2025-09-15',
         location: 'Borås',
         category: 'outdoor' as const,
         status: 'upcoming' as const,
         organizer: 'Västra Götalands Bågskytteförbund',
+        contactEmail: '',
         registrationDeadline: '',
-        maxParticipants: null,
+        maxParticipants: undefined,
         isExternal: true
       }
     ]

@@ -32,6 +32,8 @@ export interface Competition {
   fee?: string
   equipment?: string[]
   rules?: string
+  isExternal?: boolean // For external competitions from other sources
+  endDate?: string // For multi-day competitions
 }
 
 export interface DistrictRecord {
