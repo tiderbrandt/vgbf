@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { NewsArticle, Competition, Club, Sponsor } from '@/types'
+import { NewsArticle, Competition, Club, Sponsor, BoardMember } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
 import { authenticatedApiCall } from '@/lib/api'
 
@@ -16,6 +16,7 @@ export default function AdminPage() {
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [clubs, setClubs] = useState<Club[]>([])
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
+  const [boardMembers, setBoardMembers] = useState<BoardMember[]>([])
   const [loading, setLoading] = useState(true)
 
   // Load news on component mount
@@ -24,6 +25,7 @@ export default function AdminPage() {
     loadCompetitions()
     loadClubs()
     loadSponsors()
+    loadBoardMembers()
   }, [])
 
   const loadNews = async () => {
@@ -73,6 +75,20 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Error loading sponsors:', error)
+    }
+  }
+
+  const loadBoardMembers = async () => {
+    try {
+      const response = await fetch('/api/board')
+      const data = await response.json()
+      if (data.success) {
+        // Flatten all board members from all categories
+        const allMembers = Object.values(data.data).flat() as BoardMember[]
+        setBoardMembers(allMembers)
+      }
+    } catch (error) {
+      console.error('Error loading board members:', error)
     }
   }
 
@@ -337,7 +353,7 @@ export default function AdminPage() {
                 </Link>
               </div>
               <div className="mt-4 text-sm text-gray-500 text-center">
-                Styrelsemedlemmar och organisation
+                Totalt: {boardMembers.length} styrelsemedlemmar
               </div>
             </div>
           </div>
