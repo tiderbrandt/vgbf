@@ -1,6 +1,6 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
-import EnhancedNewsSection from '@/components/EnhancedNewsSection'
+import SimpleNewsSection from '@/components/SimpleNewsSection'
 import CompetitionsSection from '@/components/CompetitionsSection'
 import RecordsHighlight from '@/components/RecordsHighlight'
 import Footer from '@/components/Footer'
@@ -10,7 +10,7 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Header />
       <Hero />
-      <EnhancedNewsSection />
+      <SimpleNewsSection />
       <CompetitionsSection />
       <RecordsHighlight />
       <Footer />
