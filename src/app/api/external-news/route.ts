@@ -79,62 +79,34 @@ export async function GET() {
   try {
     // Fetch RSS feed from Riksidrottsförbundet
     const fetchOptions: RequestInit = {
-      next: { revalidate: 3600 } // Cache for 1 hour
+      next: { revalidate: 3600 }, // Cache for 1 hour
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; VGBF-NewsBot/1.0)',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+        'Cache-Control': 'no-cache'
+      }
     }
 
-    // In development, ignore SSL certificate errors
-    if (process.env.NODE_ENV === 'development') {
-      // For development, we'll use a different approach if fetch fails
-      try {
-        const response = await fetch('https://www.rf.se/rss-alla-nyheter', fetchOptions)
-        
-        if (!response.ok) {
-          throw new Error(`Failed to fetch RSS: ${response.status}`)
-        }
-        
-        const xmlText = await response.text()
-        const rssItems = parseRSSXML(xmlText)
-        const externalNews = convertToExternalNews(rssItems)
-        
-        // Return only the 3 most recent items
-        const recentNews = externalNews
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-          .slice(0, 3)
-        
-        return NextResponse.json(recentNews)
-      } catch (devError) {
-        console.log('Development mode: RSS fetch failed, returning mock data for testing')
-        // Return mock data for development testing
-        const mockNews: ExternalNewsItem[] = [
-          {
-            id: 'rf-mock-1',
-            title: 'Ny satsning på ungdomsidrott',
-            excerpt: 'Riksidrottsförbundet lanserar en ny satsning för att stärka ungdomsidrotten i Sverige. Satsningen innebär ökade resurser för föreningar.',
-            url: 'https://www.rf.se',
-            date: new Date().toISOString(),
-            source: 'Riksidrottsförbundet'
-          },
-          {
-            id: 'rf-mock-2',
-            title: 'Nya regler för tävlingsverksamhet',
-            excerpt: 'Från nästa säsong träder nya regler i kraft för tävlingsverksamheten. Läs mer om vad som ändras.',
-            url: 'https://www.rf.se',
-            date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            source: 'Riksidrottsförbundet'
-          }
-        ]
-        return NextResponse.json(mockNews)
-      }
-    } else {
-      // Production environment
+    // Always try to fetch RSS feed first, with fallback to mock data
+    try {
       const response = await fetch('https://www.rf.se/rss-alla-nyheter', fetchOptions)
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch RSS: ${response.status}`)
+        throw new Error(`Failed to fetch RSS: ${response.status} ${response.statusText}`)
       }
       
       const xmlText = await response.text()
+      
+      if (!xmlText || xmlText.trim().length === 0) {
+        throw new Error('Empty response from RSS feed')
+      }
+      
       const rssItems = parseRSSXML(xmlText)
+      
+      if (rssItems.length === 0) {
+        throw new Error('No RSS items found in feed')
+      }
+      
       const externalNews = convertToExternalNews(rssItems)
       
       // Return only the 3 most recent items
@@ -142,7 +114,41 @@ export async function GET() {
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 3)
       
+      console.log(`Successfully fetched ${recentNews.length} external news items`)
       return NextResponse.json(recentNews)
+      
+    } catch (fetchError) {
+      console.warn('RSS fetch failed, returning mock data:', fetchError)
+      
+      // Return mock data as fallback
+      const mockNews: ExternalNewsItem[] = [
+        {
+          id: 'rf-mock-1',
+          title: 'Ny satsning på ungdomsidrott',
+          excerpt: 'Riksidrottsförbundet lanserar en ny satsning för att stärka ungdomsidrotten i Sverige. Satsningen innebär ökade resurser för föreningar.',
+          url: 'https://www.rf.se',
+          date: new Date().toISOString(),
+          source: 'Riksidrottsförbundet'
+        },
+        {
+          id: 'rf-mock-2',
+          title: 'Nya regler för tävlingsverksamhet',
+          excerpt: 'Från nästa säsong träder nya regler i kraft för tävlingsverksamheten. Läs mer om vad som ändras.',
+          url: 'https://www.rf.se',
+          date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+          source: 'Riksidrottsförbundet'
+        },
+        {
+          id: 'rf-mock-3',
+          title: 'Utveckling av svensk idrott',
+          excerpt: 'En översikt av hur svensk idrott utvecklas och vilka satsningar som görs för framtiden.',
+          url: 'https://www.rf.se',
+          date: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
+          source: 'Riksidrottsförbundet'
+        }
+      ]
+      
+      return NextResponse.json(mockNews)
     }
   } catch (error) {
     console.error('Error fetching external news:', error)
