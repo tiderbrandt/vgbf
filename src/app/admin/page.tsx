@@ -315,6 +315,31 @@ export default function AdminPage() {
                 Totalt: {sponsors.length} sponsorer
               </div>
             </div>
+
+            {/* Card: Styrelsen */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Styrelsen</h2>
+                <p className="text-gray-600 mb-4">Hantera styrelseledamöter och organisationen</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
+                <Link
+                  href="/admin/board"
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-semibold text-sm text-center"
+                >
+                  Hantera styrelsen
+                </Link>
+                <Link
+                  href="/styrelsen"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
+                >
+                  Se offentlig vy
+                </Link>
+              </div>
+              <div className="mt-4 text-sm text-gray-500 text-center">
+                Styrelsemedlemmar och organisation
+              </div>
+            </div>
           </div>
 
           {/* Recent News */}

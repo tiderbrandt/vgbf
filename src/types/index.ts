@@ -122,3 +122,30 @@ export interface Sponsor {
   addedDate: string
   updatedAt: string
 }
+
+export interface BoardMember {
+  id: string
+  title: string // e.g., "Ordförande", "Sekreterare", "Kassör", "Ordinarie ledamot"
+  name: string
+  club: string
+  email?: string
+  phone?: string
+  description: string
+  order: number // For display ordering
+  category: 'board' | 'substitute' | 'auditor' | 'nomination' // Which section they belong to
+  isActive: boolean
+  addedDate: string
+  updatedAt: string
+}
+
+export interface BoardData {
+  boardMembers: BoardMember[]
+  substitutes: BoardMember[]
+  auditors: BoardMember[]
+  nominationCommittee: BoardMember[]
+  lastUpdated: string
+  meetingInfo?: {
+    description: string
+    contactInfo: string
+  }
+}

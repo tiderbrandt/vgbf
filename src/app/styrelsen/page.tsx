@@ -1,75 +1,56 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { BoardData } from '@/types'
 
 export default function StylesenPage() {
-  const boardMembers = [
-    {
-      title: 'Ordförande',
-      name: 'Bengt Idéhn',
-      club: 'BS Gothia',
-      email: 'VastraGotalandsBF@bagskytte.se',
-      phone: '0705 46 34 66',
-      description: 'Ansvarar för förbundets strategiska riktning och representation.'
-    },
-    {
-      title: 'Sekreterare',
-      name: 'Peter Svahn',
-      club: 'Vänersborg BK',
-      description: 'Ansvarar för protokoll och kommunikation.'
-    },
-    {
-      title: 'Kassör',
-      name: 'Ann Hansson',
-      club: 'Borås BS',
-      description: 'Ansvarar för förbundets ekonomi och bokföring.'
-    },
-    {
-      title: 'Ordinarie ledamot',
-      name: 'Kristian Isaksson',
-      club: 'Lindome BSK',
-      description: 'Bidrar till styrelsearbetet inom olika ansvarsområden.'
-    },
-    {
-      title: 'Ordinarie ledamot',
-      name: 'Kenth Olofsson',
-      club: 'Halmstad BF',
-      description: 'Bidrar till styrelsearbetet inom olika ansvarsområden.'
-    }
-  ]
+  const [boardData, setBoardData] = useState<BoardData | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  const substitutes = [
-    {
-      name: 'Peter Bohman',
-      club: 'Tibro BS'
-    },
-    {
-      name: 'Julia Christensen',
-      club: 'Borås BS'
-    }
-  ]
+  useEffect(() => {
+    fetchBoardData()
+  }, [])
 
-  const auditors = [
-    {
-      name: 'Eijvor Carlsson',
-      club: 'Borås BS'
-    },
-    {
-      name: 'Bo Carlsson',
-      club: 'Borås BS'
+  const fetchBoardData = async () => {
+    try {
+      const response = await fetch('/api/board')
+      const result = await response.json()
+      
+      if (result.success) {
+        setBoardData(result.data)
+      }
+    } catch (error) {
+      console.error('Error fetching board data:', error)
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
 
-  const nominationCommittee = [
-    {
-      name: 'Ellinor Ryrå',
-      club: 'BS Gothia',
-      role: 'Ordförande för valberedningen'
-    },
-    {
-      name: 'Morgan Elf',
-      club: 'Tibro BS'
-    }
-  ]
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-white">
+        <Header />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <p>Laddar styrelsedata...</p>
+        </div>
+        <Footer />
+      </main>
+    )
+  }
+
+  if (!boardData) {
+    return (
+      <main className="min-h-screen bg-white">
+        <Header />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <p>Kunde inte ladda styrelsedata.</p>
+        </div>
+        <Footer />
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-white">
@@ -90,12 +71,12 @@ export default function StylesenPage() {
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-vgbf-blue mb-4">Om styrelsen</h2>
             <p className="text-gray-600 mb-4">
-              Styrelsen för Västra Götalands Bågskytteförbund arbetar för att främja bågskyttet 
-              i regionen och stödja våra medlemsklubbar. Vi träffas regelbundet för att diskutera 
-              förbundets verksamhet, ekonomi och framtida utveckling.
+              {boardData.meetingInfo?.description || 
+               'Styrelsen för Västra Götalands Bågskytteförbund arbetar för att främja bågskyttet i regionen och stödja våra medlemsklubbar. Vi träffas regelbundet för att diskutera förbundets verksamhet, ekonomi och framtida utveckling.'}
             </p>
             <p className="text-gray-600">
-              Har du frågor eller förslag till styrelsen? Kontakta oss gärna via e-post eller telefon.
+              {boardData.meetingInfo?.contactInfo || 
+               'Har du frågor eller förslag till styrelsen? Kontakta oss gärna via e-post eller telefon.'}
             </p>
           </div>
 
@@ -106,8 +87,11 @@ export default function StylesenPage() {
             </div>
             <div className="p-6">
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {boardMembers.map((member, index) => (
-                  <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                {boardData.boardMembers
+                  .filter(member => member.isActive)
+                  .sort((a, b) => a.order - b.order)
+                  .map((member) => (
+                  <div key={member.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="mb-3">
                       <h4 className="font-semibold text-vgbf-blue text-lg">{member.name}</h4>
                       <p className="text-sm font-medium text-vgbf-green">{member.title}</p>
@@ -152,10 +136,16 @@ export default function StylesenPage() {
                 <h3 className="text-lg font-semibold">Suppleanter</h3>
               </div>
               <div className="p-6">
-                {substitutes.map((substitute, index) => (
-                  <div key={index} className="mb-3 last:mb-0">
+                {boardData.substitutes
+                  .filter(member => member.isActive)
+                  .sort((a, b) => a.order - b.order)
+                  .map((substitute) => (
+                  <div key={substitute.id} className="mb-3 last:mb-0">
                     <p className="font-medium text-gray-900">{substitute.name}</p>
                     <p className="text-sm text-gray-600">{substitute.club}</p>
+                    {substitute.description && substitute.description !== 'Suppleant i styrelsen.' && (
+                      <p className="text-sm text-gray-500 mt-1">{substitute.description}</p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -167,10 +157,16 @@ export default function StylesenPage() {
                 <h3 className="text-lg font-semibold">Revisorer</h3>
               </div>
               <div className="p-6">
-                {auditors.map((auditor, index) => (
-                  <div key={index} className="mb-3 last:mb-0">
+                {boardData.auditors
+                  .filter(member => member.isActive)
+                  .sort((a, b) => a.order - b.order)
+                  .map((auditor) => (
+                  <div key={auditor.id} className="mb-3 last:mb-0">
                     <p className="font-medium text-gray-900">{auditor.name}</p>
                     <p className="text-sm text-gray-600">{auditor.club}</p>
+                    {auditor.description && auditor.description !== 'Revisor för förbundet.' && (
+                      <p className="text-sm text-gray-500 mt-1">{auditor.description}</p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -182,12 +178,16 @@ export default function StylesenPage() {
                 <h3 className="text-lg font-semibold">Valberedning</h3>
               </div>
               <div className="p-6">
-                {nominationCommittee.map((member, index) => (
-                  <div key={index} className="mb-3 last:mb-0">
+                {boardData.nominationCommittee
+                  .filter(member => member.isActive)
+                  .sort((a, b) => a.order - b.order)
+                  .map((member) => (
+                  <div key={member.id} className="mb-3 last:mb-0">
                     <p className="font-medium text-gray-900">{member.name}</p>
                     <p className="text-sm text-gray-600">{member.club}</p>
-                    {member.role && (
-                      <p className="text-xs text-vgbf-green font-medium">{member.role}</p>
+                    <p className="text-xs text-vgbf-green font-medium">{member.title}</p>
+                    {member.description && !member.title.includes(member.description) && (
+                      <p className="text-sm text-gray-500 mt-1">{member.description}</p>
                     )}
                   </div>
                 ))}
