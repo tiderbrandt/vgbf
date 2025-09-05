@@ -9,7 +9,8 @@ Modern, responsive website for Västra Götalands Bågskytteförbund built with 
 - ⚡ Fast performance with Next.js
 - 🎨 Custom VGBF branding and colors
 - 📰 Dynamic news system with full CRUD operations
-- 🏆 Competitions section (upcoming and completed)
+- � External news integration from Riksidrottsförbundet RSS feed
+- �🏆 Competitions section (upcoming and completed)
 - 🏢 Contact information and footer
 - 🔗 Links to external resources
 - 📝 Admin interface for news management
@@ -67,6 +68,8 @@ src/
 │   ├── admin/
 │   │   └── page.tsx         # News admin interface
 │   ├── api/
+│   │   ├── external-news/
+│   │   │   └── route.ts     # External RSS news API
 │   │   └── news/
 │   │       ├── route.ts     # News API endpoints
 │   │       └── [slug]/
@@ -81,9 +84,10 @@ src/
 ├── components/
 │   ├── admin/
 │   │   └── NewsForm.tsx     # News creation/editing form
+│   ├── EnhancedNewsSection.tsx # Combined local & external news
 │   ├── Header.tsx           # Navigation header
 │   ├── Hero.tsx             # Hero section
-│   ├── NewsSection.tsx      # News display
+│   ├── NewsSection.tsx      # Original news display
 │   ├── CompetitionsSection.tsx # Competitions
 │   └── Footer.tsx           # Site footer
 ├── data/
@@ -109,38 +113,50 @@ npm run start
 
 ## News Management
 
-The website includes a complete news management system:
+The website includes a complete news management system with both local and external news sources:
 
 ### Features
 
 - **Dynamic News Loading**: News articles are loaded from a centralized data source
-- **Individual Article Pages**: Each news article has its own dedicated page
-- **Admin Interface**: Simple admin panel for managing news articles
-- **Tagging System**: Categorize news with tags
-- **Featured Articles**: Mark important news as featured
+- **External News Integration**: Automatically fetches news from Riksidrottsförbundet RSS feed
+- **Individual Article Pages**: Each local news article has its own dedicated page
+- **Admin Interface**: Simple admin panel for managing local news articles
+- **Tagging System**: Categorize local news with tags
+- **Featured Articles**: Mark important local news as featured
 - **API Endpoints**: RESTful API for news operations
+
+### External News Integration
+
+The website automatically fetches and displays news from [Riksidrottsförbundet's RSS feed](https://www.rf.se/rss-alla-nyheter):
+
+- **Automatic Updates**: News is cached for 1 hour and refreshed automatically
+- **Development Mode**: Falls back to mock data when RSS feed is unavailable (e.g., SSL certificate issues in development)
+- **Error Handling**: Gracefully handles failures and shows local news only if external fetch fails
+- **External Links**: RSS news items link directly to the original articles on RF.se
 
 ### Usage
 
 #### Viewing News
 
-- **Homepage**: Shows 4 most recent news articles
-- **News Page**: `/nyheter` - Shows all news articles in a grid layout
-- **Individual Articles**: `/nyheter/[slug]` - Full article view
+- **Homepage**: Shows both local VGBF news and external Riksidrottsförbundet news
+- **News Page**: `/nyheter` - Shows all local news articles in a grid layout
+- **Individual Articles**: `/nyheter/[slug]` - Full article view for local news
+- **External News**: Opens in new tab/window when clicked
 
 #### Managing News (Admin)
 
-- **Admin Panel**: `/admin` - Simple interface for news management
+- **Admin Panel**: `/admin` - Simple interface for local news management
 - **Add News**: Click "Lägg till nyhet" to create new articles
 - **Edit News**: Click "Redigera" on any article in the admin table
 - **Delete News**: Click "Ta bort" to remove articles
 
 #### API Endpoints
 
-- `GET /api/news` - Get all news articles
-- `GET /api/news?type=featured` - Get featured articles only
-- `GET /api/news?type=recent&limit=4` - Get recent articles with limit
-- `GET /api/news/[slug]` - Get specific article by slug
+- `GET /api/news` - Get all local news articles
+- `GET /api/news?type=featured` - Get featured local articles only
+- `GET /api/news?type=recent&limit=4` - Get recent local articles with limit
+- `GET /api/news/[slug]` - Get specific local article by slug
+- `GET /api/external-news` - Get latest news from Riksidrottsförbundet RSS feed
 
 ### Data Structure
 

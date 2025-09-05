@@ -12,6 +12,15 @@ export interface NewsArticle {
   tags?: string[]
 }
 
+export interface ExternalNewsItem {
+  id: string
+  title: string
+  excerpt: string
+  url: string
+  date: string
+  source: string
+}
+
 export interface Competition {
   id: string
   title: string
