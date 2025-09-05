@@ -1,22 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { NewsArticle } from '@/types'
-
-async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
-  try {
-    const response = await fetch(`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000'}/api/news?type=recent&limit=${limit}`, {
-      cache: 'no-store' // Ensure we get fresh data
-    })
-    if (!response.ok) {
-      throw new Error('Failed to fetch news')
-    }
-    const result = await response.json()
-    return result.success ? result.data : []
-  } catch (error) {
-    console.error('Error fetching recent news:', error)
-    return []
-  }
-}
+import { getRecentNews } from '@/lib/news-storage-blob'
 
 export default async function NewsSection() {
   let news

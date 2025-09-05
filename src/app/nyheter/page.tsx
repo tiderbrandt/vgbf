@@ -1,5 +1,6 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import { getAllNews } from '@/lib/news-storage-blob'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
@@ -10,24 +11,8 @@ export const metadata: Metadata = {
   description: 'Senaste nyheterna från Västra Götalands Bågskytteförbund',
 }
 
-async function getNews(): Promise<NewsArticle[]> {
-  try {
-    const response = await fetch(`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000'}/api/news`, {
-      cache: 'no-store' // Ensure we get fresh data
-    })
-    if (!response.ok) {
-      throw new Error('Failed to fetch news')
-    }
-    const result = await response.json()
-    return result.success ? result.data : []
-  } catch (error) {
-    console.error('Error fetching news:', error)
-    return []
-  }
-}
-
 export default async function NewsPage() {
-  const allNews = await getNews()
+  const allNews = await getAllNews()
 
   return (
     <main className="min-h-screen bg-white">
