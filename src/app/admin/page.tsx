@@ -165,7 +165,7 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-vgbf-blue">Administration</h1>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 items-stretch">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8 items-stretch">
             {/* Card: Nyheter */}
             <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
               <div>
@@ -290,10 +290,7 @@ export default function AdminPage() {
                 Lägg till och redigera evenemang
               </div>
             </div>
-          </div>
 
-          {/* Second row of cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 items-stretch">
             {/* Card: Sponsorer */}
             <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
               <div>
