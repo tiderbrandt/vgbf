@@ -1,17 +1,33 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { getAllNews } from '@/lib/news-storage'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'
+import { NewsArticle } from '@/types'
 
 export const metadata: Metadata = {
   title: 'Nyheter - Västra Götalands Bågskytteförbund',
   description: 'Senaste nyheterna från Västra Götalands Bågskytteförbund',
 }
 
+async function getNews(): Promise<NewsArticle[]> {
+  try {
+    const response = await fetch(`${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:3000'}/api/news`, {
+      cache: 'no-store' // Ensure we get fresh data
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch news')
+    }
+    const result = await response.json()
+    return result.success ? result.data : []
+  } catch (error) {
+    console.error('Error fetching news:', error)
+    return []
+  }
+}
+
 export default async function NewsPage() {
-  const allNews = await getAllNews()
+  const allNews = await getNews()
 
   return (
     <main className="min-h-screen bg-white">
@@ -26,7 +42,7 @@ export default async function NewsPage() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {allNews.map((article) => (
+          {allNews.map((article: NewsArticle) => (
             <article key={article.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
               {article.imageUrl && (
                 <div className="relative h-48 w-full">
@@ -68,7 +84,7 @@ export default async function NewsPage() {
                 
                 {article.tags && article.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {article.tags.map((tag) => (
+                    {article.tags.map((tag: string) => (
                       <span key={tag} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">
                         {tag}
                       </span>
