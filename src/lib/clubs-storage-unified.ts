@@ -2,7 +2,7 @@ import { Club } from '@/types'
 import { StorageFactory } from './storage'
 
 // Create storage instance using factory pattern
-const clubsStorage = StorageFactory.createAuto<Club>('clubs.json')
+const clubsStorage = StorageFactory.createAuto<Club>('data/clubs.json')
 
 // Default clubs data - imported from existing implementation
 const defaultClubs: Club[] = [

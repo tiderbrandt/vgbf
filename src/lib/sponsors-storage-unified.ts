@@ -2,7 +2,7 @@ import { Sponsor } from '@/types'
 import { StorageFactory } from './storage'
 
 // Create storage instance using factory pattern
-const sponsorsStorage = StorageFactory.createAuto<Sponsor>('sponsors.json')
+const sponsorsStorage = StorageFactory.createAuto<Sponsor>('data/sponsors.json')
 
 // Default sponsors data - imported from existing implementation
 const defaultSponsors: Sponsor[] = [

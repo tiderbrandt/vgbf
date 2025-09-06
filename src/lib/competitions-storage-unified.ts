@@ -2,7 +2,7 @@ import { Competition } from '@/types'
 import { StorageFactory } from './storage'
 
 // Create storage instance using factory pattern
-const competitionsStorage = StorageFactory.createAuto<Competition>('competitions.json')
+const competitionsStorage = StorageFactory.createAuto<Competition>('data/competitions.json')
 
 // Default competitions data - imported from existing implementation
 const defaultCompetitions: Competition[] = [

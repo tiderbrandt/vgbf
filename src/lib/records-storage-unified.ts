@@ -2,7 +2,7 @@ import { DistrictRecord } from '@/types'
 import { StorageFactory } from './storage'
 
 // Create storage instance using factory pattern
-const recordsStorage = StorageFactory.createAuto<DistrictRecord>('records.json')
+const recordsStorage = StorageFactory.createAuto<DistrictRecord>('data/records.json')
 
 // Default records data based on common Swedish archery categories
 const defaultRecords: DistrictRecord[] = [

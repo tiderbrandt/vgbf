@@ -2,7 +2,7 @@ import { NewsArticle } from '@/types'
 import { StorageFactory } from './storage'
 
 // Create storage instance using factory pattern
-const newsStorage = StorageFactory.createAuto<NewsArticle>('news.json')
+const newsStorage = StorageFactory.createAuto<NewsArticle>('data/news.json')
 
 // Default news data - imported from existing implementation
 const defaultNewsArticles: NewsArticle[] = [
