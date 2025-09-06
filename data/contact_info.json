@@ -1,0 +1,15 @@
+[
+  {
+    "type": "main",
+    "name": "Västra Götalands Bågskytteförbund",
+    "position": "Förbundskansli",
+    "email": "info@vgbf.se",
+    "phone": "031-999 88 77",
+    "address": "Storgatan 1",
+    "postal_code": "411 01",
+    "city": "Göteborg",
+    "description": "Huvudkontakt för frågor om föreningsfrågor och tävlingar.",
+    "active": true,
+    "display_order": 1
+  }
+]
