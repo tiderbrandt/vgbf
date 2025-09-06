@@ -78,7 +78,7 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
       const blob = await put(this.fileName, JSON.stringify(data, null, 2), {
         access: 'public',
         contentType: 'application/json',
-        allowOverwrite: true, // Allow overwriting existing blobs
+        allowOverwrite: true, // Enable overwriting existing blobs for updates
       })
       console.log(`Data written to blob storage: ${blob.url}`)
     } catch (error) {
