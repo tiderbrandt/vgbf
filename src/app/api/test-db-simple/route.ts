@@ -15,36 +15,26 @@ export async function GET() {
     
     console.log('Environment check:', envVars)
     
-    // Try to import pg
-    console.log('🔍 Testing pg import...')
-    const { Pool } = await import('pg')
-    console.log('✅ pg imported successfully')
+    // Try to import Neon serverless driver
+    console.log('🔍 Testing Neon serverless driver import...')
+    const { neon } = await import('@neondatabase/serverless')
+    console.log('✅ Neon serverless driver imported successfully')
     
-    // Try to create a pool
-    console.log('🔍 Testing pool creation...')
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-    })
-    console.log('✅ Pool created successfully')
-    
-    // Try to connect
-    console.log('🔍 Testing database connection...')
-    const client = await pool.connect()
-    console.log('✅ Connected to database')
+    // Try to create a sql function
+    console.log('🔍 Testing sql function creation...')
+    const sql = neon(process.env.DATABASE_URL!)
+    console.log('✅ SQL function created successfully')
     
     // Try a simple query
-    const result = await client.query('SELECT 1 as test')
-    console.log('✅ Query executed successfully:', result.rows[0])
-    
-    client.release()
-    await pool.end()
+    console.log('🔍 Testing database query...')
+    const result = await sql`SELECT 1 as test`
+    console.log('✅ Query executed successfully:', result[0])
     
     return NextResponse.json({
       success: true,
       message: 'Database connection test successful',
       envVars,
-      testResult: result.rows[0]
+      testResult: result[0]
     })
     
   } catch (error) {

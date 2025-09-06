@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.0.1",
     "@types/leaflet": "^1.9.20",
     "@types/pg": "^8.15.5",
     "@vercel/blob": "^1.1.1",

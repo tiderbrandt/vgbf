@@ -1,52 +1,26 @@
-import { Pool } from 'pg'
+import { neon } from '@neondatabase/serverless';
 
-// Create a PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error if connection takes longer than 2 seconds
-})
+// Create a connection function using Neon serverless driver
+export const sql = neon(process.env.DATABASE_URL!);
 
-// Handle pool errors
-pool.on('error', (err) => {
-  console.error('PostgreSQL pool error:', err)
-})
-
-export default pool
-
-// Helper function to execute queries
+// Simple query helper for direct SQL execution
 export async function query(text: string, params?: any[]) {
-  const start = Date.now()
-  const client = await pool.connect()
-  
   try {
-    const result = await client.query(text, params)
-    const duration = Date.now() - start
-    console.log('Query executed:', { text, duration, rows: result.rowCount })
-    return result
+    // For Neon serverless, we need to use template literals or direct calls
+    let result;
+    if (params && params.length > 0) {
+      // Use parameterized query format
+      result = await sql(text as any, params);
+    } else {
+      // Use template literal format
+      result = await sql`${text}`;
+    }
+    return { rows: result, rowCount: result.length };
   } catch (error) {
-    console.error('Database query error:', { text, params, error })
-    throw error
-  } finally {
-    client.release()
+    console.error('Database query error:', error);
+    throw error;
   }
 }
 
-// Helper function to execute transactions
-export async function transaction<T>(callback: (client: any) => Promise<T>): Promise<T> {
-  const client = await pool.connect()
-  
-  try {
-    await client.query('BEGIN')
-    const result = await callback(client)
-    await client.query('COMMIT')
-    return result
-  } catch (error) {
-    await client.query('ROLLBACK')
-    throw error
-  } finally {
-    client.release()
-  }
-}
+// For backwards compatibility, export sql as default
+export default sql;

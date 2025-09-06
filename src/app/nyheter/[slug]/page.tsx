@@ -11,40 +11,56 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = await getNewsBySlug(params.slug)
-  
-  if (!article) {
-    return {
-      title: 'Artikel inte hittad - VGBF',
+  try {
+    const article = await getNewsBySlug(params.slug)
+    
+    if (!article) {
+      return {
+        title: 'Artikel inte hittad - VGBF',
+      }
     }
-  }
 
-  return {
-    title: `${article.title} - Västra Götalands Bågskytteförbund`,
-    description: article.excerpt,
+    return {
+      title: `${article.title} - Västra Götalands Bågskytteförbund`,
+      description: article.excerpt,
+    }
+  } catch (error) {
+    console.warn('Failed to generate metadata for news article:', error)
+    return {
+      title: 'Nyheter - Västra Götalands Bågskytteförbund',
+      description: 'Nyheter från Västra Götalands Bågskytteförbund',
+    }
   }
 }
 
 export async function generateStaticParams() {
-  const news = await getAllNews()
-  return news.map((article) => ({
-    slug: article.slug,
-  }))
+  try {
+    const news = await getAllNews()
+    return news.map((article) => ({
+      slug: article.slug,
+    }))
+  } catch (error) {
+    console.warn('Failed to generate static params for news:', error)
+    // Return empty array to avoid build failure
+    // Pages will be generated on-demand
+    return []
+  }
 }
 
 export default async function NewsArticlePage({ params }: Props) {
-  const article = await getNewsBySlug(params.slug)
+  try {
+    const article = await getNewsBySlug(params.slug)
 
-  if (!article) {
-    notFound()
-  }
+    if (!article) {
+      notFound()
+    }
 
-  return (
-    <main className="min-h-screen bg-white">
-      <Header />
-      
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
+    return (
+      <main className="min-h-screen bg-white">
+        <Header />
+        
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
           <nav className="mb-8">
             <ol className="flex items-center space-x-2 text-sm text-gray-500">
@@ -136,4 +152,8 @@ export default async function NewsArticlePage({ params }: Props) {
       <Footer />
     </main>
   )
+  } catch (error) {
+    console.error('Error loading news article:', error)
+    notFound()
+  }
 }
