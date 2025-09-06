@@ -36,18 +36,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+export const dynamicParams = true
+
+// Don't generate any static params - make it fully dynamic
 export async function generateStaticParams() {
-  try {
-    const news = await getAllNews()
-    return news.map((article) => ({
-      slug: article.slug,
-    }))
-  } catch (error) {
-    console.warn('Failed to generate static params for news:', error)
-    // Return empty array to avoid build failure
-    // Pages will be generated on-demand
-    return []
-  }
+  // Return empty array to force dynamic rendering
+  return []
 }
 
 export default async function NewsArticlePage({ params }: Props) {
