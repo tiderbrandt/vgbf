@@ -7,11 +7,14 @@ import Footer from '@/components/Footer'
 import { Competition } from '@/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
+import { useFormState } from '@/hooks/useFormState'
 
 export default function NewCompetitionPage() {
   const router = useRouter()
   const { success, error } = useToast()
-  const [formData, setFormData] = useState({
+  
+  // Initialize form state with our custom hook
+  const { formData, updateField, reset } = useFormState({
     title: '',
     description: '',
     date: '',
@@ -30,6 +33,7 @@ export default function NewCompetitionPage() {
     imageUrl: '',
     imageAlt: '',
   })
+  
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
 
@@ -39,12 +43,12 @@ export default function NewCompetitionPage() {
     if (savedDraft) {
       try {
         const draft = JSON.parse(savedDraft)
-        setFormData(draft)
+        reset(draft)
       } catch (error) {
         console.error('Error loading draft:', error)
       }
     }
-  }, [])
+  }, [reset])
 
   // Save draft every 30 seconds
   useEffect(() => {
@@ -57,14 +61,6 @@ export default function NewCompetitionPage() {
 
     return () => clearInterval(interval)
   }, [formData])
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -110,25 +106,7 @@ export default function NewCompetitionPage() {
 
   const clearDraft = () => {
     localStorage.removeItem('competition-draft')
-    setFormData({
-      title: '',
-      description: '',
-      date: '',
-      registrationDeadline: '',
-      organizer: '',
-      location: '',
-      status: 'upcoming',
-      category: 'outdoor',
-      maxParticipants: '',
-      registrationUrl: '',
-      resultsUrl: '',
-      contactEmail: '',
-      fee: '',
-      equipment: '',
-      rules: '',
-      imageUrl: '',
-      imageAlt: '',
-    })
+    reset()
     success('Utkast raderat!', 'Utkastet har raderats och formuläret har återställts.')
   }
 
@@ -182,7 +160,7 @@ export default function NewCompetitionPage() {
                     id="title"
                     name="title"
                     value={formData.title}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('title', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. DM Utomhus 2025"
@@ -198,7 +176,7 @@ export default function NewCompetitionPage() {
                     id="organizer"
                     name="organizer"
                     value={formData.organizer}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('organizer', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. Göteborgs Bågskytteklubb"
@@ -214,7 +192,7 @@ export default function NewCompetitionPage() {
                   id="description"
                   name="description"
                   value={formData.description}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('description', e.target.value)}
                   required
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
@@ -232,7 +210,7 @@ export default function NewCompetitionPage() {
                     id="date"
                     name="date"
                     value={formData.date}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('date', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   />
@@ -247,7 +225,7 @@ export default function NewCompetitionPage() {
                     id="registrationDeadline"
                     name="registrationDeadline"
                     value={formData.registrationDeadline}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('registrationDeadline', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   />
                 </div>
@@ -261,7 +239,7 @@ export default function NewCompetitionPage() {
                     id="location"
                     name="location"
                     value={formData.location}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('location', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. Göteborg"
@@ -278,7 +256,7 @@ export default function NewCompetitionPage() {
                     id="category"
                     name="category"
                     value={formData.category}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('category', e.target.value as Competition['category'])}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   >
@@ -298,7 +276,7 @@ export default function NewCompetitionPage() {
                     id="status"
                     name="status"
                     value={formData.status}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('status', e.target.value as Competition['status'])}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   >
                     <option value="upcoming">Kommande</option>
@@ -314,7 +292,8 @@ export default function NewCompetitionPage() {
                 </label>
                 <ImageUpload
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
-                    setFormData(prev => ({ ...prev, imageUrl, imageAlt }))
+                    updateField('imageUrl', imageUrl);
+                    updateField('imageAlt', imageAlt);
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
@@ -331,7 +310,7 @@ export default function NewCompetitionPage() {
                     id="maxParticipants"
                     name="maxParticipants"
                     value={formData.maxParticipants}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('maxParticipants', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. 100"
                   />
@@ -346,7 +325,7 @@ export default function NewCompetitionPage() {
                     id="fee"
                     name="fee"
                     value={formData.fee}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('fee', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. 300 SEK"
                   />
@@ -363,7 +342,7 @@ export default function NewCompetitionPage() {
                     id="registrationUrl"
                     name="registrationUrl"
                     value={formData.registrationUrl}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('registrationUrl', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="https://..."
                   />
@@ -378,7 +357,7 @@ export default function NewCompetitionPage() {
                     id="contactEmail"
                     name="contactEmail"
                     value={formData.contactEmail}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('contactEmail', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="tavling@klubb.se"
                   />
@@ -394,7 +373,7 @@ export default function NewCompetitionPage() {
                   id="equipment"
                   name="equipment"
                   value={formData.equipment}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('equipment', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   placeholder="t.ex. Recurve bow, Arrows, Finger tab"
                 />
@@ -408,7 +387,7 @@ export default function NewCompetitionPage() {
                   id="rules"
                   name="rules"
                   value={formData.rules}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('rules', e.target.value)}
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   placeholder="Beskriv regler, vad deltagarna behöver veta, vilka klasser som finns, etc..."
