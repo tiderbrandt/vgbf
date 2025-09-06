@@ -8,6 +8,60 @@ import { ContactData, QuickLink, FAQItem } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 
+interface ContactSectionProps {
+  title: string
+  data: any
+  editing: boolean
+  onEdit: () => void
+  onSave: (data: any) => void
+  onCancel: () => void
+  fields: Array<{
+    key: string
+    label: string
+    type: string
+  }>
+}
+
+interface QuickLinkSectionProps {
+  title: string
+  items: QuickLink[]
+  onAdd: () => void
+  onEdit: (item: QuickLink) => void
+  onSave: (data: Partial<QuickLink>) => void
+  onDelete: (id: string) => void
+  onCancel: () => void
+  editingItem: QuickLink | null
+}
+
+interface FAQSectionProps {
+  title: string
+  items: FAQItem[]
+  onAdd: () => void
+  onEdit: (item: FAQItem) => void
+  onSave: (data: Partial<FAQItem>) => void
+  onDelete: (id: string) => void
+  onCancel: () => void
+  editingItem: FAQItem | null
+}
+
+interface QuickLinkItemProps {
+  link: QuickLink
+  editing: boolean
+  onEdit: () => void
+  onSave: (data: Partial<QuickLink>) => void
+  onCancel: () => void
+  onDelete: () => void
+}
+
+interface FAQItemProps {
+  faq: FAQItem
+  editing: boolean
+  onEdit: () => void
+  onSave: (data: Partial<FAQItem>) => void
+  onCancel: () => void
+  onDelete: () => void
+}
+
 export default function AdminContactPage() {
   const [contactData, setContactData] = useState<ContactData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -162,7 +216,7 @@ export default function AdminContactPage() {
                   data={contactData.mainContact}
                   editing={editingSection === 'mainContact'}
                   onEdit={() => setEditingSection('mainContact')}
-                  onSave={(data) => handleSave('mainContact', data)}
+                  onSave={(data: any) => handleSave('mainContact', data)}
                   onCancel={() => setEditingSection(null)}
                   fields={[
                     { key: 'title', label: 'Titel', type: 'text' },
@@ -179,7 +233,7 @@ export default function AdminContactPage() {
                   data={contactData.postalAddress}
                   editing={editingSection === 'postalAddress'}
                   onEdit={() => setEditingSection('postalAddress')}
-                  onSave={(data) => handleSave('postalAddress', data)}
+                  onSave={(data: any) => handleSave('postalAddress', data)}
                   onCancel={() => setEditingSection(null)}
                   fields={[
                     { key: 'name', label: 'Namn', type: 'text' },
@@ -206,7 +260,7 @@ export default function AdminContactPage() {
                   {editingSection === 'orgNumber' ? (
                     <OrgNumberEditor
                       initialValue={contactData.organizationNumber}
-                      onSave={(value) => handleSave('organizationNumber', value)}
+                      onSave={(value: any) => handleSave('organizationNumber', value)}
                       onCancel={() => setEditingSection(null)}
                     />
                   ) : (
@@ -217,15 +271,15 @@ export default function AdminContactPage() {
                 {/* Quick Links Section */}
                 <QuickLinksSection
                   quickLinks={contactData.quickLinks}
-                  onSave={(data) => handleSave('quickLink', data)}
-                  onDelete={(id) => handleDelete('quickLink', id)}
+                  onSave={(data: Partial<QuickLink>) => handleSave('quickLink', data)}
+                  onDelete={(id: string) => handleDelete('quickLink', id)}
                 />
 
                 {/* FAQ Section */}
                 <FAQSection
                   faqItems={contactData.faqItems}
-                  onSave={(data) => handleSave('faqItem', data)}
-                  onDelete={(id) => handleDelete('faqItem', id)}
+                  onSave={(data: Partial<FAQItem>) => handleSave('faqItem', data)}
+                  onDelete={(id: string) => handleDelete('faqItem', id)}
                 />
               </div>
             )}
@@ -239,7 +293,7 @@ export default function AdminContactPage() {
 }
 
 // Helper Components
-function ContactSection({ title, data, editing, onEdit, onSave, onCancel, fields }: any) {
+function ContactSection({ title, data, editing, onEdit, onSave, onCancel, fields }: ContactSectionProps) {
   const [formData, setFormData] = useState(data)
 
   useEffect(() => {
@@ -385,6 +439,7 @@ function QuickLinksSection({ quickLinks, onSave, onDelete }: any) {
         {showAddForm && (
           <QuickLinkItem
             link={{
+              id: '',
               title: '',
               description: '',
               url: '',
@@ -393,11 +448,13 @@ function QuickLinksSection({ quickLinks, onSave, onDelete }: any) {
               isActive: true
             }}
             editing={true}
-            onSave={(data) => {
+            onSave={(data: Partial<QuickLink>) => {
               onSave(data)
               setShowAddForm(false)
             }}
             onCancel={() => setShowAddForm(false)}
+            onEdit={() => {}}
+            onDelete={() => {}}
           />
         )}
       </div>
@@ -405,7 +462,7 @@ function QuickLinksSection({ quickLinks, onSave, onDelete }: any) {
   )
 }
 
-function QuickLinkItem({ link, editing, onEdit, onSave, onCancel, onDelete }: any) {
+function QuickLinkItem({ link, editing, onEdit, onSave, onCancel, onDelete }: QuickLinkItemProps) {
   const [formData, setFormData] = useState(link)
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -548,7 +605,7 @@ function FAQSection({ faqItems, onSave, onDelete }: any) {
               faq={faq}
               editing={editing === faq.id}
               onEdit={() => setEditing(faq.id)}
-              onSave={(data) => {
+              onSave={(data: Partial<FAQItem>) => {
                 onSave({ ...data, id: faq.id })
                 setEditing(null)
               }}
@@ -560,17 +617,20 @@ function FAQSection({ faqItems, onSave, onDelete }: any) {
         {showAddForm && (
           <FAQItemComponent
             faq={{
+              id: '',
               question: '',
               answer: '',
               order: faqItems.length + 1,
               isActive: true
             }}
             editing={true}
-            onSave={(data) => {
+            onSave={(data: Partial<FAQItem>) => {
               onSave(data)
               setShowAddForm(false)
             }}
             onCancel={() => setShowAddForm(false)}
+            onEdit={() => {}}
+            onDelete={() => {}}
           />
         )}
       </div>
@@ -578,7 +638,7 @@ function FAQSection({ faqItems, onSave, onDelete }: any) {
   )
 }
 
-function FAQItemComponent({ faq, editing, onEdit, onSave, onCancel, onDelete }: any) {
+function FAQItemComponent({ faq, editing, onEdit, onSave, onCancel, onDelete }: FAQItemProps) {
   const [formData, setFormData] = useState(faq)
 
   const handleSubmit = (e: React.FormEvent) => {
