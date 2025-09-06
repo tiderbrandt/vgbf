@@ -18,7 +18,6 @@ const nextConfig = {
     },
     // Force dynamic rendering for pages that require database access
     experimental: {
-        isrMemoryCacheSize: 0, // Disable ISR memory cache to prevent build-time database calls
         serverComponentsExternalPackages: []
     },
     // Add headers for better HTTPS handling in production
