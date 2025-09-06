@@ -75,14 +75,22 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
 
   async write(data: T[]): Promise<void> {
     try {
-      const blob = await put(this.fileName, JSON.stringify(data, null, 2), {
-        access: 'public',
+      console.log('BlobStorage.write - Starting write with filename:', this.fileName)
+      console.log('BlobStorage.write - Data length:', data.length)
+      
+      const putOptions = {
+        access: 'public' as const,
         contentType: 'application/json',
         allowOverwrite: true, // Enable overwriting existing blobs for updates
-      })
-      console.log(`Data written to blob storage: ${blob.url}`)
+      }
+      
+      console.log('BlobStorage.write - Put options:', putOptions)
+      console.log('BlobStorage.write - Calling put with filename:', this.fileName)
+      
+      const blob = await put(this.fileName, JSON.stringify(data, null, 2), putOptions)
+      console.log(`BlobStorage.write - Data written to blob storage: ${blob.url}`)
     } catch (error) {
-      console.error('Error writing to blob storage:', error)
+      console.error('BlobStorage.write - Error writing to blob storage:', error)
       
       // Only use fallback in development
       if (process.env.NODE_ENV !== 'production') {
