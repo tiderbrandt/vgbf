@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getClubs } from '@/lib/clubs-storage'
+import { getAllClubs } from '@/lib/clubs-storage-unified'
 import { BlobStorage } from '@/lib/blob-storage'
 import { Club } from '@/types'
 
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     console.log('Starting clubs migration...')
     
     // Get all clubs from local storage
-    const localClubs = await getClubs()
+    const localClubs = await getAllClubs()
     console.log(`Found ${localClubs.length} clubs in local storage`)
     
     // Check if blob storage already has clubs
