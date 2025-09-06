@@ -112,7 +112,16 @@ export default function AdminBoardPage() {
         setFormData(initialFormData)
         fetchBoardData()
       } else {
-        error(result.error || 'Ett fel uppstod')
+        // If board member not found, refresh data and show specific error
+        if (result.error === 'Board member not found') {
+          error('Styrelsedata har uppdaterats. Laddar om...')
+          fetchBoardData() // Refresh the board data
+          setShowForm(false)
+          setEditingMember(null)
+          setFormData(initialFormData)
+        } else {
+          error(result.error || 'Ett fel uppstod')
+        }
       }
     } catch (err) {
       console.error('Error submitting form:', err)
@@ -231,6 +240,15 @@ export default function AdminBoardPage() {
                   className="bg-vgbf-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-vgbf-green transition-colors"
                 >
                   Lägg till person
+                </button>
+                <button
+                  onClick={() => {
+                    fetchBoardData()
+                    success('Styrelsedata uppdaterad!')
+                  }}
+                  className="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+                >
+                  Uppdatera data
                 </button>
                 <Link
                   href="/admin"
