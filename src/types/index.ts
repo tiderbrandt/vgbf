@@ -149,3 +149,41 @@ export interface BoardData {
     contactInfo: string
   }
 }
+
+export interface QuickLink {
+  id: string
+  title: string
+  description: string
+  url: string
+  isExternal: boolean
+  order: number
+  isActive: boolean
+}
+
+export interface FAQItem {
+  id: string
+  question: string
+  answer: string
+  order: number
+  isActive: boolean
+}
+
+export interface ContactData {
+  mainContact: {
+    title: string
+    name: string
+    club: string
+    phone: string
+    email: string
+  }
+  postalAddress: {
+    name: string
+    street: string
+    postalCode: string
+    city: string
+  }
+  organizationNumber: string
+  quickLinks: QuickLink[]
+  faqItems: FAQItem[]
+  lastUpdated: string
+}

@@ -356,6 +356,31 @@ export default function AdminPage() {
                 Totalt: {boardMembers.length} styrelsemedlemmar
               </div>
             </div>
+
+            {/* Card: Kontaktinformation */}
+            <div className="bg-white rounded-lg shadow-md p-6 flex flex-col justify-between h-full">
+              <div>
+                <h2 className="text-xl font-bold text-vgbf-blue mb-4">Kontaktinformation</h2>
+                <p className="text-gray-600 mb-4">Hantera kontaktuppgifter och FAQ</p>
+              </div>
+              <div className="flex flex-col gap-3 mt-auto">
+                <Link
+                  href="/admin/contact"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm text-center"
+                >
+                  Hantera kontakt
+                </Link>
+                <Link
+                  href="/kontakt"
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors font-semibold text-sm text-center"
+                >
+                  Se offentlig vy
+                </Link>
+              </div>
+              <div className="mt-4 text-sm text-gray-500 text-center">
+                Kontaktinfo och FAQ
+              </div>
+            </div>
           </div>
 
           {/* Recent News */}
