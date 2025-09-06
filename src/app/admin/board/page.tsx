@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
 import { BoardMember, BoardData } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
@@ -183,34 +186,60 @@ export default function AdminBoardPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="text-center py-8">
-        <p>Du måste vara inloggad för att hantera styrelsen.</p>
-      </div>
+      <main className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <p className="text-gray-600">Du måste vara inloggad för att hantera styrelsen.</p>
+          </div>
+        </div>
+        <Footer />
+      </main>
     )
   }
 
   if (loading) {
     return (
-      <div className="text-center py-8">
-        <p>Laddar styrelsedata...</p>
-      </div>
+      <main className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vgbf-blue mx-auto"></div>
+            <p className="mt-4 text-gray-600">Laddar styrelsedata...</p>
+          </div>
+        </div>
+        <Footer />
+      </main>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Hantera Styrelsen</h1>
-        <button
-          onClick={() => {
-            setFormData({ ...initialFormData, category: activeCategory })
-            setShowForm(true)
-          }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          Lägg till person
-        </button>
-      </div>
+    <main className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-8">
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-3xl font-bold text-vgbf-blue">Hantera Styrelsen</h1>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => {
+                    setFormData({ ...initialFormData, category: activeCategory })
+                    setShowForm(true)
+                  }}
+                  className="bg-vgbf-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-vgbf-green transition-colors"
+                >
+                  Lägg till person
+                </button>
+                <Link
+                  href="/admin"
+                  className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+                >
+                  Tillbaka till admin
+                </Link>
+              </div>
+            </div>
 
       {/* Category Tabs */}
       <div className="border-b border-gray-200">
@@ -221,7 +250,7 @@ export default function AdminBoardPage() {
               onClick={() => setActiveCategory(key as any)}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeCategory === key
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-vgbf-blue text-vgbf-blue'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
@@ -246,7 +275,7 @@ export default function AdminBoardPage() {
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
                     <h4 className="text-lg font-medium text-gray-900">{member.name}</h4>
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-vgbf-blue bg-opacity-10 text-vgbf-blue">
                       {member.title}
                     </span>
                     {!member.isActive && (
@@ -260,12 +289,12 @@ export default function AdminBoardPage() {
                   </p>
                   {member.email && (
                     <p className="text-sm text-gray-600">
-                      E-post: <a href={`mailto:${member.email}`} className="text-blue-600 hover:underline">{member.email}</a>
+                      E-post: <a href={`mailto:${member.email}`} className="text-vgbf-blue hover:text-vgbf-green hover:underline">{member.email}</a>
                     </p>
                   )}
                   {member.phone && (
                     <p className="text-sm text-gray-600">
-                      Telefon: <a href={`tel:${member.phone}`} className="text-blue-600 hover:underline">{member.phone}</a>
+                      Telefon: <a href={`tel:${member.phone}`} className="text-vgbf-blue hover:text-vgbf-green hover:underline">{member.phone}</a>
                     </p>
                   )}
                   <p className="text-sm text-gray-600 mt-2">{member.description}</p>
@@ -274,7 +303,7 @@ export default function AdminBoardPage() {
                 <div className="flex space-x-2 ml-4">
                   <button
                     onClick={() => handleEdit(member)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    className="text-vgbf-blue hover:text-vgbf-green text-sm font-medium"
                   >
                     Redigera
                   </button>
@@ -326,7 +355,7 @@ export default function AdminBoardPage() {
                     <select
                       value={formData.title}
                       onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                       required
                     >
                       <option value="">Välj titel</option>
@@ -339,7 +368,7 @@ export default function AdminBoardPage() {
                       <input
                         type="text"
                         placeholder="Ange anpassad titel"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         required
                       />
@@ -357,7 +386,7 @@ export default function AdminBoardPage() {
                         category: e.target.value as any,
                         title: '' // Reset title when category changes
                       })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                       required
                     >
                       {Object.entries(categoryNames).map(([key, label]) => (
@@ -374,7 +403,7 @@ export default function AdminBoardPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                       required
                     />
                   </div>
@@ -387,7 +416,7 @@ export default function AdminBoardPage() {
                       type="text"
                       value={formData.club}
                       onChange={(e) => setFormData({ ...formData, club: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                       required
                     />
                   </div>
@@ -400,7 +429,7 @@ export default function AdminBoardPage() {
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     />
                   </div>
 
@@ -412,7 +441,7 @@ export default function AdminBoardPage() {
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     />
                   </div>
 
@@ -424,7 +453,7 @@ export default function AdminBoardPage() {
                       type="number"
                       value={formData.order}
                       onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 1 })}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                       min="1"
                     />
                   </div>
@@ -435,7 +464,7 @@ export default function AdminBoardPage() {
                       id="isActive"
                       checked={formData.isActive}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-vgbf-blue focus:ring-vgbf-blue border-gray-300 rounded"
                     />
                     <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
                       Aktiv
@@ -451,7 +480,7 @@ export default function AdminBoardPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     required
                   />
                 </div>
@@ -466,7 +495,7 @@ export default function AdminBoardPage() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="px-4 py-2 bg-vgbf-blue text-white rounded-lg hover:bg-vgbf-green"
                   >
                     {editingMember ? 'Uppdatera' : 'Lägg till'}
                   </button>
@@ -476,6 +505,11 @@ export default function AdminBoardPage() {
           </div>
         </div>
       )}
-    </div>
+          </div>
+        </div>
+      </div>
+      
+      <Footer />
+    </main>
   )
 }
