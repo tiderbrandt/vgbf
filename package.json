@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/leaflet": "^1.9.20",
+    "@types/pg": "^8.15.5",
     "@vercel/blob": "^1.1.1",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
@@ -17,6 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "next": "^14.2.32",
+    "pg": "^8.16.3",
     "react": "^18",
     "react-dom": "^18",
     "react-leaflet": "^4.2.1"
@@ -32,6 +34,7 @@
     "eslint-config-next": "14.2.5",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
