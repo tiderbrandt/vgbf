@@ -8,10 +8,10 @@ import {
   getClubsByLocation,
   getClubsWelcomingNewMembers,
   searchClubs
-} from '@/lib/clubs-storage-unified'
+} from '@/lib/clubs-storage-postgres' // Switched to PostgreSQL
 import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
-// Force cache invalidation for BlobStorage fix - v2
+// PostgreSQL implementation - v1
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
