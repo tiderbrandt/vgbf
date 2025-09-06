@@ -7,12 +7,15 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
+import { useFormState } from '@/hooks/useFormState'
 
 export default function NewSponsorPage() {
   const router = useRouter()
   const { success, error } = useToast()
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
+  
+  // Initialize form state with our custom hook
+  const { formData, updateField } = useFormState({
     name: '',
     description: '',
     website: '',
@@ -50,22 +53,9 @@ export default function NewSponsorPage() {
     }
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'number' ? parseInt(value) : 
-               type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
-               value
-    }))
-  }
-
   const handleImageUpload = (url: string, alt: string) => {
-    setFormData(prev => ({
-      ...prev,
-      logoUrl: url,
-      logoAlt: alt || prev.logoAlt || `${prev.name} logotyp`
-    }))
+    updateField('logoUrl', url);
+    updateField('logoAlt', alt || formData.logoAlt || `${formData.name} logotyp`);
   }
 
   return (
@@ -103,7 +93,7 @@ export default function NewSponsorPage() {
                     id="name"
                     name="name"
                     value={formData.name}
-                    onChange={handleInputChange}
+                    onChange={(e) => updateField('name', e.target.value)}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     placeholder="T.ex. Consid AB"
@@ -118,7 +108,7 @@ export default function NewSponsorPage() {
                     id="description"
                     name="description"
                     value={formData.description}
-                    onChange={handleInputChange}
+                    onChange={(e) => updateField('description', e.target.value)}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     placeholder="Kort beskrivning av sponsorn..."
@@ -134,7 +124,7 @@ export default function NewSponsorPage() {
                     id="website"
                     name="website"
                     value={formData.website}
-                    onChange={handleInputChange}
+                    onChange={(e) => updateField('website', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     placeholder="https://example.com"
                   />
@@ -166,7 +156,7 @@ export default function NewSponsorPage() {
                     id="logoAlt"
                     name="logoAlt"
                     value={formData.logoAlt}
-                    onChange={handleInputChange}
+                    onChange={(e) => updateField('logoAlt', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
                     placeholder="T.ex. Consid logotyp"
                   />
@@ -186,7 +176,7 @@ export default function NewSponsorPage() {
                     id="priority"
                     name="priority"
                     value={formData.priority}
-                    onChange={handleInputChange}
+                    onChange={(e) => updateField('priority', parseInt(e.target.value))}
                     min="1"
                     max="999"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
@@ -202,7 +192,7 @@ export default function NewSponsorPage() {
                       type="checkbox"
                       name="isActive"
                       checked={formData.isActive}
-                      onChange={handleInputChange}
+                      onChange={(e) => updateField('isActive', e.target.checked)}
                       className="rounded border-gray-300 text-vgbf-blue focus:ring-vgbf-blue"
                     />
                     <span className="ml-2 text-sm font-medium text-gray-700">

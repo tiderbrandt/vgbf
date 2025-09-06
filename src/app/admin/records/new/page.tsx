@@ -4,12 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/contexts/ToastContext'
+import { useFormState } from '@/hooks/useFormState'
 
 export default function NewRecordPage() {
   const router = useRouter()
   const { success, error } = useToast()
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
+  
+  // Initialize form state with our custom hook
+  const { formData, updateField } = useFormState({
     category: '',
     class: '',
     name: '',
@@ -107,7 +110,7 @@ export default function NewRecordPage() {
                 <select
                   id="category"
                   value={formData.category}
-                  onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                  onChange={(e) => updateField('category', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 >
@@ -125,7 +128,7 @@ export default function NewRecordPage() {
                 <select
                   id="class"
                   value={formData.class}
-                  onChange={(e) => setFormData(prev => ({ ...prev, class: e.target.value }))}
+                  onChange={(e) => updateField('class', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 >
@@ -144,7 +147,7 @@ export default function NewRecordPage() {
                   type="text"
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => updateField('name', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 />
@@ -158,7 +161,7 @@ export default function NewRecordPage() {
                   type="text"
                   id="club"
                   value={formData.club}
-                  onChange={(e) => setFormData(prev => ({ ...prev, club: e.target.value }))}
+                  onChange={(e) => updateField('club', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 />
@@ -172,7 +175,7 @@ export default function NewRecordPage() {
                   type="text"
                   id="score"
                   value={formData.score}
-                  onChange={(e) => setFormData(prev => ({ ...prev, score: e.target.value }))}
+                  onChange={(e) => updateField('score', e.target.value)}
                   placeholder="t.ex. 675 eller 589/600"
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
@@ -187,7 +190,7 @@ export default function NewRecordPage() {
                   type="date"
                   id="date"
                   value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={(e) => updateField('date', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 />
@@ -201,7 +204,7 @@ export default function NewRecordPage() {
                   type="text"
                   id="competition"
                   value={formData.competition}
-                  onChange={(e) => setFormData(prev => ({ ...prev, competition: e.target.value }))}
+                  onChange={(e) => updateField('competition', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 />
@@ -215,7 +218,7 @@ export default function NewRecordPage() {
                   type="url"
                   id="competitionUrl"
                   value={formData.competitionUrl}
-                  onChange={(e) => setFormData(prev => ({ ...prev, competitionUrl: e.target.value }))}
+                  onChange={(e) => updateField('competitionUrl', e.target.value)}
                   placeholder="https://resultat.bagskytte.se/..."
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                 />
@@ -229,7 +232,7 @@ export default function NewRecordPage() {
                   type="text"
                   id="organizer"
                   value={formData.organizer}
-                  onChange={(e) => setFormData(prev => ({ ...prev, organizer: e.target.value }))}
+                  onChange={(e) => updateField('organizer', e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                   required
                 />
@@ -242,7 +245,7 @@ export default function NewRecordPage() {
                 <textarea
                   id="notes"
                   value={formData.notes}
-                  onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                  onChange={(e) => updateField('notes', e.target.value)}
                   rows={3}
                   className="w-full p-3 border border-gray-300 rounded-md focus:ring-vgbf-blue focus:border-vgbf-blue"
                 />
