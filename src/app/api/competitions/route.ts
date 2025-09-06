@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { 
   getAllCompetitions, 
   getUpcomingCompetitions, 
-  getCompletedCompetitions, 
+  getPastCompetitions as getCompletedCompetitions, 
   getCompetitionsByCategory,
   addCompetition,
   updateCompetition,
   deleteCompetition
-} from '@/lib/competitions-storage-blob'
+} from '@/lib/competitions-storage-unified'
 import { Competition } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 

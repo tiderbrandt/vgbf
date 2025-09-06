@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { getRecentNews } from '@/lib/news-storage-blob'
+import { getRecentNews } from '@/lib/news-storage-unified'
 
 export default async function NewsSection() {
   let news

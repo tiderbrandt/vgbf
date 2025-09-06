@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getNewsBySlug, updateNews, deleteNews } from '@/lib/news-storage-blob'
+import { getNewsBySlug, updateNews, deleteNews } from '@/lib/news-storage-unified'
 
 export async function GET(
   request: NextRequest,

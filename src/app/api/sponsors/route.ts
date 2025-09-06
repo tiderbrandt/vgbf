@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllSponsors, saveSponsor, deleteSponsor, generateSponsorId } from '@/lib/sponsors-storage-blob'
+import { getAllSponsors, addSponsor, updateSponsor, deleteSponsor } from '@/lib/sponsors-storage-unified'
 import { Sponsor } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
+
+// Helper function to generate sponsor ID (keeping for compatibility)
+function generateSponsorId(): string {
+  return Date.now().toString()
+}
 
 export async function GET() {
   try {
@@ -38,8 +43,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const sponsor: Sponsor = {
-      id: generateSponsorId(),
+    const sponsorData = {
       name,
       description: description || '',
       website: website || '',
@@ -51,8 +55,8 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString()
     }
 
-    await saveSponsor(sponsor)
-    return NextResponse.json({ success: true, data: sponsor })
+    const newSponsor = await addSponsor(sponsorData)
+    return NextResponse.json({ success: true, data: newSponsor })
   } catch (error) {
     console.error('Error creating sponsor:', error)
     return NextResponse.json(
@@ -74,8 +78,7 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const sponsor: Sponsor = {
-      id,
+    const updateData = {
       name,
       description: description || '',
       website: website || '',
@@ -83,12 +86,19 @@ export async function PUT(request: NextRequest) {
       logoAlt: logoAlt || '',
       priority: priority || 99,
       isActive: isActive !== undefined ? isActive : true,
-      addedDate: body.addedDate || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
 
-    await saveSponsor(sponsor)
-    return NextResponse.json({ success: true, data: sponsor })
+    const updatedSponsor = await updateSponsor(id, updateData)
+    
+    if (!updatedSponsor) {
+      return NextResponse.json(
+        { success: false, error: 'Sponsor not found' },
+        { status: 404 }
+      )
+    }
+    
+    return NextResponse.json({ success: true, data: updatedSponsor })
   } catch (error) {
     console.error('Error updating sponsor:', error)
     return NextResponse.json(

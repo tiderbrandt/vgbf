@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getDistrictRecords, addRecord, deleteRecord } from '@/lib/records-storage-blob'
+import { getAllRecords as getDistrictRecords, addRecord, deleteRecord } from '@/lib/records-storage-unified'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET() {

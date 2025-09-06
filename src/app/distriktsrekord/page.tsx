@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getDistrictRecords } from '@/lib/records-storage-blob'
+import { getAllRecords as getDistrictRecords } from '@/lib/records-storage-unified'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 

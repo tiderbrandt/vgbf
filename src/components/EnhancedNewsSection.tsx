@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getRecentNews } from '@/lib/news-storage-blob'
+import { getRecentNews } from '@/lib/news-storage-unified'
 import { ExternalNewsItem, NewsArticle } from '@/types'
 import { LocalFileStorage } from '@/lib/local-storage'
 
