@@ -78,26 +78,13 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
       console.log('BlobStorage.write - Starting write with filename:', this.fileName)
       console.log('BlobStorage.write - Data length:', data.length)
       
-      // Try to delete existing blob first to avoid conflicts
-      try {
-        const existingBlobUrl = await this.getBlobUrl()
-        if (existingBlobUrl) {
-          console.log('BlobStorage.write - Deleting existing blob:', existingBlobUrl)
-          await del(existingBlobUrl)
-          console.log('BlobStorage.write - Existing blob deleted')
-        }
-      } catch (deleteError) {
-        console.log('BlobStorage.write - No existing blob to delete or delete failed:', deleteError)
-      }
-      
       const putOptions = {
         access: 'public' as const,
         contentType: 'application/json',
-        allowOverwrite: true, // Enable overwriting existing blobs for updates
+        allowOverwrite: true
       }
       
-      console.log('BlobStorage.write - Put options:', putOptions)
-      console.log('BlobStorage.write - Calling put with filename:', this.fileName)
+      console.log('BlobStorage.write - Put options:', JSON.stringify(putOptions))
       
       const blob = await put(this.fileName, JSON.stringify(data, null, 2), putOptions)
       console.log(`BlobStorage.write - Data written to blob storage: ${blob.url}`)

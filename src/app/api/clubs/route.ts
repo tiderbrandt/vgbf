@@ -11,6 +11,7 @@ import {
 } from '@/lib/clubs-storage-unified'
 import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
+// Force cache invalidation for BlobStorage fix - v2
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
