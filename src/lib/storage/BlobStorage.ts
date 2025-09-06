@@ -106,15 +106,26 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
   }
 
   async update(predicate: (item: T) => boolean, updates: Partial<T>): Promise<T | null> {
+    console.log('BlobStorage.update - Starting update process')
+    
     const data = await this.read()
+    console.log('BlobStorage.update - Read data, count:', data.length)
+    
     const index = data.findIndex(predicate)
+    console.log('BlobStorage.update - Found index:', index)
     
     if (index === -1) {
+      console.log('BlobStorage.update - Item not found')
       return null
     }
     
+    console.log('BlobStorage.update - Applying updates to item at index:', index)
     data[index] = { ...data[index], ...updates }
+    
+    console.log('BlobStorage.update - Writing updated data to storage')
     await this.write(data)
+    
+    console.log('BlobStorage.update - Update completed successfully')
     return data[index]
   }
 

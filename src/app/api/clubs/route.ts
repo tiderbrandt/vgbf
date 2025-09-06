@@ -98,30 +98,40 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
+    console.log('PUT /api/clubs - Starting update process')
+    
     const body = await request.json()
+    console.log('PUT /api/clubs - Request body parsed:', { id: body.id, hasUpdates: Object.keys(body).length })
+    
     const { id, ...updates } = body
 
     if (!id) {
+      console.log('PUT /api/clubs - Missing ID')
       return NextResponse.json(
         { success: false, error: 'Club ID is required' },
         { status: 400 }
       )
     }
 
+    console.log('PUT /api/clubs - Calling updateClub with id:', id)
     const updatedClub = await updateClub(id, updates)
+    console.log('PUT /api/clubs - updateClub result:', !!updatedClub)
     
     if (!updatedClub) {
+      console.log('PUT /api/clubs - Club not found')
       return NextResponse.json(
         { success: false, error: 'Club not found' },
         { status: 404 }
       )
     }
 
+    console.log('PUT /api/clubs - Success, returning updated club')
     return NextResponse.json({ success: true, data: updatedClub })
   } catch (error) {
-    console.error('Error updating club:', error)
+    console.error('PUT /api/clubs - Error updating club:', error)
+    console.error('PUT /api/clubs - Error stack:', error instanceof Error ? error.stack : 'No stack')
     return NextResponse.json(
-      { success: false, error: 'Failed to update club' },
+      { success: false, error: 'Failed to update club', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     )
   }
