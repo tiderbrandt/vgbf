@@ -11,9 +11,16 @@ export async function POST() {
     const schemaPath = path.join(process.cwd(), 'database', 'schema.sql')
     const schema = fs.readFileSync(schemaPath, 'utf8')
     
-    // Execute the schema using Neon serverless driver
+    // Execute the schema using Neon serverless driver with proper syntax
     console.log('📊 Creating tables and indexes...')
-    await sql(schema as any)
+    // Split the schema into individual statements and execute them
+    const statements = schema.split(';').filter(stmt => stmt.trim())
+    
+    for (const statement of statements) {
+      if (statement.trim()) {
+        await sql([statement.trim()] as any as TemplateStringsArray)
+      }
+    }
     
     console.log('✅ Database migration completed successfully!')
     

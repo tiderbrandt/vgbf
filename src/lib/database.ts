@@ -1,19 +1,22 @@
 import { neon } from '@neondatabase/serverless';
 
 // Create a connection function using Neon serverless driver
-export const sql = neon(process.env.DATABASE_URL!);
+const connectionString = process.env.DATABASE_URL!;
+
+export const sql = neon(connectionString);
 
 // Simple query helper for direct SQL execution
 export async function query(text: string, params?: any[]) {
   try {
-    // For Neon serverless, we need to use template literals or direct calls
+    // For Neon serverless, we need to use template literals
     let result;
     if (params && params.length > 0) {
-      // Use parameterized query format
-      result = await sql(text as any, params);
+      // Use parameterized query - but this needs proper handling
+      // For now, use template literals with manual substitution
+      result = await sql([text] as any as TemplateStringsArray, ...params);
     } else {
       // Use template literal format
-      result = await sql`${text}`;
+      result = await sql([text] as any as TemplateStringsArray);
     }
     return { rows: result, rowCount: result.length };
   } catch (error) {
