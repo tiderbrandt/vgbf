@@ -9,15 +9,12 @@ import Footer from '@/components/Footer'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { Club } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
-import { useFormState, useStringArrayField, useArrayField } from '@/hooks'
 
 export default function NewClubPage() {
   const router = useRouter()
   const { success, error } = useToast()
   const [loading, setLoading] = useState(false)
-  
-  // Initialize form state with our custom hook
-  const { formData, updateField } = useFormState({
+  const [formData, setFormData] = useState({
     name: '',
     description: '',
     location: '',
@@ -41,23 +38,6 @@ export default function NewClubPage() {
     imageAlt: '',
   })
 
-  // Use array field hooks for managing dynamic arrays
-  const activitiesField = useStringArrayField(
-    formData.activities,
-    (activities) => updateField('activities', activities)
-  )
-  
-  const facilitiesField = useStringArrayField(
-    formData.facilities,
-    (facilities) => updateField('facilities', facilities)
-  )
-  
-  const trainingTimesField = useArrayField(
-    formData.trainingTimes,
-    (trainingTimes) => updateField('trainingTimes', trainingTimes)
-  )
-
-  // State for new item inputs
   const [newActivity, setNewActivity] = useState('')
   const [newFacility, setNewFacility] = useState('')
   const [newTraining, setNewTraining] = useState({ day: '', time: '', type: '' })
@@ -98,34 +78,54 @@ export default function NewClubPage() {
   }
 
   const addActivity = () => {
-    if (activitiesField.addString(newActivity)) {
+    if (newActivity.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        activities: [...prev.activities, newActivity.trim()]
+      }))
       setNewActivity('')
     }
   }
 
   const removeActivity = (index: number) => {
-    activitiesField.remove(index)
+    setFormData(prev => ({
+      ...prev,
+      activities: prev.activities.filter((_, i) => i !== index)
+    }))
   }
 
   const addFacility = () => {
-    if (facilitiesField.addString(newFacility)) {
+    if (newFacility.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        facilities: [...prev.facilities, newFacility.trim()]
+      }))
       setNewFacility('')
     }
   }
 
   const removeFacility = (index: number) => {
-    facilitiesField.remove(index)
+    setFormData(prev => ({
+      ...prev,
+      facilities: prev.facilities.filter((_, i) => i !== index)
+    }))
   }
 
   const addTrainingTime = () => {
     if (newTraining.day && newTraining.time) {
-      trainingTimesField.add(newTraining)
+      setFormData(prev => ({
+        ...prev,
+        trainingTimes: [...prev.trainingTimes, newTraining]
+      }))
       setNewTraining({ day: '', time: '', type: '' })
     }
   }
 
   const removeTrainingTime = (index: number) => {
-    trainingTimesField.remove(index)
+    setFormData(prev => ({
+      ...prev,
+      trainingTimes: prev.trainingTimes.filter((_, i) => i !== index)
+    }))
   }
 
   const daysOfWeek = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag']
@@ -164,7 +164,7 @@ export default function NewClubPage() {
                       id="name"
                       required
                       value={formData.name}
-                      onChange={(e) => updateField('name', e.target.value)}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>

@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { 
-  getAllClubs, 
-  addClub, 
-  updateClub, 
-  deleteClub, 
-  getClubById,
-  getClubsByLocation,
-  getClubsWelcomingNewMembers,
-  searchClubs
-} from '@/lib/clubs-storage-unified'
+import { getAllClubs as getClubs, addClub, updateClub, deleteClub, getClubById } from '@/lib/clubs-storage-blob'
 import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
@@ -29,7 +20,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, data: club })
     }
 
-    let clubs = await getAllClubs()
+    let clubs = await getClubs()
 
     // Filter by location if specified
     if (location) {
