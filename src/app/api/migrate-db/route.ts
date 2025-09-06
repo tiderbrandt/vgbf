@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/database'
+import { sql } from '@/lib/database'
 import fs from 'fs'
 import path from 'path'
 
@@ -11,21 +11,21 @@ export async function POST() {
     const schemaPath = path.join(process.cwd(), 'database', 'schema.sql')
     const schema = fs.readFileSync(schemaPath, 'utf8')
     
-    // Execute the schema
+    // Execute the schema using Neon serverless driver
     console.log('📊 Creating tables and indexes...')
-    await query(schema)
+    await sql(schema as any)
     
     console.log('✅ Database migration completed successfully!')
     
     // Test the connection
     console.log('🔍 Testing database connection...')
-    const result = await query('SELECT COUNT(*) as count FROM clubs')
-    console.log(`📈 Clubs table ready with ${result.rows[0].count} records`)
+    const result = await sql`SELECT COUNT(*) as count FROM clubs`
+    console.log(`📈 Clubs table ready with ${result[0].count} records`)
     
     return NextResponse.json({
       success: true,
       message: 'Database migration completed successfully',
-      clubsCount: result.rows[0].count
+      clubsCount: result[0].count
     })
     
   } catch (error) {

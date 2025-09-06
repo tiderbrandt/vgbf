@@ -6,6 +6,9 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 
+// Force dynamic rendering to prevent build-time database calls
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: { slug: string }
 }

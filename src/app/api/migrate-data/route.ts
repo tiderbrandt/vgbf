@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { query } from '@/lib/database'
+import { sql } from '@/lib/database'
 import { getAllClubs as getBlobClubs } from '@/lib/clubs-storage-unified'
 
 export async function POST() {
@@ -20,8 +20,8 @@ export async function POST() {
     }
     
     // Check if clubs already exist in PostgreSQL
-    const existingResult = await query('SELECT COUNT(*) as count FROM clubs')
-    const existingCount = parseInt(existingResult.rows[0].count)
+    const existingResult = await sql`SELECT COUNT(*) as count FROM clubs`
+    const existingCount = parseInt(existingResult[0].count)
     
     if (existingCount > 0) {
       console.log(`⚠️ Found ${existingCount} existing clubs in PostgreSQL`)
@@ -38,23 +38,21 @@ export async function POST() {
     
     for (const club of blobClubs) {
       try {
-        // Insert club into PostgreSQL
-        await query(`
+        // Insert club into PostgreSQL using Neon serverless driver
+        await sql`
           INSERT INTO clubs (
             id, name, description, location, contact_person, email, phone, website,
             address, postal_code, city, established, activities, facilities,
             training_times, member_count, membership_fee, welcomes_new_members,
             facebook, instagram, image_url
           ) VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+            ${club.id}, ${club.name}, ${club.description}, ${club.location}, ${club.contactPerson},
+            ${club.email}, ${club.phone}, ${club.website}, ${club.address}, ${club.postalCode},
+            ${club.city}, ${club.established}, ${JSON.stringify(club.activities)}, ${JSON.stringify(club.facilities)},
+            ${JSON.stringify(club.trainingTimes)}, ${club.memberCount}, ${club.membershipFee},
+            ${club.welcomesNewMembers}, ${club.facebook}, ${club.instagram}, ${club.imageUrl}
           )
-        `, [
-          club.id, club.name, club.description, club.location, club.contactPerson,
-          club.email, club.phone, club.website, club.address, club.postalCode,
-          club.city, club.established, club.activities, club.facilities,
-          club.trainingTimes, club.memberCount, club.membershipFee,
-          club.welcomesNewMembers, club.facebook, club.instagram, club.imageUrl
-        ])
+        `
         
         migratedCount++
         console.log(`✅ Migrated club: ${club.name}`)
