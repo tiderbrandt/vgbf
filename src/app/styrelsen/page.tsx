@@ -243,7 +243,14 @@ export default function StylesenPage() {
 
           {/* Last Updated */}
           <div className="text-center text-sm text-gray-500">
-            Sidan uppdaterad 20 augusti 2025
+            Sidan uppdaterad {boardData.lastUpdated ? 
+              new Date(boardData.lastUpdated).toLocaleDateString('sv-SE', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+              }) : 
+              '20 augusti 2025'
+            }
           </div>
         </div>
       </div>
