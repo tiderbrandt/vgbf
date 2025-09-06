@@ -98,7 +98,9 @@ export async function addBoardMember(memberData: Omit<BoardMember, 'id' | 'added
 // Update a board member
 export async function updateBoardMember(id: string, updates: Partial<BoardMember>): Promise<BoardMember | null> {
   try {
+    console.log('updateBoardMember called with id:', id)
     const boardData = await getAllBoardData()
+    console.log('Board data loaded, checking categories...')
     
     // Find the member in all categories
     let memberFound = false
@@ -107,7 +109,9 @@ export async function updateBoardMember(id: string, updates: Partial<BoardMember
     const categories = ['boardMembers', 'substitutes', 'auditors', 'nominationCommittee'] as const
     
     for (const category of categories) {
+      console.log(`Checking category ${category}, members:`, boardData[category].map(m => ({ id: m.id, name: m.name })))
       const memberIndex = boardData[category].findIndex(member => member.id === id)
+      console.log(`Member index in ${category}:`, memberIndex)
       if (memberIndex !== -1) {
         boardData[category][memberIndex] = {
           ...boardData[category][memberIndex],
@@ -116,15 +120,19 @@ export async function updateBoardMember(id: string, updates: Partial<BoardMember
         }
         updatedMember = boardData[category][memberIndex]
         memberFound = true
+        console.log('Member found and updated:', updatedMember)
         break
       }
     }
 
     if (!memberFound) {
+      console.log('Member not found with id:', id)
       return null
     }
 
+    console.log('Saving updated board data...')
     await saveBoardData(boardData)
+    console.log('Board member updated successfully')
     return updatedMember
   } catch (error) {
     console.error('Error updating board member:', error)
