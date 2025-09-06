@@ -178,7 +178,7 @@ export default function NewClubPage() {
                       id="location"
                       required
                       value={formData.location}
-                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                      onChange={(e) => updateField('location', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -192,7 +192,7 @@ export default function NewClubPage() {
                       required
                       rows={4}
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) => updateField('description', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -205,7 +205,7 @@ export default function NewClubPage() {
                       type="text"
                       id="established"
                       value={formData.established}
-                      onChange={(e) => setFormData(prev => ({ ...prev, established: e.target.value }))}
+                      onChange={(e) => updateField('established', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -218,7 +218,7 @@ export default function NewClubPage() {
                       type="number"
                       id="memberCount"
                       value={formData.memberCount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, memberCount: e.target.value }))}
+                      onChange={(e) => updateField('memberCount', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -238,7 +238,7 @@ export default function NewClubPage() {
                       id="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => updateField('email', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -251,7 +251,7 @@ export default function NewClubPage() {
                       type="tel"
                       id="phone"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) => updateField('phone', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -264,7 +264,7 @@ export default function NewClubPage() {
                       type="text"
                       id="contactPerson"
                       value={formData.contactPerson}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
+                      onChange={(e) => updateField('contactPerson', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -277,7 +277,7 @@ export default function NewClubPage() {
                       type="url"
                       id="website"
                       value={formData.website}
-                      onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                      onChange={(e) => updateField('website', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -296,7 +296,7 @@ export default function NewClubPage() {
                       type="text"
                       id="address"
                       value={formData.address}
-                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      onChange={(e) => updateField('address', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -309,7 +309,7 @@ export default function NewClubPage() {
                       type="text"
                       id="postalCode"
                       value={formData.postalCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value }))}
+                      onChange={(e) => updateField('postalCode', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -323,7 +323,7 @@ export default function NewClubPage() {
                       id="city"
                       required
                       value={formData.city}
-                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      onChange={(e) => updateField('city', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -335,7 +335,10 @@ export default function NewClubPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Klubblogga</h3>
                 <div className="space-y-4">
                   <ImageUpload
-                    onImageUploaded={(url, alt) => setFormData(prev => ({ ...prev, imageUrl: url, imageAlt: alt }))}
+                    onImageUploaded={(url, alt) => {
+                      updateField('imageUrl', url);
+                      updateField('imageAlt', alt);
+                    }}
                     currentImageUrl={formData.imageUrl}
                     currentImageAlt={formData.imageAlt}
                     contentType="clubs"
@@ -488,7 +491,7 @@ export default function NewClubPage() {
                       type="text"
                       id="membershipFee"
                       value={formData.membershipFee}
-                      onChange={(e) => setFormData(prev => ({ ...prev, membershipFee: e.target.value }))}
+                      onChange={(e) => updateField('membershipFee', e.target.value)}
                       placeholder="t.ex. 500 kr/år"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
@@ -503,7 +506,7 @@ export default function NewClubPage() {
                         <input
                           type="radio"
                           checked={formData.welcomesNewMembers}
-                          onChange={() => setFormData(prev => ({ ...prev, welcomesNewMembers: true }))}
+                          onChange={() => updateField('welcomesNewMembers', true)}
                           className="mr-2"
                         />
                         Ja
@@ -512,7 +515,7 @@ export default function NewClubPage() {
                         <input
                           type="radio"
                           checked={!formData.welcomesNewMembers}
-                          onChange={() => setFormData(prev => ({ ...prev, welcomesNewMembers: false }))}
+                          onChange={() => updateField('welcomesNewMembers', false)}
                           className="mr-2"
                         />
                         Nej
@@ -534,7 +537,7 @@ export default function NewClubPage() {
                       type="url"
                       id="facebook"
                       value={formData.facebook}
-                      onChange={(e) => setFormData(prev => ({ ...prev, facebook: e.target.value }))}
+                      onChange={(e) => updateField('facebook', e.target.value)}
                       placeholder="https://facebook.com/..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
@@ -548,7 +551,7 @@ export default function NewClubPage() {
                       type="url"
                       id="instagram"
                       value={formData.instagram}
-                      onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
+                      onChange={(e) => updateField('instagram', e.target.value)}
                       placeholder="https://instagram.com/..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />

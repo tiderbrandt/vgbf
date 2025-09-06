@@ -25,7 +25,10 @@ export function useFormState<T extends Record<string, any>>(
     if (errors[field as string]) {
       setErrors(prev => {
         const newErrors = { ...prev }
-        delete newErrors[field as string]
+        const fieldKey = field as string
+        if (fieldKey in newErrors) {
+          delete newErrors[fieldKey]
+        }
         return newErrors
       })
     }

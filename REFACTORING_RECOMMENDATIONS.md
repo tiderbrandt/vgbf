@@ -3,11 +3,12 @@
 ## 🚨 Priority 1: Storage Layer Consolidation
 
 ### Issue: Duplicate Storage Systems
+
 Currently, the codebase maintains both local file storage and blob storage implementations for the same data:
 
 ```
 clubs-storage.ts      + clubs-storage-blob.ts
-news-storage.ts       + news-storage-blob.ts  
+news-storage.ts       + news-storage-blob.ts
 competitions-storage.ts + competitions-storage-blob.ts
 calendar-storage.ts   + calendar-storage-blob.ts
 ```
@@ -19,25 +20,32 @@ Create a unified storage interface that can switch between implementations:
 ```typescript
 // src/lib/storage/StorageInterface.ts
 export interface StorageInterface<T> {
-  read(): Promise<T[]>
-  write(data: T[]): Promise<void>
-  add(item: T): Promise<T>
-  update(predicate: (item: T) => boolean, updates: Partial<T>): Promise<T | null>
-  delete(predicate: (item: T) => boolean): Promise<boolean>
-  findOne(predicate: (item: T) => boolean): Promise<T | undefined>
+  read(): Promise<T[]>;
+  write(data: T[]): Promise<void>;
+  add(item: T): Promise<T>;
+  update(
+    predicate: (item: T) => boolean,
+    updates: Partial<T>
+  ): Promise<T | null>;
+  delete(predicate: (item: T) => boolean): Promise<boolean>;
+  findOne(predicate: (item: T) => boolean): Promise<T | undefined>;
 }
 
 // src/lib/storage/StorageFactory.ts
 export class StorageFactory {
-  static create<T>(type: 'blob' | 'local', filename: string): StorageInterface<T> {
-    return process.env.NODE_ENV === 'production' 
+  static create<T>(
+    type: "blob" | "local",
+    filename: string
+  ): StorageInterface<T> {
+    return process.env.NODE_ENV === "production"
       ? new BlobStorage(filename)
-      : new LocalStorage(filename)
+      : new LocalStorage(filename);
   }
 }
 ```
 
 **Benefits**:
+
 - Single source of truth for each entity
 - Easy environment switching
 - Reduced code duplication
@@ -48,6 +56,7 @@ export class StorageFactory {
 ## 🔧 Priority 2: Form Component Duplication
 
 ### Issue: Repeated Form Logic
+
 The club edit/new forms contain identical functions:
 
 ```typescript
@@ -65,31 +74,42 @@ const removeTrainingTime = (index: number) => { ... }
 ```typescript
 // src/hooks/useArrayField.ts
 export function useArrayField<T>(
-  initialValue: T[], 
+  initialValue: T[],
   onUpdate: (newArray: T[]) => void
 ) {
-  const add = useCallback((item: T) => {
-    onUpdate([...initialValue, item])
-  }, [initialValue, onUpdate])
+  const add = useCallback(
+    (item: T) => {
+      onUpdate([...initialValue, item]);
+    },
+    [initialValue, onUpdate]
+  );
 
-  const remove = useCallback((index: number) => {
-    onUpdate(initialValue.filter((_, i) => i !== index))
-  }, [initialValue, onUpdate])
+  const remove = useCallback(
+    (index: number) => {
+      onUpdate(initialValue.filter((_, i) => i !== index));
+    },
+    [initialValue, onUpdate]
+  );
 
-  const update = useCallback((index: number, updates: Partial<T>) => {
-    onUpdate(initialValue.map((item, i) => 
-      i === index ? { ...item, ...updates } : item
-    ))
-  }, [initialValue, onUpdate])
+  const update = useCallback(
+    (index: number, updates: Partial<T>) => {
+      onUpdate(
+        initialValue.map((item, i) =>
+          i === index ? { ...item, ...updates } : item
+        )
+      );
+    },
+    [initialValue, onUpdate]
+  );
 
-  return { add, remove, update }
+  return { add, remove, update };
 }
 
 // Usage in components:
 const { add: addActivity, remove: removeActivity } = useArrayField(
   formData.activities,
-  (activities) => setFormData(prev => ({ ...prev, activities }))
-)
+  (activities) => setFormData((prev) => ({ ...prev, activities }))
+);
 ```
 
 ---
@@ -97,13 +117,17 @@ const { add: addActivity, remove: removeActivity } = useArrayField(
 ## 🔧 Priority 3: API Route Pattern Abstraction
 
 ### Issue: Repetitive API Authentication & Error Handling
+
 Every admin API route repeats the same authentication pattern:
 
 ```typescript
 // Repeated in multiple routes
-const authResult = await verifyAdminAuth(request)
+const authResult = await verifyAdminAuth(request);
 if (!authResult.authenticated || !authResult.user) {
-  return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  return NextResponse.json(
+    { success: false, error: "Unauthorized" },
+    { status: 401 }
+  );
 }
 ```
 
@@ -115,30 +139,32 @@ export function withAuth<T extends any[]>(
   handler: (request: NextRequest, ...args: T) => Promise<NextResponse>
 ) {
   return async (request: NextRequest, ...args: T): Promise<NextResponse> => {
-    const authResult = await verifyAdminAuth(request)
+    const authResult = await verifyAdminAuth(request);
     if (!authResult.authenticated || !authResult.user) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' }, 
+        { success: false, error: "Unauthorized" },
         { status: 401 }
-      )
+      );
     }
-    
+
     try {
-      return await handler(request, ...args)
+      return await handler(request, ...args);
     } catch (error) {
-      console.error('API Error:', error)
+      console.error("API Error:", error);
       return NextResponse.json(
-        { success: false, error: 'Internal server error' },
+        { success: false, error: "Internal server error" },
         { status: 500 }
-      )
+      );
     }
-  }
+  };
 }
 
 // Usage:
-export const PUT = withAuth(async (request: NextRequest, { params }: { params: { slug: string } }) => {
-  // Authenticated handler logic
-})
+export const PUT = withAuth(
+  async (request: NextRequest, { params }: { params: { slug: string } }) => {
+    // Authenticated handler logic
+  }
+);
 ```
 
 ---
@@ -146,13 +172,14 @@ export const PUT = withAuth(async (request: NextRequest, { params }: { params: {
 ## 🔧 Priority 4: React Hook Dependencies
 
 ### Issue: Missing Dependencies in useEffect
+
 Build warnings indicate missing dependencies:
 
 ```typescript
 // In multiple files
 useEffect(() => {
-  loadClub()  // loadClub not in dependency array
-}, [id])      // Missing 'loadClub'
+  loadClub(); // loadClub not in dependency array
+}, [id]); // Missing 'loadClub'
 ```
 
 ### Recommended Solution: useCallback for Functions
@@ -160,11 +187,11 @@ useEffect(() => {
 ```typescript
 const loadClub = useCallback(async () => {
   // loading logic
-}, [id])
+}, [id]);
 
 useEffect(() => {
-  loadClub()
-}, [loadClub])
+  loadClub();
+}, [loadClub]);
 ```
 
 ---
@@ -172,14 +199,24 @@ useEffect(() => {
 ## 🔧 Priority 5: Component Prop Types
 
 ### Issue: Using 'any' Types
+
 Several components use 'any' for props, reducing type safety:
 
 ```typescript
 // Found in contact admin components
-function ContactSection({ title, data, editing, onEdit, onSave, onCancel, fields }: any)
+function ContactSection({
+  title,
+  data,
+  editing,
+  onEdit,
+  onSave,
+  onCancel,
+  fields,
+}: any);
 ```
 
 ### Recommended Solution: Proper Interface Definition
+
 ✅ **ALREADY FIXED** - This was resolved in the recent contact management system.
 
 ---
@@ -187,6 +224,7 @@ function ContactSection({ title, data, editing, onEdit, onSave, onCancel, fields
 ## 🔧 Priority 6: Image Component Optimization
 
 ### Issue: Using <img> Instead of Next.js <Image>
+
 Build warnings show performance issues:
 
 ```typescript
@@ -197,16 +235,16 @@ Build warnings show performance issues:
 ### Recommended Solution: Next.js Image Migration
 
 ```typescript
-import Image from 'next/image'
+import Image from "next/image";
 
 // Replace <img> with <Image> for automatic optimization
-<Image 
+<Image
   src={src}
   alt={alt}
   width={width}
   height={height}
   className={className}
-/>
+/>;
 ```
 
 ---
