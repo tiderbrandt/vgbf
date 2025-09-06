@@ -3,18 +3,20 @@ import { StorageInterface } from './StorageInterface'
 
 /**
  * Vercel blob storage implementation
- * Stores data in Vercel's blob storage with local fallback
+ * Stores data in Vercel's blob storage with local fallback only in development
  */
 export class BlobStorage<T extends { id: string }> implements StorageInterface<T> {
-  private fallbackStorage: any // LocalStorage instance as fallback
+  private fallbackStorage: any // LocalStorage instance as fallback (dev only)
 
   constructor(private fileName: string) {
-    // Import LocalStorage dynamically to avoid circular dependency
-    this.initializeFallback()
+    // Initialize fallback only in development
+    if (process.env.NODE_ENV !== 'production') {
+      this.initializeFallback()
+    }
   }
 
   private async initializeFallback() {
-    if (!this.fallbackStorage) {
+    if (!this.fallbackStorage && process.env.NODE_ENV !== 'production') {
       const { LocalStorage } = await import('./LocalStorage')
       this.fallbackStorage = new LocalStorage<T>(this.fileName)
     }
@@ -32,14 +34,23 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
   }
 
   async read(): Promise<T[]> {
-    await this.initializeFallback()
-    
     try {
       const blobUrl = await this.getBlobUrl()
       
       if (!blobUrl) {
-        console.log(`Blob ${this.fileName} not found, using fallback`)
-        return await this.fallbackStorage.read()
+        console.log(`Blob ${this.fileName} not found`)
+        
+        // Only use fallback in development
+        if (process.env.NODE_ENV !== 'production') {
+          await this.initializeFallback()
+          if (this.fallbackStorage) {
+            console.log('Using fallback storage (development)')
+            return await this.fallbackStorage.read()
+          }
+        }
+        
+        // Return empty array in production if no blob found
+        return []
       }
 
       const response = await fetch(blobUrl)
@@ -47,14 +58,22 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
       return Array.isArray(data) ? data : []
     } catch (error) {
       console.error('Error reading from blob storage:', error)
-      console.log('Using fallback storage')
-      return await this.fallbackStorage.read()
+      
+      // Only use fallback in development
+      if (process.env.NODE_ENV !== 'production') {
+        await this.initializeFallback()
+        if (this.fallbackStorage) {
+          console.log('Using fallback storage (development)')
+          return await this.fallbackStorage.read()
+        }
+      }
+      
+      // Return empty array in production if blob storage fails
+      return []
     }
   }
 
   async write(data: T[]): Promise<void> {
-    await this.initializeFallback()
-    
     try {
       const blob = await put(this.fileName, JSON.stringify(data, null, 2), {
         access: 'public',
@@ -63,8 +82,19 @@ export class BlobStorage<T extends { id: string }> implements StorageInterface<T
       console.log(`Data written to blob storage: ${blob.url}`)
     } catch (error) {
       console.error('Error writing to blob storage:', error)
-      console.log('Using fallback storage')
-      await this.fallbackStorage.write(data)
+      
+      // Only use fallback in development
+      if (process.env.NODE_ENV !== 'production') {
+        await this.initializeFallback()
+        if (this.fallbackStorage) {
+          console.log('Using fallback storage (development)')
+          await this.fallbackStorage.write(data)
+          return
+        }
+      }
+      
+      // Re-throw error in production to alert of storage failure
+      throw error
     }
   }
 
