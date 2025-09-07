@@ -1,4 +1,4 @@
-const { query } = require('../src/lib/database.ts')
+const { sql } = require('../src/lib/database.ts')
 const fs = require('fs')
 const path = require('path')
 
@@ -12,14 +12,16 @@ async function runMigration() {
 
         // Execute the schema
         console.log('📊 Creating tables and indexes...')
-        await query(schema)
+    // Use the exported sql helper. For multi-statement schema execution
+    // use the conventional sql.query(...) form which the helper exposes.
+    await sql.query(schema)
 
         console.log('✅ Database migration completed successfully!')
 
         // Test the connection
         console.log('🔍 Testing database connection...')
-        const result = await query('SELECT COUNT(*) as count FROM clubs')
-        console.log(`📈 Clubs table ready with ${result.rows[0].count} records`)
+    const result = await sql.query('SELECT COUNT(*) as count FROM clubs')
+    console.log(`📈 Clubs table ready with ${result.rows[0].count} records`)
 
         process.exit(0)
     } catch (error) {

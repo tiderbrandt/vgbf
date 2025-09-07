@@ -15,20 +15,15 @@ export async function GET() {
     
     console.log('Environment check:', envVars)
     
-    // Try to import Neon serverless driver
-    console.log('🔍 Testing Neon serverless driver import...')
-    const { neon } = await import('@neondatabase/serverless')
-    console.log('✅ Neon serverless driver imported successfully')
-    
-    // Try to create a sql function
-    console.log('🔍 Testing sql function creation...')
-    const sql = neon(process.env.DATABASE_URL!)
-    console.log('✅ SQL function created successfully')
-    
-    // Try a simple query
-    console.log('🔍 Testing database query...')
-    const result = await sql`SELECT 1 as test`
-    console.log('✅ Query executed successfully:', result[0])
+  // Use the project's central database helper so we respect local fallbacks
+  console.log('🔍 Testing database helper import...')
+  const { sql } = await import('../../../lib/database')
+  console.log('✅ database helper imported')
+
+  // Try a simple query
+  console.log('🔍 Testing database query...')
+  const result = await sql`SELECT 1 as test`
+  console.log('✅ Query executed successfully:', result?.rows ?? result)
     
     return NextResponse.json({
       success: true,

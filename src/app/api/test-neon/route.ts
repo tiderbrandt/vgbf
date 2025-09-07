@@ -10,20 +10,14 @@ export async function GET() {
       return NextResponse.json({ error: 'DATABASE_URL not found' }, { status: 500 })
     }
     
-    // Step 2: Try importing Neon
-    console.log('Importing Neon...')
-    const { neon } = await import('@neondatabase/serverless')
-    console.log('Neon imported successfully')
-    
-    // Step 3: Create sql function
-    console.log('Creating sql function...')
-    const sql = neon(dbUrl)
-    console.log('SQL function created')
-    
-    // Step 4: Simple query
-    console.log('Testing query...')
-    const result = await sql`SELECT 1 as test`
-    console.log('Query result:', result)
+  // Use central database helper so fallbacks are respected
+  console.log('Importing database helper...')
+  const { sql } = await import('../../../lib/database')
+  console.log('Database helper ready')
+
+  console.log('Testing query...')
+  const result = await sql`SELECT 1 as test`
+  console.log('Query result:', result?.rows ?? result)
     
     return NextResponse.json({
       success: true,

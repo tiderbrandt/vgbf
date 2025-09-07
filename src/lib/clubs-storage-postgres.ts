@@ -67,8 +67,9 @@ export async function getAllClubs(): Promise<Club[]> {
     SELECT * FROM clubs 
     ORDER BY name ASC
   `
-  
-  return result.map(dbRowToClub)
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.map(dbRowToClub)
 }
 
 /**
@@ -79,8 +80,9 @@ export async function getClubById(id: string): Promise<Club | undefined> {
     SELECT * FROM clubs 
     WHERE id = ${id}
   `
-  
-  return result.length > 0 ? dbRowToClub(result[0]) : undefined
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.length > 0 ? dbRowToClub(rows[0]) : undefined
 }
 
 /**
@@ -104,8 +106,9 @@ export async function addClub(clubData: Omit<Club, 'id'>): Promise<Club> {
       ${dbRow.instagram}, ${dbRow.image_url}
     ) RETURNING *
   `
-  
-  return dbRowToClub(result[0])
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  if (rows.length === 0) throw new Error('Insert returned no rows')
+  return dbRowToClub(rows[0])
 }
 
 /**
@@ -114,7 +117,9 @@ export async function addClub(clubData: Omit<Club, 'id'>): Promise<Club> {
 export async function updateClub(id: string, clubData: Partial<Club>): Promise<Club | null> {
   const dbRow = clubToDbRow(clubData)
   
-  const result = await sql`
+  let result
+  try {
+    result = await sql`
     UPDATE clubs SET
       name = ${dbRow.name},
       description = ${dbRow.description},
@@ -140,20 +145,33 @@ export async function updateClub(id: string, clubData: Partial<Club>): Promise<C
     WHERE id = ${id}
     RETURNING *
   `
-  
-  return result.length > 0 ? dbRowToClub(result[0]) : null
+  } catch (error) {
+    console.error('DB error in updateClub:', error && (error as any).message ? (error as any).message : String(error))
+    // rethrow so caller can handle
+    throw error
+  }
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.length > 0 ? dbRowToClub(rows[0]) : null
 }
 
 /**
  * Delete a club
  */
 export async function deleteClub(id: string): Promise<boolean> {
-  const result = await sql`
-    DELETE FROM clubs 
-    WHERE id = ${id}
-  `
-  
-  return result.length > 0
+  try {
+    const result = await sql`
+      DELETE FROM clubs 
+      WHERE id = ${id}
+      RETURNING id
+    `
+
+    const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+    return rows.length > 0
+  } catch (error) {
+    console.error('DB error in deleteClub:', error && (error as any).message ? (error as any).message : String(error))
+    throw error
+  }
 }
 
 /**
@@ -163,8 +181,9 @@ export async function getClubsCount(): Promise<number> {
   const result = await sql`
     SELECT COUNT(*) as count FROM clubs
   `
-  
-  return parseInt(result[0].count)
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.length > 0 ? parseInt(rows[0].count) : 0
 }
 
 /**
@@ -178,8 +197,9 @@ export async function searchClubs(searchTerm: string): Promise<Club[]> {
        OR city ILIKE ${`%${searchTerm}%`}
     ORDER BY name ASC
   `
-  
-  return result.map(dbRowToClub)
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.map(dbRowToClub)
 }
 
 /**
@@ -192,8 +212,9 @@ export async function getClubsByLocation(location: string): Promise<Club[]> {
        OR city ILIKE ${`%${location}%`}
     ORDER BY name ASC
   `
-  
-  return result.map(dbRowToClub)
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.map(dbRowToClub)
 }
 
 /**
@@ -205,6 +226,7 @@ export async function getClubsWelcomingNewMembers(): Promise<Club[]> {
     WHERE welcomes_new_members = true
     ORDER BY name ASC
   `
-  
-  return result.map(dbRowToClub)
+
+  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
+  return rows.map(dbRowToClub)
 }

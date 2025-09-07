@@ -1,4 +1,4 @@
-import { query } from '../src/lib/database'
+import { sql } from '../src/lib/database'
 import fs from 'fs'
 import path from 'path'
 
@@ -12,14 +12,16 @@ async function runMigration() {
     
     // Execute the schema
     console.log('📊 Creating tables and indexes...')
-    await query(schema)
+  // For multi-statement schema execution use sql.query(...) which the
+  // centralized helper provides and which supports both neon and pg fallbacks.
+  await sql.query(schema)
     
     console.log('✅ Database migration completed successfully!')
     
     // Test the connection
     console.log('🔍 Testing database connection...')
-    const result = await query('SELECT COUNT(*) as count FROM clubs')
-    console.log(`📈 Clubs table ready with ${result.rows[0].count} records`)
+  const result = await sql.query('SELECT COUNT(*) as count FROM clubs')
+  console.log(`📈 Clubs table ready with ${result.rows[0].count} records`)
     
     process.exit(0)
   } catch (error) {

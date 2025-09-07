@@ -115,8 +115,18 @@ export async function PUT(request: NextRequest) {
     }
 
     console.log('PUT /api/clubs - Calling updateClub with id:', id)
-    const updatedClub = await updateClub(id, updates)
-    console.log('PUT /api/clubs - updateClub result:', !!updatedClub)
+    let updatedClub
+    try {
+      updatedClub = await updateClub(id, updates)
+      console.log('PUT /api/clubs - updateClub result:', !!updatedClub)
+    } catch (e) {
+      // Serialize error including non-enumerable properties
+      const ser = (err: any) => {
+        try { return JSON.stringify(err, Object.getOwnPropertyNames(err)) } catch (_) { return String(err) }
+      }
+      console.error('PUT /api/clubs - updateClub threw:', ser(e))
+      throw e
+    }
     
     if (!updatedClub) {
       console.log('PUT /api/clubs - Club not found')

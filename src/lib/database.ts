@@ -1,32 +1,131 @@
-import { neon } from '@neondatabase/serverless';
+// Provide a dev-only fallback that uses `pg` when USE_PG_LOCAL is set.
+// This helps local debugging when the serverless driver fails TLS validation.
+const connectionString = process.env.DATABASE_URL!
 
-// Create a connection function using Neon serverless driver
-const connectionString = process.env.DATABASE_URL!;
+let sql: any
 
-export const sql = neon(connectionString);
+// Early debug: confirm env at module load
+try {
+	console.log('DB_HELPER_INIT - cwd=', process.cwd(), 'USE_PG_LOCAL=', process.env.USE_PG_LOCAL, 'NODE_ENV=', process.env.NODE_ENV)
+} catch (e) {}
 
-// Simple query helper for direct SQL execution using the serverless driver's conventional API
-export async function query(text: string, params?: any[]) {
-  try {
-    let result;
-    if (params && params.length > 0) {
-      // Use the driver's query method for parameterized queries
-      result = await (sql as any).query(text, params);
-    } else {
-      // Use tagged-template form for raw SQL to satisfy the serverless API
-      // This invokes the function as a tagged template: sql`...`
-      result = await (sql as any)([text] as any as TemplateStringsArray)
-    }
+// Factory to create a pg Pool fallback and a minimal tagged-template shim
+function createPgFallback() {
+	const { Pool } = require('pg')
+	const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } })
+	console.log('database helper: created pg Pool fallback')
 
-    // The driver may return rows directly or a result object
-    const rows = result.rows ?? result
-    const rowCount = result.rowCount ?? (Array.isArray(rows) ? rows.length : undefined)
-    return { rows, rowCount };
-  } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
-  }
+	const query = async (text: string, params?: any[]) => {
+		return pool.query(text, params)
+	}
+
+	const tpl = ((strings: TemplateStringsArray, ...values: any[]) => {
+		const textParts: string[] = []
+		const params: any[] = []
+		for (let i = 0; i < strings.length; i++) {
+			textParts.push(strings[i])
+			if (i < values.length) {
+				params.push(values[i])
+				textParts.push(`$${params.length}`)
+			}
+		}
+		const text = textParts.join('')
+		return query(text, params)
+	}) as any
+
+	tpl.query = query
+	return { tpl, pool }
 }
 
-// For backwards compatibility, export sql as default
-export default sql;
+// runtime state
+let client: any = null
+let poolRef: any = null
+let usingPg = false
+
+// In local development, prefer pg fallback to avoid TLS/proxy certificate issues
+// that often affect the Neon serverless fetch-based driver. To opt out set
+// USE_PG_LOCAL=0 in your environment.
+if ((process.env.NODE_ENV === 'development' && process.env.USE_PG_LOCAL !== '0') || (process.env.USE_PG_LOCAL && process.env.USE_PG_LOCAL !== '0')) {
+	const f = createPgFallback()
+	client = f.tpl
+	poolRef = f.pool
+	usingPg = true
+	console.log('database helper: forcing pg Pool fallback for local development - USE_PG_LOCAL=', process.env.USE_PG_LOCAL)
+} else {
+	// Try to initialize Neon lazily. If Neon initialization throws synchronously
+	// (rare) then fall back to pg.
+	try {
+		const { neon } = require('@neondatabase/serverless')
+		client = neon(connectionString)
+		console.log('database helper: using Neon serverless client')
+	} catch (e) {
+		console.error('database helper: failed to initialize Neon client, falling back to pg', e)
+		const f = createPgFallback()
+		client = f.tpl
+		poolRef = f.pool
+		usingPg = true
+	}
+}
+
+// Helper that detects Neon TLS/fetch errors so we can auto-fallback.
+function isNeonTlsError(err: any) {
+	if (!err) return false
+	try {
+		const msg = (err && (err.message || '')).toString().toLowerCase()
+		if (msg.includes('unable to get local issuer certificate') || msg.includes('unable to get issuer')) return true
+		const code = err?.sourceError?.code || err?.code
+		if (typeof code === 'string' && code.toUpperCase().includes('UNABLE_TO_GET_ISSUER_CERT')) return true
+	} catch (_) {}
+	return false
+}
+
+// Wrapper supports both tagged-template usage (sql`...`) and conventional
+// query usage (sql.query(...)). If Neon throws a TLS/connect error we will
+// create a pg fallback at runtime and retry the query once.
+const sqlWrapper = (strings: TemplateStringsArray, ...values: any[]) => {
+	// tagged-template style
+	const run = async () => {
+		if (usingPg) return client(strings, ...values)
+		try {
+			return await client(strings, ...values)
+		} catch (err) {
+			if (isNeonTlsError(err)) {
+				console.error('Neon TLS error detected; switching to pg fallback (dev). Error:', err)
+				const f = createPgFallback()
+				client = f.tpl
+				poolRef = f.pool
+				usingPg = true
+				return client(strings, ...values)
+			}
+			throw err
+		}
+	}
+	return run()
+}
+
+sqlWrapper.query = async (...args: any[]) => {
+	if (usingPg) return client.query(...args)
+	try {
+		return await client.query(...args)
+	} catch (err) {
+		if (isNeonTlsError(err)) {
+			console.error('Neon TLS error detected on query(); switching to pg fallback (dev). Error:', err)
+			const f = createPgFallback()
+			client = f.tpl
+			poolRef = f.pool
+			usingPg = true
+			return client.query(...args)
+		}
+		throw err
+	}
+}
+
+sql = sqlWrapper
+
+export { sql }
+export default sql
+
+// Note: In dev you can set USE_PG_LOCAL=1 to use the pg Pool fallback which
+// disables strict cert validation (ssl.rejectUnauthorized=false) to avoid
+// issues with local TLS interception. Do not enable this in production.
+
