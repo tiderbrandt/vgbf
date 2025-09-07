@@ -31,9 +31,9 @@ function dbRowToClub(row: any): Club {
     postalCode: row.postal_code || '',
     city: row.city || '',
     established: row.established || '',
-    activities: parseJsonArray(row.activities),
-    facilities: parseJsonArray(row.facilities),
-    trainingTimes: parseJsonArray(row.training_times),
+    activities: Array.isArray(row.activities) ? row.activities : [], // PostgreSQL arrays come as JS arrays
+    facilities: Array.isArray(row.facilities) ? row.facilities : [], // PostgreSQL arrays come as JS arrays
+    trainingTimes: parseJsonArray(row.training_times), // JSONB needs parsing
     memberCount: row.member_count || 0,
     membershipFee: row.membership_fee || '',
     welcomesNewMembers: row.welcomes_new_members !== false,
@@ -57,9 +57,9 @@ function clubToDbRow(club: Partial<Club>): any {
     postal_code: club.postalCode,
     city: club.city,
     established: club.established,
-    activities: JSON.stringify(club.activities || []),
-    facilities: JSON.stringify(club.facilities || []),
-    training_times: JSON.stringify(club.trainingTimes || []),
+    activities: Array.isArray(club.activities) ? club.activities : [], // PostgreSQL TEXT[]
+    facilities: Array.isArray(club.facilities) ? club.facilities : [], // PostgreSQL TEXT[]
+    training_times: JSON.stringify(club.trainingTimes || []), // JSONB
     member_count: club.memberCount || 0,
     membership_fee: club.membershipFee,
     welcomes_new_members: club.welcomesNewMembers !== false,
@@ -155,7 +155,11 @@ export async function updateClub(id: string, clubData: Partial<Club>): Promise<C
   for (const [key, column] of Object.entries(fieldMappings)) {
     if (Object.prototype.hasOwnProperty.call(clubData, key)) {
       let value: any = (clubData as any)[key]
-      if (key === 'activities' || key === 'facilities' || key === 'trainingTimes') {
+      if (key === 'activities' || key === 'facilities') {
+        // PostgreSQL TEXT[] arrays need to be passed as JavaScript arrays
+        value = Array.isArray(value) ? value : []
+      } else if (key === 'trainingTimes') {
+        // training_times is JSONB, so stringify
         value = JSON.stringify(value || [])
       }
       if (key === 'welcomesNewMembers') {
