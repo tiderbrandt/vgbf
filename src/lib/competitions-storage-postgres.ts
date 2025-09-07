@@ -73,7 +73,7 @@ function competitionToDbRow(competition: Partial<Competition>): any {
  */
 export async function getAllCompetitions(): Promise<Competition[]> {
   try {
-    const rows = await sql`SELECT * FROM competitions ORDER BY date ASC`
+    const rows = await sql`SELECT * FROM competitions ORDER BY start_date ASC`
     return rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting all competitions:', error)
@@ -89,7 +89,7 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
     const rows = await sql`
       SELECT * FROM competitions 
       WHERE date >= CURRENT_DATE AND status = 'upcoming'
-      ORDER BY date ASC
+      ORDER BY start_date ASC
     `
     return rows.map(dbRowToCompetition)
   } catch (error) {
@@ -106,7 +106,7 @@ export async function getPastCompetitions(): Promise<Competition[]> {
     const rows = await sql`
       SELECT * FROM competitions 
       WHERE date < CURRENT_DATE OR status = 'completed'
-      ORDER BY date DESC
+      ORDER BY start_date DESC
     `
     return rows.map(dbRowToCompetition)
   } catch (error) {
@@ -219,11 +219,28 @@ export async function searchCompetitions(query: string): Promise<Competition[]> 
     const rows = await sql`
       SELECT * FROM competitions 
       WHERE title ILIKE ${searchTerm} OR description ILIKE ${searchTerm}
-      ORDER BY date ASC
+      ORDER BY start_date ASC
     `
     return rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error searching competitions:', error)
     throw new Error('Failed to search competitions')
+  }
+}
+
+/**
+ * Get competitions by category
+ */
+export async function getCompetitionsByCategory(category: string): Promise<Competition[]> {
+  try {
+    const rows = await sql`
+      SELECT * FROM competitions 
+      WHERE category = ${category}
+      ORDER BY start_date ASC
+    `
+    return rows.map(dbRowToCompetition)
+  } catch (error) {
+    console.error('Error getting competitions by category:', error)
+    throw new Error('Failed to fetch competitions by category')
   }
 }

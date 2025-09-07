@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllSponsors, addSponsor, updateSponsor, deleteSponsor } from '@/lib/sponsors-storage-unified'
+import { getAllSponsors, addSponsor, updateSponsor, deleteSponsor } from '@/lib/sponsors-storage-postgres'
 import { Sponsor } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 

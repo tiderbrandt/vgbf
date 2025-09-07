@@ -55,7 +55,7 @@ function newsArticleToDbRow(article: Partial<NewsArticle>): any {
  */
 export async function getAllNews(): Promise<NewsArticle[]> {
   try {
-    const rows = await sql`SELECT * FROM news_articles_articles WHERE is_published = true ORDER BY published_date DESC`
+    const rows = await sql`SELECT * FROM news_articles WHERE is_published = true ORDER BY published_date DESC`
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting all news:', error)
@@ -68,7 +68,7 @@ export async function getAllNews(): Promise<NewsArticle[]> {
  */
 export async function getNewsById(id: string): Promise<NewsArticle | null> {
   try {
-    const rows = await sql`SELECT * FROM news_articles_articles WHERE id = ${id}`
+    const rows = await sql`SELECT * FROM news_articles WHERE id = ${id}`
     return rows.length > 0 ? dbRowToNewsArticle(rows[0]) : null
   } catch (error) {
     console.error('Error getting news by ID:', error)
@@ -81,7 +81,7 @@ export async function getNewsById(id: string): Promise<NewsArticle | null> {
  */
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
   try {
-    const rows = await sql`SELECT * FROM news_articles_articles WHERE slug = ${slug}`
+    const rows = await sql`SELECT * FROM news_articles WHERE slug = ${slug}`
     return rows.length > 0 ? dbRowToNewsArticle(rows[0]) : null
   } catch (error) {
     console.error('Error getting news by slug:', error)
@@ -94,7 +94,7 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
  */
 export async function getFeaturedNews(): Promise<NewsArticle[]> {
   try {
-    const rows = await sql`SELECT * FROM news_articles_articles WHERE is_featured = true ORDER BY published_date DESC`
+    const rows = await sql`SELECT * FROM news_articles WHERE is_featured = true ORDER BY published_date DESC`
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting featured news:', error)
@@ -107,7 +107,7 @@ export async function getFeaturedNews(): Promise<NewsArticle[]> {
  */
 export async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
   try {
-    const rows = await sql`SELECT * FROM news_articles_articles WHERE is_published = true ORDER BY published_date DESC LIMIT ${limit}`
+    const rows = await sql`SELECT * FROM news_articles WHERE is_published = true ORDER BY published_date DESC LIMIT ${limit}`
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting recent news:', error)

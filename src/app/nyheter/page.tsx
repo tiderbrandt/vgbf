@@ -1,6 +1,6 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import { getAllNews } from '@/lib/news-storage-unified'
+import { getAllNews } from '@/lib/news-storage-postgres'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Metadata } from 'next'

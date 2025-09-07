@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getUpcomingCompetitions, getPastCompetitions as getCompletedCompetitions } from '@/lib/competitions-storage-unified'
+import { getUpcomingCompetitions, getPastCompetitions as getCompletedCompetitions } from '@/lib/competitions-storage-postgres'
 
 export default async function CompetitionsSection() {
   const upcomingCompetitions = await getUpcomingCompetitions()

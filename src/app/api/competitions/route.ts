@@ -7,7 +7,7 @@ import {
   addCompetition,
   updateCompetition,
   deleteCompetition
-} from '@/lib/competitions-storage-unified'
+} from '@/lib/competitions-storage-postgres'
 import { Competition } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
