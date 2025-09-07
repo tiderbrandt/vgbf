@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { NewsArticle, ExternalNewsItem } from '@/types'
-import { LocalFileStorage } from '@/lib/local-storage'
+import { getRecentNews } from '@/lib/news-storage-postgres'
 
 async function getExternalNews(): Promise<ExternalNewsItem[]> {
   try {
@@ -19,15 +19,12 @@ async function getExternalNews(): Promise<ExternalNewsItem[]> {
   }
 }
 
-async function getLocalNewsFromFile(): Promise<NewsArticle[]> {
+async function getLocalNewsFromPostgreSQL(): Promise<NewsArticle[]> {
   try {
-    const localStorage = new LocalFileStorage<NewsArticle>('news.json')
-    const allNews = await localStorage.read()
+    const allNews = await getRecentNews(3)
     return allNews
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 3)
   } catch (error) {
-    console.log('Could not read local news file, using fallback data')
+    console.error('Error reading PostgreSQL news:', error)
     return [
       {
         id: 'fallback-1',
@@ -39,17 +36,6 @@ async function getLocalNewsFromFile(): Promise<NewsArticle[]> {
         slug: 'valkomna-till-vgbf',
         featured: true,
         tags: ['Välkommen']
-      },
-      {
-        id: 'fallback-2',
-        title: 'Nya tävlingar planeras',
-        excerpt: 'Vi planerar flera spännande tävlingar för kommande säsong.',
-        content: 'Håll utkik efter mer information om våra kommande tävlingar.',
-        date: '2025-09-01',
-        author: 'VGBF',
-        slug: 'nya-tavlingar-planeras',
-        featured: false,
-        tags: ['Tävlingar']
       }
     ]
   }
@@ -58,7 +44,7 @@ async function getLocalNewsFromFile(): Promise<NewsArticle[]> {
 export default async function SimpleNewsSection() {
   // Get both local and external news
   const [localNews, externalNews] = await Promise.allSettled([
-    getLocalNewsFromFile(),
+    getLocalNewsFromPostgreSQL(),
     getExternalNews()
   ])
 
