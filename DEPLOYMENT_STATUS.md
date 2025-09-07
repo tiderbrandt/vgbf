@@ -5,7 +5,7 @@ This website is for the Western Sweden Archery Federation.
 ## PostgreSQL Migration Status
 
 - ✅ Neon PostgreSQL database connected
-- ✅ Serverless driver implemented  
+- ✅ Serverless driver implemented
 - ✅ Environment variables configured
 - 🔄 Production deployment in progress
 
