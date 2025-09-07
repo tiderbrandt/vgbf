@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   description: 'Senaste nyheterna från Västra Götalands Bågskytteförbund',
 }
 
+// Revalidate the page every 60 seconds to ensure fresh news data
+export const revalidate = 60
+
+// Force dynamic rendering to prevent static generation
+export const dynamic = 'force-dynamic'
+
 export default async function NewsPage() {
   const allNews = await getAllNews()
 
