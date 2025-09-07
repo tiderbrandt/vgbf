@@ -7,6 +7,16 @@ import { Club } from '@/types'
  */
 
 // Helper function to convert database row to Club object
+function parseJsonArray(value: any) {
+  if (value == null) return []
+  if (Array.isArray(value)) return value
+  if (typeof value === 'string' && value.trim() === '') return []
+  try {
+    if (typeof value === 'string') return JSON.parse(value)
+  } catch (_) {}
+  return []
+}
+
 function dbRowToClub(row: any): Club {
   return {
     id: row.id,
@@ -21,12 +31,12 @@ function dbRowToClub(row: any): Club {
     postalCode: row.postal_code || '',
     city: row.city || '',
     established: row.established || '',
-    activities: row.activities || [],
-    facilities: row.facilities || [],
-    trainingTimes: row.training_times || [],
+    activities: parseJsonArray(row.activities),
+    facilities: parseJsonArray(row.facilities),
+    trainingTimes: parseJsonArray(row.training_times),
     memberCount: row.member_count || 0,
     membershipFee: row.membership_fee || '',
-    welcomesNewMembers: row.welcomes_new_members || true,
+    welcomesNewMembers: row.welcomes_new_members !== false,
     imageUrl: row.image_url || '',
     facebook: row.facebook || '',
     instagram: row.instagram || ''
@@ -115,39 +125,75 @@ export async function addClub(clubData: Omit<Club, 'id'>): Promise<Club> {
  * Update an existing club
  */
 export async function updateClub(id: string, clubData: Partial<Club>): Promise<Club | null> {
-  const dbRow = clubToDbRow(clubData)
-  
-  let result
+  // Build dynamic SET clause only for provided fields to avoid overwriting with null/undefined
+  const fieldMappings: Record<string, string> = {
+    name: 'name',
+    description: 'description',
+    location: 'location',
+    contactPerson: 'contact_person',
+    email: 'email',
+    phone: 'phone',
+    website: 'website',
+    address: 'address',
+    postalCode: 'postal_code',
+    city: 'city',
+    established: 'established',
+    activities: 'activities',
+    facilities: 'facilities',
+    trainingTimes: 'training_times',
+    memberCount: 'member_count',
+    membershipFee: 'membership_fee',
+    welcomesNewMembers: 'welcomes_new_members',
+    facebook: 'facebook',
+    instagram: 'instagram',
+    imageUrl: 'image_url'
+  }
+
+  const sets: string[] = []
+  const values: any[] = []
+
+  for (const [key, column] of Object.entries(fieldMappings)) {
+    if (Object.prototype.hasOwnProperty.call(clubData, key)) {
+      let value: any = (clubData as any)[key]
+      if (key === 'activities' || key === 'facilities' || key === 'trainingTimes') {
+        value = JSON.stringify(value || [])
+      }
+      if (key === 'welcomesNewMembers') {
+        value = value !== false
+      }
+      sets.push(`${column} = $${sets.length + 1}`)
+      values.push(value)
+    }
+  }
+
+  if (sets.length === 0) {
+    const existing = await getClubById(id)
+    return existing || null // Nothing to update
+  }
+
+  // Always update updated_at
+  sets.push(`updated_at = NOW()`) // no param for NOW()
+
+  const updateSql = `UPDATE clubs SET ${sets.join(', ')} WHERE id = $${values.length + 1} RETURNING *`
+  values.push(id)
+
+  let result: any
   try {
-    result = await sql`
-    UPDATE clubs SET
-      name = ${dbRow.name},
-      description = ${dbRow.description},
-      location = ${dbRow.location},
-      contact_person = ${dbRow.contact_person},
-      email = ${dbRow.email},
-      phone = ${dbRow.phone},
-      website = ${dbRow.website},
-      address = ${dbRow.address},
-      postal_code = ${dbRow.postal_code},
-      city = ${dbRow.city},
-      established = ${dbRow.established},
-      activities = ${dbRow.activities},
-      facilities = ${dbRow.facilities},
-      training_times = ${dbRow.training_times},
-      member_count = ${dbRow.member_count},
-      membership_fee = ${dbRow.membership_fee},
-      welcomes_new_members = ${dbRow.welcomes_new_members},
-      facebook = ${dbRow.facebook},
-      instagram = ${dbRow.instagram},
-      image_url = ${dbRow.image_url},
-      updated_at = NOW()
-    WHERE id = ${id}
-    RETURNING *
-  `
+    result = await sql.query(updateSql, values)
   } catch (error) {
-    console.error('DB error in updateClub:', error && (error as any).message ? (error as any).message : String(error))
-    // rethrow so caller can handle
+    const e: any = error
+    const pgMeta = {
+      name: e?.name,
+      message: e?.message,
+      code: e?.code || e?.sourceError?.code,
+      detail: e?.detail,
+      hint: e?.hint,
+      table: e?.table,
+      column: e?.column,
+      severity: e?.severity,
+      query: updateSql
+    }
+    console.error('DB error in updateClub', pgMeta)
     throw error
   }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+export const dynamic = 'force-dynamic'
 import { getAllClubs } from '@/lib/clubs-storage-unified'
 
 export async function GET() {

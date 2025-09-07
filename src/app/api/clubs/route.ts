@@ -139,11 +139,34 @@ export async function PUT(request: NextRequest) {
     console.log('PUT /api/clubs - Success, returning updated club')
     return NextResponse.json({ success: true, data: updatedClub })
   } catch (error) {
-    console.error('PUT /api/clubs - Error updating club:', error)
-    console.error('PUT /api/clubs - Error stack:', error instanceof Error ? error.stack : 'No stack')
+    const e: any = error
+    const code = e?.code || e?.sourceError?.code
+    let status = 500
+    let userMessage = 'Failed to update club'
+    if (code === '23505') { // unique_violation
+      status = 409
+      userMessage = 'A club with this unique field already exists'
+    } else if (code === '23503') { // foreign_key_violation
+      status = 400
+      userMessage = 'Invalid reference (foreign key violation)'
+    } else if (code === '22P02') { // invalid_text_representation
+      status = 400
+      userMessage = 'Invalid field format'
+    } else if (code === '23502') { // not_null_violation
+      status = 400
+      userMessage = 'Missing required field'
+    }
+
+    console.error('PUT /api/clubs - Error updating club:', {
+      code,
+      message: e?.message,
+      detail: e?.detail,
+      hint: e?.hint,
+      stack: e instanceof Error ? e.stack : undefined
+    })
     return NextResponse.json(
-      { success: false, error: 'Failed to update club', details: error instanceof Error ? error.message : String(error) },
-      { status: 500 }
+      { success: false, error: userMessage, code },
+      { status }
     )
   }
 }

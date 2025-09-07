@@ -4,14 +4,17 @@ import jwt from 'jsonwebtoken'
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, password } = await request.json()
+  const body = await request.json()
+  console.log('Login route body:', body)
+  const { username, password } = body
 
     // Get credentials from environment variables
     const adminUsername = process.env.ADMIN_USERNAME
     const adminPassword = process.env.ADMIN_PASSWORD
     const jwtSecret = process.env.JWT_SECRET
 
-    if (!adminUsername || !adminPassword || !jwtSecret) {
+  console.log('Login env:', { ADMIN_USERNAME: !!adminUsername, ADMIN_PASSWORD: !!adminPassword, JWT_SECRET_length: jwtSecret?.length })
+  if (!adminUsername || !adminPassword || !jwtSecret) {
       return NextResponse.json(
         { success: false, message: 'Server configuration error' },
         { status: 500 }
