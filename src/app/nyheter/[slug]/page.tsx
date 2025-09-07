@@ -46,9 +46,12 @@ export async function generateStaticParams() {
 
 export default async function NewsArticlePage({ params }: Props) {
   try {
+    console.log('NewsArticlePage called with slug:', params.slug)
     const article = await getNewsBySlug(params.slug)
+    console.log('Article found:', !!article, article?.title)
 
     if (!article) {
+      console.log('Article not found, calling notFound()')
       notFound()
     }
 
