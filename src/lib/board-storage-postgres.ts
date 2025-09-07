@@ -45,7 +45,7 @@ export async function getAllBoardMembers(): Promise<BoardMember[]> {
   try {
     const result = await sql`SELECT * FROM board_members ORDER BY category, "display_order" ASC`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToBoardMember)
   } catch (error) {
     console.error('Error getting all board members:', error)
@@ -80,7 +80,7 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | null
   try {
     const result = await sql`SELECT * FROM board_members WHERE id = ${id}`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.length > 0 ? dbRowToBoardMember(rows[0]) : null
   } catch (error) {
     console.error('Error getting board member by ID:', error)

@@ -57,7 +57,7 @@ export async function getAllNews(): Promise<NewsArticle[]> {
   try {
     const result = await sql`SELECT * FROM news_articles WHERE is_published = true ORDER BY published_date DESC`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting all news:', error)
@@ -72,7 +72,7 @@ export async function getNewsById(id: string): Promise<NewsArticle | null> {
   try {
     const result = await sql`SELECT * FROM news_articles WHERE id = ${id}`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.length > 0 ? dbRowToNewsArticle(rows[0]) : null
   } catch (error) {
     console.error('Error getting news by ID:', error)
@@ -87,7 +87,7 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
   try {
     const result = await sql`SELECT * FROM news_articles WHERE slug = ${slug}`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.length > 0 ? dbRowToNewsArticle(rows[0]) : null
   } catch (error) {
     console.error('Error getting news by slug:', error)
@@ -102,7 +102,7 @@ export async function getFeaturedNews(): Promise<NewsArticle[]> {
   try {
     const result = await sql`SELECT * FROM news_articles WHERE is_featured = true ORDER BY published_date DESC`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting featured news:', error)
@@ -117,7 +117,7 @@ export async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
   try {
     const result = await sql`SELECT * FROM news_articles WHERE is_published = true ORDER BY published_date DESC LIMIT ${limit}`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting recent news:', error)
@@ -248,7 +248,7 @@ export async function searchNews(query: string): Promise<NewsArticle[]> {
       ORDER BY date DESC
     `
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error searching news:', error)

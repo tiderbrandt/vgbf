@@ -61,7 +61,7 @@ export async function getAllCalendarEvents(): Promise<CalendarEvent[]> {
   try {
     const result = await sql`SELECT * FROM calendar_events WHERE is_public = true ORDER BY start_date ASC`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error getting all calendar events:', error)
@@ -76,7 +76,7 @@ export async function getAllEventsForAdmin(): Promise<CalendarEvent[]> {
   try {
     const result = await sql`SELECT * FROM calendar_events ORDER BY start_date ASC`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error getting all events for admin:', error)
@@ -95,7 +95,7 @@ export async function getUpcomingEvents(): Promise<CalendarEvent[]> {
       ORDER BY start_date ASC
     `
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error getting upcoming events:', error)
@@ -114,7 +114,7 @@ export async function getPublicEvents(): Promise<CalendarEvent[]> {
       ORDER BY start_date ASC
     `
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error getting public events:', error)
@@ -129,7 +129,7 @@ export async function getCalendarEventById(id: string): Promise<CalendarEvent | 
   try {
     const result = await sql`SELECT * FROM calendar_events WHERE id = ${id}`
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.length > 0 ? dbRowToCalendarEvent(rows[0]) : null
   } catch (error) {
     console.error('Error getting calendar event by ID:', error)
@@ -142,17 +142,19 @@ export async function getCalendarEventById(id: string): Promise<CalendarEvent | 
  */
 export async function addCalendarEvent(eventData: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>): Promise<CalendarEvent> {
   try {
-    const id = Date.now().toString()
+    // Generate a proper UUID
+    const { v4: uuidv4 } = require('uuid')
+    const id = uuidv4()
     const dbData = calendarEventToDbRow({ ...eventData, id })
     
     await sql`
       INSERT INTO calendar_events (
-        id, title, description, date, end_date, time, end_time, location, type,
+        id, title, description, start_date, end_date, start_time, end_time, location, event_type,
         organizer, contact_email, registration_required, registration_url,
         max_participants, current_participants, status, is_public
       ) VALUES (
-        ${id}, ${dbData.title}, ${dbData.description}, ${dbData.date}, ${dbData.end_date},
-        ${dbData.time}, ${dbData.end_time}, ${dbData.location}, ${dbData.type},
+        ${id}, ${dbData.title}, ${dbData.description}, ${dbData.start_date}, ${dbData.end_date},
+        ${dbData.start_time}, ${dbData.end_time}, ${dbData.location}, ${dbData.event_type},
         ${dbData.organizer}, ${dbData.contact_email}, ${dbData.registration_required},
         ${dbData.registration_url}, ${dbData.max_participants}, ${dbData.current_participants},
         ${dbData.status}, ${dbData.is_public}
@@ -230,7 +232,7 @@ export async function searchCalendarEvents(query: string): Promise<CalendarEvent
       ORDER BY start_date ASC
     `
     // Handle both pg Pool result (result.rows) and Neon direct array result
-    const rows = result.rows || result
+    const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error searching calendar events:', error)
