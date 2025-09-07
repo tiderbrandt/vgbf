@@ -1,5 +1,6 @@
 import { sql } from './database'
 import { Sponsor } from '@/types'
+import crypto from 'crypto'
 
 /**
  * PostgreSQL-based sponsors storage implementation
@@ -10,12 +11,12 @@ function dbRowToSponsor(row: any): Sponsor {
     id: row.id,
     name: row.name,
     description: row.description || undefined,
-    website: row.website || undefined,
+    website: row.website_url || undefined, // Map from website_url
     logoUrl: row.logo_url || undefined,
     logoAlt: row.logo_alt || undefined,
     priority: row.priority || 0,
     isActive: row.is_active !== false,
-    addedDate: row.added_date,
+    addedDate: row.created_at, // Map from created_at
     updatedAt: row.updated_at
   }
 }
@@ -24,7 +25,7 @@ function sponsorToDbRow(sponsor: Partial<Sponsor>): any {
   return {
     name: sponsor.name,
     description: sponsor.description,
-    website: sponsor.website,
+    website_url: sponsor.website, // Map to website_url
     logo_url: sponsor.logoUrl,
     logo_alt: sponsor.logoAlt,
     priority: sponsor.priority,
@@ -64,20 +65,20 @@ export async function getSponsorById(id: string): Promise<Sponsor | null> {
  */
 export async function addSponsor(sponsorData: Omit<Sponsor, 'id'>): Promise<Sponsor> {
   try {
-    const id = Date.now().toString()
+    const id = crypto.randomUUID() // Use proper UUID generation
     const dbData = sponsorToDbRow({ 
       ...sponsorData, 
       id,
-      addedDate: new Date().toISOString().split('T')[0] // Current date in YYYY-MM-DD format
+      addedDate: new Date().toISOString() // Full ISO timestamp
     })
     
     await sql`
       INSERT INTO sponsors (
-        id, name, description, website, logo_url, logo_alt, priority, is_active, added_date
+        id, name, description, website_url, logo_url, logo_alt, priority, is_active, created_at, updated_at
       ) VALUES (
-        ${id}, ${dbData.name}, ${dbData.description}, ${dbData.website},
+        ${id}, ${dbData.name}, ${dbData.description}, ${dbData.website_url},
         ${dbData.logo_url}, ${dbData.logo_alt}, ${dbData.priority},
-        ${dbData.is_active}, ${dbData.added_date}
+        ${dbData.is_active}, NOW(), NOW()
       )
     `
     
