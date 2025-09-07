@@ -159,62 +159,23 @@ export async function updateNews(id: string, newsData: Partial<NewsArticle>): Pr
   try {
     const dbData = newsArticleToDbRow(newsData)
     
-    // Build dynamic update query
-    const updateFields = []
-    const values = []
-    
-    if (dbData.title !== undefined) {
-      updateFields.push('title = $' + (values.length + 1))
-      values.push(dbData.title)
-    }
-    if (dbData.excerpt !== undefined) {
-      updateFields.push('excerpt = $' + (values.length + 1))
-      values.push(dbData.excerpt)
-    }
-    if (dbData.content !== undefined) {
-      updateFields.push('content = $' + (values.length + 1))
-      values.push(dbData.content)
-    }
-    if (dbData.date !== undefined) {
-      updateFields.push('date = $' + (values.length + 1))
-      values.push(dbData.date)
-    }
-    if (dbData.author !== undefined) {
-      updateFields.push('author = $' + (values.length + 1))
-      values.push(dbData.author)
-    }
-    if (dbData.slug !== undefined) {
-      updateFields.push('slug = $' + (values.length + 1))
-      values.push(dbData.slug)
-    }
-    if (dbData.featured !== undefined) {
-      updateFields.push('featured = $' + (values.length + 1))
-      values.push(dbData.featured)
-    }
-    if (dbData.image_url !== undefined) {
-      updateFields.push('image_url = $' + (values.length + 1))
-      values.push(dbData.image_url)
-    }
-    if (dbData.image_alt !== undefined) {
-      updateFields.push('image_alt = $' + (values.length + 1))
-      values.push(dbData.image_alt)
-    }
-    if (dbData.tags !== undefined) {
-      updateFields.push('tags = $' + (values.length + 1))
-      values.push(dbData.tags)
-    }
-    
-    if (updateFields.length === 0) {
-      return await getNewsById(id)
-    }
-    
-    // Add id as the last parameter
-    values.push(id)
-    const whereClause = 'id = $' + values.length
-    
-    const updateQuery = `UPDATE news SET ${updateFields.join(', ')} WHERE ${whereClause}`
-    
-    await sql.query(updateQuery, values)
+    // Use a simple approach: update all fields that are provided
+    const result = await sql`
+      UPDATE news_articles 
+      SET 
+        title = COALESCE(${dbData.title}, title),
+        excerpt = COALESCE(${dbData.excerpt}, excerpt),
+        content = COALESCE(${dbData.content}, content),
+        published_date = COALESCE(${dbData.published_date}, published_date),
+        author = COALESCE(${dbData.author}, author),
+        slug = COALESCE(${dbData.slug}, slug),
+        is_featured = COALESCE(${dbData.is_featured}, is_featured),
+        image_url = COALESCE(${dbData.image_url}, image_url),
+        image_alt = COALESCE(${dbData.image_alt}, image_alt),
+        tags = COALESCE(${dbData.tags}, tags),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+    `
     
     return await getNewsById(id)
   } catch (error) {
