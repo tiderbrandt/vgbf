@@ -6,29 +6,23 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const news = await getNewsBySlug(params.slug)
+    console.log('Fetching news article with slug:', params.slug)
+    const article = await getNewsBySlug(params.slug)
     
-    if (!news) {
+    if (!article) {
+      console.log('Article not found for slug:', params.slug)
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'News article not found' 
-        }, 
+        { error: 'Article not found' },
         { status: 404 }
       )
     }
-
-    return NextResponse.json({
-      success: true,
-      data: news
-    })
+    
+    console.log('Article found:', article.title)
+    return NextResponse.json(article)
   } catch (error) {
-    console.error('Error fetching news article:', error)
+    console.error('Error fetching article:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to fetch news article' 
-      }, 
+      { error: 'Failed to fetch article' },
       { status: 500 }
     )
   }

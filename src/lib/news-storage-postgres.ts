@@ -23,13 +23,13 @@ function dbRowToNewsArticle(row: any): NewsArticle {
     title: row.title,
     excerpt: row.excerpt || '',
     content: row.content || '',
-    date: row.date,
+    date: row.published_date || row.date,
     author: row.author || '',
     slug: row.slug,
-    featured: row.featured === true,
+    featured: row.is_featured === true || row.featured === true,
     imageUrl: row.image_url || '',
     imageAlt: row.image_alt || '',
-    tags: parseJsonArray(row.tags)
+    tags: Array.isArray(row.tags) ? row.tags : parseJsonArray(row.tags)
   }
 }
 
@@ -39,13 +39,14 @@ function newsArticleToDbRow(article: Partial<NewsArticle>): any {
     title: article.title,
     excerpt: article.excerpt,
     content: article.content,
-    date: article.date,
+    published_date: article.date,
     author: article.author,
     slug: article.slug,
-    featured: article.featured === true,
+    is_featured: article.featured === true,
     image_url: article.imageUrl,
     image_alt: article.imageAlt,
-    tags: JSON.stringify(article.tags || [])
+    tags: JSON.stringify(article.tags || []),
+    is_published: true
   }
 }
 
@@ -54,7 +55,7 @@ function newsArticleToDbRow(article: Partial<NewsArticle>): any {
  */
 export async function getAllNews(): Promise<NewsArticle[]> {
   try {
-    const rows = await sql`SELECT * FROM news ORDER BY date DESC`
+    const rows = await sql`SELECT * FROM news_articles_articles WHERE is_published = true ORDER BY published_date DESC`
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting all news:', error)
@@ -67,7 +68,7 @@ export async function getAllNews(): Promise<NewsArticle[]> {
  */
 export async function getNewsById(id: string): Promise<NewsArticle | null> {
   try {
-    const rows = await sql`SELECT * FROM news WHERE id = ${id}`
+    const rows = await sql`SELECT * FROM news_articles_articles WHERE id = ${id}`
     return rows.length > 0 ? dbRowToNewsArticle(rows[0]) : null
   } catch (error) {
     console.error('Error getting news by ID:', error)
@@ -80,7 +81,7 @@ export async function getNewsById(id: string): Promise<NewsArticle | null> {
  */
 export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
   try {
-    const rows = await sql`SELECT * FROM news WHERE slug = ${slug}`
+    const rows = await sql`SELECT * FROM news_articles_articles WHERE slug = ${slug}`
     return rows.length > 0 ? dbRowToNewsArticle(rows[0]) : null
   } catch (error) {
     console.error('Error getting news by slug:', error)
@@ -93,7 +94,7 @@ export async function getNewsBySlug(slug: string): Promise<NewsArticle | null> {
  */
 export async function getFeaturedNews(): Promise<NewsArticle[]> {
   try {
-    const rows = await sql`SELECT * FROM news WHERE featured = true ORDER BY date DESC`
+    const rows = await sql`SELECT * FROM news_articles_articles WHERE is_featured = true ORDER BY published_date DESC`
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting featured news:', error)
@@ -106,7 +107,7 @@ export async function getFeaturedNews(): Promise<NewsArticle[]> {
  */
 export async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
   try {
-    const rows = await sql`SELECT * FROM news ORDER BY date DESC LIMIT ${limit}`
+    const rows = await sql`SELECT * FROM news_articles_articles WHERE is_published = true ORDER BY published_date DESC LIMIT ${limit}`
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting recent news:', error)
@@ -123,7 +124,7 @@ export async function addNews(newsData: Omit<NewsArticle, 'id'>): Promise<NewsAr
     const dbData = newsArticleToDbRow({ ...newsData, id })
     
     await sql`
-      INSERT INTO news (
+      INSERT INTO news_articles (
         id, title, excerpt, content, date, author, slug, featured, image_url, image_alt, tags
       ) VALUES (
         ${id}, ${dbData.title}, ${dbData.excerpt}, ${dbData.content}, ${dbData.date},
@@ -217,7 +218,7 @@ export async function updateNews(id: string, newsData: Partial<NewsArticle>): Pr
  */
 export async function deleteNews(id: string): Promise<boolean> {
   try {
-    const result = await sql`DELETE FROM news WHERE id = ${id}`
+    const result = await sql`DELETE FROM news_articles WHERE id = ${id}`
     return true
   } catch (error) {
     console.error('Error deleting news:', error)
@@ -232,7 +233,7 @@ export async function searchNews(query: string): Promise<NewsArticle[]> {
   try {
     const searchTerm = `%${query}%`
     const rows = await sql`
-      SELECT * FROM news 
+      SELECT * FROM news_articles 
       WHERE title ILIKE ${searchTerm} OR content ILIKE ${searchTerm}
       ORDER BY date DESC
     `

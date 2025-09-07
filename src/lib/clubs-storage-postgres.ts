@@ -22,7 +22,7 @@ function dbRowToClub(row: any): Club {
     id: row.id,
     name: row.name,
     description: row.description || '',
-    location: row.location || '',
+    location: row.city || '', // Map city to location for backward compatibility
     contactPerson: row.contact_person || '',
     email: row.email || '',
     phone: row.phone || '',
@@ -30,16 +30,22 @@ function dbRowToClub(row: any): Club {
     address: row.address || '',
     postalCode: row.postal_code || '',
     city: row.city || '',
-    established: row.established || '',
-    activities: Array.isArray(row.activities) ? row.activities : [], // PostgreSQL arrays come as JS arrays
-    facilities: Array.isArray(row.facilities) ? row.facilities : [], // PostgreSQL arrays come as JS arrays
-    trainingTimes: parseJsonArray(row.training_times), // JSONB needs parsing
+    established: row.established_year ? row.established_year.toString() : '',
+    activities: Array.isArray(row.activities) ? row.activities : [],
+    facilities: Array.isArray(row.facilities) ? row.facilities : [],
+    trainingTimes: Array.isArray(row.training_times) ? row.training_times : [],
     memberCount: row.member_count || 0,
     membershipFee: row.membership_fee || '',
     welcomesNewMembers: row.welcomes_new_members !== false,
     imageUrl: row.image_url || '',
-    facebook: row.facebook || '',
-    instagram: row.instagram || ''
+    facebook: row.facebook_url || '',
+    instagram: row.instagram_url || '',
+    latitude: row.latitude ? parseFloat(row.latitude) : undefined,
+    longitude: row.longitude ? parseFloat(row.longitude) : undefined,
+    isActive: row.is_active !== false,
+    establishedYear: row.established_year,
+    facebookUrl: row.facebook_url || '',
+    instagramUrl: row.instagram_url || ''
   }
 }
 

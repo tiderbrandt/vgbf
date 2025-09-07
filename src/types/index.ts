@@ -86,6 +86,13 @@ export interface Club {
   memberCount?: number
   membershipFee?: string
   welcomesNewMembers: boolean
+  // New optimal schema fields
+  latitude?: number
+  longitude?: number
+  isActive?: boolean
+  establishedYear?: number
+  facebookUrl?: string
+  instagramUrl?: string
 }
 
 export interface CalendarEvent {
