@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, deleteNews } from '@/lib/news-storage-unified'
+import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, deleteNews } from '@/lib/news-storage-postgres'
 import { NewsArticle } from '@/types'
 import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
