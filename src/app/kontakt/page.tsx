@@ -72,37 +72,43 @@ export default function KontaktPage() {
               <h2 className="text-xl font-semibold text-vgbf-blue mb-4">Kontaktinformation</h2>
               
               <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{contactData.mainContact.title}</h3>
-                  <p className="text-gray-600">{contactData.mainContact.name}</p>
-                  <p className="text-gray-600">{contactData.mainContact.club}</p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    <span className="font-medium">Telefon:</span>{' '}
-                    <a href={`tel:${contactData.mainContact.phone.replace(/\s/g, '')}`} className="text-vgbf-blue hover:underline">
-                      {contactData.mainContact.phone}
-                    </a>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">E-post:</span>{' '}
-                    <a href={`mailto:${contactData.mainContact.email}`} className="text-vgbf-blue hover:underline">
-                      {contactData.mainContact.email}
-                    </a>
-                  </p>
-                </div>
+                {contactData.mainContact && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">{contactData.mainContact.title}</h3>
+                    <p className="text-gray-600">{contactData.mainContact.name}</p>
+                    <p className="text-gray-600">{contactData.mainContact.club}</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      <span className="font-medium">Telefon:</span>{' '}
+                      <a href={`tel:${contactData.mainContact.phone.replace(/\s/g, '')}`} className="text-vgbf-blue hover:underline">
+                        {contactData.mainContact.phone}
+                      </a>
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">E-post:</span>{' '}
+                      <a href={`mailto:${contactData.mainContact.email}`} className="text-vgbf-blue hover:underline">
+                        {contactData.mainContact.email}
+                      </a>
+                    </p>
+                  </div>
+                )}
 
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Postadress</h3>
-                  <p className="text-gray-600">
-                    {contactData.postalAddress.name}<br />
-                    {contactData.postalAddress.street}<br />
-                    {contactData.postalAddress.postalCode} {contactData.postalAddress.city}
-                  </p>
-                </div>
+                {contactData.postalAddress && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Postadress</h3>
+                    <p className="text-gray-600">
+                      {contactData.postalAddress.name}<br />
+                      {contactData.postalAddress.street}<br />
+                      {contactData.postalAddress.postalCode} {contactData.postalAddress.city}
+                    </p>
+                  </div>
+                )}
 
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Organisationsnummer</h3>
-                  <p className="text-gray-600">{contactData.organizationNumber}</p>
-                </div>
+                {contactData.organizationNumber && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Organisationsnummer</h3>
+                    <p className="text-gray-600">{contactData.organizationNumber}</p>
+                  </div>
+                )}
               </div>
             </div>
 

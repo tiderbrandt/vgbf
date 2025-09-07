@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { getRecentNews } from '@/lib/news-storage-postgres'
 import { ExternalNewsItem, NewsArticle } from '@/types'
-import { LocalFileStorage } from '@/lib/local-storage'
 
 async function getExternalNews(): Promise<ExternalNewsItem[]> {
   try {
@@ -23,34 +22,12 @@ async function getExternalNews(): Promise<ExternalNewsItem[]> {
 
 async function getLocalNews(): Promise<NewsArticle[]> {
   try {
-    // Try blob storage first
+    // Get recent news from PostgreSQL database
     return await getRecentNews(3)
   } catch (error) {
-    console.log('Blob storage failed, trying local file storage...')
-    try {
-      // Fallback to local file storage
-      const localStorage = new LocalFileStorage<NewsArticle>('news.json')
-      const allNews = await localStorage.read()
-      return allNews
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 3)
-    } catch (localError) {
-      console.error('Local storage also failed:', localError)
-      // Return some default news if both fail
-      return [
-        {
-          id: 'default-1',
-          title: 'Välkommen till VGBF',
-          excerpt: 'Västra Götalands Bågskytteförbund välkomnar alla bågskyttar i regionen.',
-          content: 'Västra Götalands Bågskytteförbund arbetar för att utveckla bågskyttesporten i Västra Götaland.',
-          date: '2025-09-05',
-          author: 'VGBF',
-          slug: 'valkomna-till-vgbf',
-          featured: true,
-          tags: ['Välkommen']
-        }
-      ]
-    }
+    console.error('Error fetching news from database:', error)
+    // Return empty array if database fails
+    return []
   }
 }
 

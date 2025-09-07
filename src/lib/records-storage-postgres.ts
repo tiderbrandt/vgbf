@@ -41,7 +41,10 @@ function recordToDbRow(record: Partial<DistrictRecord>): any {
  */
 export async function getAllRecords(): Promise<DistrictRecord[]> {
   try {
-    const rows = await sql`SELECT * FROM district_records ORDER BY category, class, score DESC`
+    const result = await sql`SELECT * FROM district_records ORDER BY category, class, score DESC`
+    // Handle both Neon (returns array directly) and pg Pool (returns {rows: []})
+    const rows = Array.isArray(result) ? result : result.rows
+    console.log('Records query result:', { isArray: Array.isArray(result), hasRows: !!result?.rows, length: rows?.length })
     return rows.map(dbRowToRecord)
   } catch (error) {
     console.error('Error getting all records:', error)
@@ -54,7 +57,9 @@ export async function getAllRecords(): Promise<DistrictRecord[]> {
  */
 export async function getRecordById(id: string): Promise<DistrictRecord | null> {
   try {
-    const rows = await sql`SELECT * FROM district_records WHERE id = ${id}`
+    const result = await sql`SELECT * FROM district_records WHERE id = ${id}`
+    // Handle both Neon (returns array directly) and pg Pool (returns {rows: []})
+    const rows = Array.isArray(result) ? result : result.rows
     return rows.length > 0 ? dbRowToRecord(rows[0]) : null
   } catch (error) {
     console.error('Error getting record by ID:', error)
@@ -67,7 +72,9 @@ export async function getRecordById(id: string): Promise<DistrictRecord | null> 
  */
 export async function getRecordsByCategory(category: string): Promise<DistrictRecord[]> {
   try {
-    const rows = await sql`SELECT * FROM district_records WHERE category = ${category} ORDER BY class, score DESC`
+    const result = await sql`SELECT * FROM district_records WHERE category = ${category} ORDER BY class, score DESC`
+    // Handle both Neon (returns array directly) and pg Pool (returns {rows: []})
+    const rows = Array.isArray(result) ? result : result.rows
     return rows.map(dbRowToRecord)
   } catch (error) {
     console.error('Error getting records by category:', error)

@@ -10,15 +10,15 @@ function dbRowToBoardMember(row: any): BoardMember {
     id: row.id,
     title: row.position,
     name: row.name,
-    club: row.club_id,
+    club: row.club_id || 'VGBF', // Default to VGBF if no specific club
     email: row.email || undefined,
     phone: row.phone || undefined,
     description: row.bio || '',
     order: row.display_order,
     category: row.category,
     isActive: row.is_active !== false,
-    addedDate: row.term_start,
-    updatedAt: row.updated_at
+    addedDate: row.term_start || new Date().toISOString(),
+    updatedAt: row.updated_at || new Date().toISOString()
   }
 }
 

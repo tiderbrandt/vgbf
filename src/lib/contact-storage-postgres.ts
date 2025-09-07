@@ -46,7 +46,7 @@ export async function getAllContactData(): Promise<ContactData> {
         city: postalAddressRows[0].city
       } : null,
       organizationNumber: orgRows.length > 0 ? orgRows[0].organization_number : null,
-      quickLinks: quickLinksRows.map(row => ({
+      quickLinks: quickLinksRows.map((row: any) => ({
         id: row.id,
         title: row.title,
         description: row.description,
@@ -55,7 +55,7 @@ export async function getAllContactData(): Promise<ContactData> {
         order: row.order_num,
         isActive: row.is_active
       })),
-      faqItems: faqRows.map(row => ({
+      faqItems: faqRows.map((row: any) => ({
         id: row.id,
         question: row.question,
         answer: row.answer,

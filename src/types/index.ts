@@ -182,14 +182,14 @@ export interface ContactData {
     club: string
     phone: string
     email: string
-  }
+  } | null
   postalAddress: {
     name: string
     street: string
     postalCode: string
     city: string
-  }
-  organizationNumber: string
+  } | null
+  organizationNumber: string | null
   quickLinks: QuickLink[]
   faqItems: FAQItem[]
   lastUpdated: string

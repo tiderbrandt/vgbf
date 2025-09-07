@@ -163,21 +163,9 @@ export async function POST(request: NextRequest) {
         message: 'Database schema applied successfully' 
       })
       
-    } else if (action === 'migrate-data') {
-      console.log('Starting data migration from unified storage to PostgreSQL...')
-      
-      // Import migration functions
-      const { runFullMigration } = await import('@/../scripts/migrate-blob-to-postgres')
-      await runFullMigration()
-      
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Data migration completed. Check logs for details.' 
-      })
-      
     } else {
       return NextResponse.json(
-        { success: false, message: 'Invalid action. Use "apply-schema" or "migrate-data"' },
+        { success: false, message: 'Invalid action. Use "apply-schema"' },
         { status: 400 }
       )
     }
