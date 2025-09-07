@@ -162,8 +162,12 @@ export async function updateClub(id: string, clubData: Partial<Club>): Promise<C
     if (Object.prototype.hasOwnProperty.call(clubData, key)) {
       let value: any = (clubData as any)[key]
       if (key === 'activities' || key === 'facilities') {
-        // PostgreSQL TEXT[] arrays need to be passed as JavaScript arrays
-        value = Array.isArray(value) ? value : []
+        // PostgreSQL TEXT[] arrays need proper formatting
+        if (Array.isArray(value)) {
+          value = value.length > 0 ? value : [] // Keep as JS array for pg library
+        } else {
+          value = [] // Ensure it's an array
+        }
       } else if (key === 'trainingTimes') {
         // training_times is JSONB, so stringify
         value = JSON.stringify(value || [])

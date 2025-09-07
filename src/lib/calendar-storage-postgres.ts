@@ -5,17 +5,21 @@ import { CalendarEvent } from '@/types'
  * PostgreSQL-based calendar storage implementation
  */
 
+/**
+ * PostgreSQL-based calendar storage implementation
+ */
+
 function dbRowToCalendarEvent(row: any): CalendarEvent {
   return {
     id: row.id,
     title: row.title,
     description: row.description || '',
-    date: row.date,
+    date: row.start_date,
     endDate: row.end_date || undefined,
-    time: row.time || '',
+    time: row.start_time || '',
     endTime: row.end_time || undefined,
     location: row.location || undefined,
-    type: row.type || 'other',
+    type: row.event_type || 'other',
     organizer: row.organizer || undefined,
     contactEmail: row.contact_email || undefined,
     registrationRequired: row.registration_required === true,
@@ -33,12 +37,12 @@ function calendarEventToDbRow(event: Partial<CalendarEvent>): any {
   return {
     title: event.title,
     description: event.description,
-    date: event.date,
+    start_date: event.date,
     end_date: event.endDate,
-    time: event.time,
+    start_time: event.time,
     end_time: event.endTime,
     location: event.location,
-    type: event.type,
+    event_type: event.type,
     organizer: event.organizer,
     contact_email: event.contactEmail,
     registration_required: event.registrationRequired,
@@ -55,7 +59,9 @@ function calendarEventToDbRow(event: Partial<CalendarEvent>): any {
  */
 export async function getAllCalendarEvents(): Promise<CalendarEvent[]> {
   try {
-    const rows = await sql`SELECT * FROM calendar_events WHERE is_public = true ORDER BY date ASC`
+    const result = await sql`SELECT * FROM calendar_events WHERE is_public = true ORDER BY start_date ASC`
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error getting all calendar events:', error)
@@ -68,11 +74,13 @@ export async function getAllCalendarEvents(): Promise<CalendarEvent[]> {
  */
 export async function getUpcomingEvents(): Promise<CalendarEvent[]> {
   try {
-    const rows = await sql`
+    const result = await sql`
       SELECT * FROM calendar_events 
-      WHERE date >= CURRENT_DATE AND is_public = true AND status = 'upcoming'
-      ORDER BY date ASC
+      WHERE start_date >= CURRENT_DATE AND is_public = true AND status = 'upcoming'
+      ORDER BY start_date ASC
     `
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error getting upcoming events:', error)
@@ -81,11 +89,32 @@ export async function getUpcomingEvents(): Promise<CalendarEvent[]> {
 }
 
 /**
+ * Get public calendar events
+ */
+export async function getPublicEvents(): Promise<CalendarEvent[]> {
+  try {
+    const result = await sql`
+      SELECT * FROM calendar_events 
+      WHERE is_public = true
+      ORDER BY start_date ASC
+    `
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
+    return rows.map(dbRowToCalendarEvent)
+  } catch (error) {
+    console.error('Error getting public events:', error)
+    throw new Error('Failed to fetch public events')
+  }
+}
+
+/**
  * Get calendar event by ID
  */
 export async function getCalendarEventById(id: string): Promise<CalendarEvent | null> {
   try {
-    const rows = await sql`SELECT * FROM calendar_events WHERE id = ${id}`
+    const result = await sql`SELECT * FROM calendar_events WHERE id = ${id}`
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
     return rows.length > 0 ? dbRowToCalendarEvent(rows[0]) : null
   } catch (error) {
     console.error('Error getting calendar event by ID:', error)
@@ -179,15 +208,23 @@ export async function deleteCalendarEvent(id: string): Promise<boolean> {
 export async function searchCalendarEvents(query: string): Promise<CalendarEvent[]> {
   try {
     const searchTerm = `%${query}%`
-    const rows = await sql`
+    const result = await sql`
       SELECT * FROM calendar_events 
       WHERE (title ILIKE ${searchTerm} OR description ILIKE ${searchTerm})
       AND is_public = true
-      ORDER BY date ASC
+      ORDER BY start_date ASC
     `
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
     return rows.map(dbRowToCalendarEvent)
   } catch (error) {
     console.error('Error searching calendar events:', error)
     throw new Error('Failed to search calendar events')
   }
 }
+
+// Aliases for API compatibility
+export const getAllEvents = getAllCalendarEvents
+export const addEvent = addCalendarEvent
+export const updateEvent = updateCalendarEvent
+export const deleteEvent = deleteCalendarEvent

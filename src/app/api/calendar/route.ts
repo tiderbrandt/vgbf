@@ -5,7 +5,7 @@ import {
   addEvent, 
   updateEvent, 
   deleteEvent 
-} from '@/lib/calendar-storage-blob'
+} from '@/lib/calendar-storage-postgres'
 import { CalendarEvent } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 

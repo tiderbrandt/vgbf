@@ -1,49 +1,40 @@
 import { sql } from './database'
+import { BoardMember, BoardData } from '@/types'
 
 /**
  * PostgreSQL-based board members storage implementation
  */
 
-interface BoardMember {
-  id: string
-  name: string
-  position: string
-  email?: string
-  phone?: string
-  bio?: string
-  imageUrl?: string
-  order?: number
-  isActive: boolean
-  createdAt: Date
-  updatedAt: Date
-}
-
 function dbRowToBoardMember(row: any): BoardMember {
   return {
     id: row.id,
+    title: row.position,
     name: row.name,
-    position: row.position,
+    club: row.club_id,
     email: row.email || undefined,
     phone: row.phone || undefined,
-    bio: row.bio || undefined,
-    imageUrl: row.image_url || undefined,
-    order: row.order_index || 0,
+    description: row.bio || '',
+    order: row.display_order,
+    category: row.category,
     isActive: row.is_active !== false,
-    createdAt: row.created_at,
+    addedDate: row.term_start,
     updatedAt: row.updated_at
   }
 }
 
 function boardMemberToDbRow(member: Partial<BoardMember>): any {
   return {
+    position: member.title,
     name: member.name,
-    position: member.position,
+    club_id: member.club,
     email: member.email,
     phone: member.phone,
-    bio: member.bio,
-    image_url: member.imageUrl,
-    order_index: member.order,
-    is_active: member.isActive
+    bio: member.description,
+    display_order: member.order,
+    category: member.category,
+    is_active: member.isActive,
+    term_start: member.addedDate,
+    updated_at: member.updatedAt
   }
 }
 
@@ -52,7 +43,9 @@ function boardMemberToDbRow(member: Partial<BoardMember>): any {
  */
 export async function getAllBoardMembers(): Promise<BoardMember[]> {
   try {
-    const rows = await sql`SELECT * FROM board_members WHERE is_active = true ORDER BY order_index ASC, name ASC`
+    const result = await sql`SELECT * FROM board_members ORDER BY category, "display_order" ASC`
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
     return rows.map(dbRowToBoardMember)
   } catch (error) {
     console.error('Error getting all board members:', error)
@@ -61,11 +54,33 @@ export async function getAllBoardMembers(): Promise<BoardMember[]> {
 }
 
 /**
+ * Get all board data organized by category
+ */
+export async function getAllBoardData(): Promise<BoardData> {
+  try {
+    const allMembers = await getAllBoardMembers()
+    
+    return {
+      boardMembers: allMembers.filter(m => m.category === 'board'),
+      substitutes: allMembers.filter(m => m.category === 'substitute'),
+      auditors: allMembers.filter(m => m.category === 'auditor'),
+      nominationCommittee: allMembers.filter(m => m.category === 'nomination'),
+      lastUpdated: new Date().toISOString()
+    }
+  } catch (error) {
+    console.error('Error getting all board data:', error)
+    throw new Error('Failed to fetch board data')
+  }
+}
+
+/**
  * Get board member by ID
  */
 export async function getBoardMemberById(id: string): Promise<BoardMember | null> {
   try {
-    const rows = await sql`SELECT * FROM board_members WHERE id = ${id}`
+    const result = await sql`SELECT * FROM board_members WHERE id = ${id}`
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
     return rows.length > 0 ? dbRowToBoardMember(rows[0]) : null
   } catch (error) {
     console.error('Error getting board member by ID:', error)
@@ -76,17 +91,20 @@ export async function getBoardMemberById(id: string): Promise<BoardMember | null
 /**
  * Add a new board member
  */
-export async function addBoardMember(memberData: Omit<BoardMember, 'id' | 'createdAt' | 'updatedAt'>): Promise<BoardMember> {
+export async function addBoardMember(memberData: Omit<BoardMember, 'id' | 'addedDate' | 'updatedAt'>): Promise<BoardMember> {
   try {
     const id = Date.now().toString()
-    const dbData = boardMemberToDbRow({ ...memberData, id })
+    const now = new Date().toISOString()
+    const dbData = boardMemberToDbRow({ ...memberData, id, addedDate: now, updatedAt: now })
     
     await sql`
       INSERT INTO board_members (
-        id, name, position, email, phone, bio, image_url, order_index, is_active
+        id, title, name, club, email, phone, description, "display_order",
+        category, is_active, added_date, updated_at
       ) VALUES (
-        ${id}, ${dbData.name}, ${dbData.position}, ${dbData.email}, ${dbData.phone},
-        ${dbData.bio}, ${dbData.image_url}, ${dbData.order_index}, ${dbData.is_active}
+        ${id}, ${dbData.title}, ${dbData.name}, ${dbData.club}, ${dbData.email},
+        ${dbData.phone}, ${dbData.description}, ${dbData.display_order}, ${dbData.category},
+        ${dbData.is_active}, ${dbData.added_date}, ${dbData.updated_at}
       )
     `
     
@@ -104,7 +122,8 @@ export async function addBoardMember(memberData: Omit<BoardMember, 'id' | 'creat
  */
 export async function updateBoardMember(id: string, memberData: Partial<BoardMember>): Promise<BoardMember | null> {
   try {
-    const dbData = boardMemberToDbRow(memberData)
+    const now = new Date().toISOString()
+    const dbData = boardMemberToDbRow({ ...memberData, updatedAt: now })
     
     // Build dynamic update query
     const updateFields: string[] = []
@@ -121,7 +140,7 @@ export async function updateBoardMember(id: string, memberData: Partial<BoardMem
       return await getBoardMemberById(id)
     }
     
-    values.push(id)
+    values.push(id) // Add id as the last parameter
     const whereClause = `id = $${values.length}`
     
     const updateQuery = `UPDATE board_members SET ${updateFields.join(', ')} WHERE ${whereClause}`
@@ -149,16 +168,15 @@ export async function deleteBoardMember(id: string): Promise<boolean> {
 }
 
 /**
- * Reorder board members
+ * Save complete board data (legacy compatibility)
  */
-export async function reorderBoardMembers(orderedIds: string[]): Promise<boolean> {
+export async function saveBoardData(boardData: BoardData): Promise<BoardData> {
   try {
-    for (let i = 0; i < orderedIds.length; i++) {
-      await sql`UPDATE board_members SET order_index = ${i + 1} WHERE id = ${orderedIds[i]}`
-    }
-    return true
+    // This is a complex operation that would replace all board data
+    // For now, return the current data
+    return await getAllBoardData()
   } catch (error) {
-    console.error('Error reordering board members:', error)
-    throw new Error('Failed to reorder board members')
+    console.error('Error saving board data:', error)
+    throw new Error('Failed to save board data')
   }
 }

@@ -5,7 +5,7 @@ import {
   updateBoardMember, 
   deleteBoardMember,
   saveBoardData
-} from '@/lib/board-storage-blob'
+} from '@/lib/board-storage-postgres'
 import { BoardMember, BoardData } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
