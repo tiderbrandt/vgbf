@@ -41,7 +41,7 @@ function recordToDbRow(record: Partial<DistrictRecord>): any {
  */
 export async function getAllRecords(): Promise<DistrictRecord[]> {
   try {
-    const rows = await sql`SELECT * FROM records ORDER BY category, class, score DESC`
+    const rows = await sql`SELECT * FROM district_records ORDER BY category, class, score DESC`
     return rows.map(dbRowToRecord)
   } catch (error) {
     console.error('Error getting all records:', error)
@@ -54,7 +54,7 @@ export async function getAllRecords(): Promise<DistrictRecord[]> {
  */
 export async function getRecordById(id: string): Promise<DistrictRecord | null> {
   try {
-    const rows = await sql`SELECT * FROM records WHERE id = ${id}`
+    const rows = await sql`SELECT * FROM district_records WHERE id = ${id}`
     return rows.length > 0 ? dbRowToRecord(rows[0]) : null
   } catch (error) {
     console.error('Error getting record by ID:', error)
@@ -67,7 +67,7 @@ export async function getRecordById(id: string): Promise<DistrictRecord | null> 
  */
 export async function getRecordsByCategory(category: string): Promise<DistrictRecord[]> {
   try {
-    const rows = await sql`SELECT * FROM records WHERE category = ${category} ORDER BY class, score DESC`
+    const rows = await sql`SELECT * FROM district_records WHERE category = ${category} ORDER BY class, score DESC`
     return rows.map(dbRowToRecord)
   } catch (error) {
     console.error('Error getting records by category:', error)
@@ -84,7 +84,7 @@ export async function addRecord(recordData: Omit<DistrictRecord, 'id'>): Promise
     const dbData = recordToDbRow({ ...recordData, id })
     
     await sql`
-      INSERT INTO records (
+      INSERT INTO district_records (
         id, category, class, name, club, score, date, competition, competition_url, organizer, notes
       ) VALUES (
         ${id}, ${dbData.category}, ${dbData.class}, ${dbData.name}, ${dbData.club},
@@ -143,7 +143,7 @@ export async function updateRecord(id: string, recordData: Partial<DistrictRecor
  */
 export async function deleteRecord(id: string): Promise<boolean> {
   try {
-    await sql`DELETE FROM records WHERE id = ${id}`
+    await sql`DELETE FROM district_records WHERE id = ${id}`
     return true
   } catch (error) {
     console.error('Error deleting record:', error)
@@ -158,7 +158,7 @@ export async function searchRecords(query: string): Promise<DistrictRecord[]> {
   try {
     const searchTerm = `%${query}%`
     const rows = await sql`
-      SELECT * FROM records 
+      SELECT * FROM district_records 
       WHERE name ILIKE ${searchTerm} OR club ILIKE ${searchTerm} OR competition ILIKE ${searchTerm}
       ORDER BY category, class, score DESC
     `

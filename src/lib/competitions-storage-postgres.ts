@@ -21,7 +21,7 @@ function dbRowToCompetition(row: any): Competition {
     id: row.id,
     title: row.title,
     description: row.description || '',
-    date: row.date,
+    date: row.start_date,
     endDate: row.end_date || undefined,
     location: row.location || '',
     registrationDeadline: row.registration_deadline || '',
@@ -47,7 +47,7 @@ function competitionToDbRow(competition: Partial<Competition>): any {
   return {
     title: competition.title,
     description: competition.description,
-    date: competition.date,
+    start_date: competition.date,
     end_date: competition.endDate,
     location: competition.location,
     registration_deadline: competition.registrationDeadline,
@@ -88,7 +88,7 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
   try {
     const rows = await sql`
       SELECT * FROM competitions 
-      WHERE date >= CURRENT_DATE AND status = 'upcoming'
+      WHERE start_date >= CURRENT_DATE AND status = 'upcoming'
       ORDER BY start_date ASC
     `
     return rows.map(dbRowToCompetition)
@@ -105,7 +105,7 @@ export async function getPastCompetitions(): Promise<Competition[]> {
   try {
     const rows = await sql`
       SELECT * FROM competitions 
-      WHERE date < CURRENT_DATE OR status = 'completed'
+      WHERE start_date < CURRENT_DATE OR status = 'completed'
       ORDER BY start_date DESC
     `
     return rows.map(dbRowToCompetition)
@@ -138,12 +138,12 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
     
     await sql`
       INSERT INTO competitions (
-        id, title, description, date, end_date, location, registration_deadline,
+        id, title, description, start_date, end_date, location, registration_deadline,
         max_participants, current_participants, category, status, organizer,
         contact_email, registration_url, results_url, image_url, image_alt,
         fee, equipment, rules, is_external
       ) VALUES (
-        ${id}, ${dbData.title}, ${dbData.description}, ${dbData.date}, ${dbData.end_date},
+        ${id}, ${dbData.title}, ${dbData.description}, ${dbData.start_date}, ${dbData.end_date},
         ${dbData.location}, ${dbData.registration_deadline}, ${dbData.max_participants},
         ${dbData.current_participants}, ${dbData.category}, ${dbData.status}, ${dbData.organizer},
         ${dbData.contact_email}, ${dbData.registration_url}, ${dbData.results_url},
