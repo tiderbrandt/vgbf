@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { 
-  getAllEvents, 
+  getAllCalendarEvents as getAllEvents, 
+  getAllEventsForAdmin,
   getPublicEvents, 
-  addEvent, 
-  updateEvent, 
-  deleteEvent 
+  addCalendarEvent as addEvent, 
+  updateCalendarEvent as updateEvent, 
+  deleteCalendarEvent as deleteEvent 
 } from '@/lib/calendar-storage-postgres'
 import { CalendarEvent } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
@@ -21,7 +22,13 @@ export async function GET(request: NextRequest) {
     if (publicOnly) {
       events = await getPublicEvents()
     } else {
-      events = await getAllEvents()
+      // Check if user is admin to get all events (including private)
+      const isAdmin = verifyAdminAuth(request)
+      if (isAdmin) {
+        events = await getAllEventsForAdmin()
+      } else {
+        events = await getAllEvents()
+      }
     }
     
     // Filter by year and month if provided
@@ -66,7 +73,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const newEvent = addEvent(eventData)
+    const newEvent = await addEvent(eventData)
     return NextResponse.json(newEvent, { status: 201 })
   } catch (error) {
     console.error('Error creating calendar event:', error)
@@ -98,7 +105,7 @@ export async function PUT(request: NextRequest) {
     }
     
     const updates = await request.json()
-    const updatedEvent = updateEvent(id, updates)
+    const updatedEvent = await updateEvent(id, updates)
     
     if (!updatedEvent) {
       return NextResponse.json(
@@ -139,7 +146,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
     
-    const success = deleteEvent(id)
+    const success = await deleteEvent(id)
     
     if (!success) {
       return NextResponse.json(

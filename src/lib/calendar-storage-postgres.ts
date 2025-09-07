@@ -55,7 +55,7 @@ function calendarEventToDbRow(event: Partial<CalendarEvent>): any {
 }
 
 /**
- * Get all calendar events
+ * Get all calendar events (public only)
  */
 export async function getAllCalendarEvents(): Promise<CalendarEvent[]> {
   try {
@@ -66,6 +66,21 @@ export async function getAllCalendarEvents(): Promise<CalendarEvent[]> {
   } catch (error) {
     console.error('Error getting all calendar events:', error)
     throw new Error('Failed to fetch calendar events')
+  }
+}
+
+/**
+ * Get all calendar events including private ones (for admin use)
+ */
+export async function getAllEventsForAdmin(): Promise<CalendarEvent[]> {
+  try {
+    const result = await sql`SELECT * FROM calendar_events ORDER BY start_date ASC`
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = result.rows || result
+    return rows.map(dbRowToCalendarEvent)
+  } catch (error) {
+    console.error('Error getting all events for admin:', error)
+    throw new Error('Failed to fetch all events')
   }
 }
 
