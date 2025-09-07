@@ -37,17 +37,21 @@ CREATE TABLE IF NOT EXISTS clubs (
 
 -- News table
 CREATE TABLE IF NOT EXISTS news (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id VARCHAR(255) PRIMARY KEY, -- Use string ID to match existing data
     title VARCHAR(500) NOT NULL,
     content TEXT NOT NULL,
     excerpt TEXT,
     author VARCHAR(255),
+    slug VARCHAR(255) UNIQUE NOT NULL,
+    date DATE NOT NULL,
+    featured BOOLEAN DEFAULT false,
     image_url VARCHAR(255),
+    image_alt VARCHAR(255),
     published_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     is_published BOOLEAN DEFAULT true,
-    tags TEXT[] -- Array of tags
+    tags JSONB -- Store tags as JSON for consistency
 );
 
 -- Competitions table
