@@ -11,7 +11,7 @@ import {
   addFAQItem,
   updateFAQItem,
   deleteFAQItem
-} from '@/lib/contact-storage-blob'
+} from '@/lib/contact-storage-postgres'
 import { ContactData } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
