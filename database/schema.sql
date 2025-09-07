@@ -56,23 +56,26 @@ CREATE TABLE IF NOT EXISTS news (
 
 -- Competitions table
 CREATE TABLE IF NOT EXISTS competitions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id VARCHAR(255) PRIMARY KEY,
     title VARCHAR(500) NOT NULL,
     description TEXT,
     date DATE NOT NULL,
+    end_date DATE,
     location VARCHAR(255),
-    organizer VARCHAR(255),
-    contact_email VARCHAR(255),
-    contact_phone VARCHAR(50),
     registration_deadline DATE,
     max_participants INTEGER,
-    entry_fee VARCHAR(100),
-    competition_type VARCHAR(100),
-    categories TEXT[], -- Array of competition categories
-    requirements TEXT,
-    prizes TEXT,
+    current_participants INTEGER DEFAULT 0,
+    category VARCHAR(100), -- outdoor, indoor, 3d, field, other
+    status VARCHAR(50) DEFAULT 'upcoming', -- upcoming, ongoing, completed
+    organizer VARCHAR(255),
+    contact_email VARCHAR(255),
+    registration_url VARCHAR(255),
+    results_url VARCHAR(255),
     image_url VARCHAR(255),
-    external_url VARCHAR(255),
+    image_alt VARCHAR(255),
+    fee VARCHAR(100),
+    equipment JSONB, -- Array of equipment as JSON
+    rules TEXT,
     is_external BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -80,18 +83,16 @@ CREATE TABLE IF NOT EXISTS competitions (
 
 -- Records table
 CREATE TABLE IF NOT EXISTS records (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id VARCHAR(255) PRIMARY KEY,
     category VARCHAR(255) NOT NULL,
-    discipline VARCHAR(255) NOT NULL,
-    distance VARCHAR(50),
-    gender VARCHAR(20),
-    age_group VARCHAR(50),
-    record_holder VARCHAR(255) NOT NULL,
+    class VARCHAR(255) NOT NULL, -- e.g., "Herrar Recurve", "Damer Compound"
+    name VARCHAR(255) NOT NULL,
     club VARCHAR(255),
     score VARCHAR(100) NOT NULL,
-    date_achieved DATE,
-    location VARCHAR(255),
-    verified BOOLEAN DEFAULT false,
+    date DATE,
+    competition VARCHAR(255),
+    competition_url VARCHAR(255),
+    organizer VARCHAR(255),
     notes TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -99,50 +100,54 @@ CREATE TABLE IF NOT EXISTS records (
 
 -- Sponsors table
 CREATE TABLE IF NOT EXISTS sponsors (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    logo_url VARCHAR(255),
-    website VARCHAR(255),
     description TEXT,
-    sponsor_level VARCHAR(100), -- Gold, Silver, Bronze, etc.
-    contact_person VARCHAR(255),
-    email VARCHAR(255),
-    phone VARCHAR(50),
-    active BOOLEAN DEFAULT true,
-    display_order INTEGER,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    website VARCHAR(255),
+    logo_url VARCHAR(255),
+    logo_alt VARCHAR(255),
+    priority INTEGER DEFAULT 0, -- For ordering (lower = higher priority)
+    is_active BOOLEAN DEFAULT true,
+    added_date DATE DEFAULT CURRENT_DATE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Calendar events table
 CREATE TABLE IF NOT EXISTS calendar_events (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id VARCHAR(255) PRIMARY KEY,
     title VARCHAR(500) NOT NULL,
     description TEXT,
-    start_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    end_date TIMESTAMP WITH TIME ZONE,
+    date DATE NOT NULL,
+    end_date DATE,
+    time VARCHAR(20), -- e.g., "19:00"
+    end_time VARCHAR(20),
     location VARCHAR(255),
+    type VARCHAR(50) DEFAULT 'other', -- competition, meeting, training, course, social, other
     organizer VARCHAR(255),
-    event_type VARCHAR(100), -- Competition, Training, Meeting, etc.
-    is_all_day BOOLEAN DEFAULT false,
-    recurring_rule VARCHAR(255), -- For recurring events
-    external_url VARCHAR(255),
+    contact_email VARCHAR(255),
+    registration_required BOOLEAN DEFAULT false,
+    registration_url VARCHAR(255),
+    max_participants INTEGER,
+    current_participants INTEGER DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'upcoming', -- upcoming, ongoing, completed, cancelled
+    is_public BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Board members table
 CREATE TABLE IF NOT EXISTS board_members (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id VARCHAR(255) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL, -- Ordförande, Sekreterare, etc.
     name VARCHAR(255) NOT NULL,
-    position VARCHAR(255) NOT NULL,
+    club VARCHAR(255),
     email VARCHAR(255),
     phone VARCHAR(50),
-    bio TEXT,
-    image_url VARCHAR(255),
-    display_order INTEGER,
-    active BOOLEAN DEFAULT true,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    description TEXT,
+    display_order INTEGER DEFAULT 0, -- For ordering display
+    category VARCHAR(50) DEFAULT 'board', -- board, substitute, auditor, nomination
+    is_active BOOLEAN DEFAULT true,
+    added_date DATE DEFAULT CURRENT_DATE,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
