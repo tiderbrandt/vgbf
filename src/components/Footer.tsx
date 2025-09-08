@@ -176,12 +176,8 @@ export default function Footer() {
         <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-400">
           <p>&copy; 2025 Västra Götalands Bågskytteförbund. Alla rättigheter förbehållna.</p>
           <div className="mt-2">
-            <Link href="/admin" className="inline-flex items-center text-gray-400 hover:text-vgbf-gold transition-colors" title="Administration (admin)" aria-label="Administration">
-              <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
-                <path d="M19.4 13.6c.04-.2.06-.41.06-.62s-.02-.42-.06-.62l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.8 7.8 0 0 0-1.07-.62l-.36-2.54A.5.5 0 0 0 14.9 2h-3.8a.5.5 0 0 0-.5.42l-.36 2.54c-.38.18-.74.4-1.07.62L6.78 4.62a.5.5 0 0 0-.6.22L4.26 8.16a.5.5 0 0 0 .12.64L6.4 10.38c-.04.2-.06.41-.06.62s.02.42.06.62L4.26 13.2a.5.5 0 0 0-.12.64l1.92 3.32c.14.24.44.34.7.22l2.39-.96c.33.22.69.44 1.07.62l.36 2.54c.05.26.27.44.5.44h3.8c.24 0 .45-.18.5-.44l.36-2.54c.38-.18.74-.4 1.07-.62l2.39.96c.26.12.56.02.7-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58z"/>
-              </svg>
-              <span>Administration</span>
+            <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Administration (admin)" aria-label="Administration">
+              Administration
             </Link>
           </div>
         </div>
