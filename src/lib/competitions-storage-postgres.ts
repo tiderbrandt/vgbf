@@ -145,17 +145,25 @@ export async function getPastCompetitions(): Promise<Competition[]> {
       ORDER BY start_date DESC
     `
     console.log('getPastCompetitions result:', { 
-      hasResult: !!result, 
-      hasRows: !!result?.rows, 
-      rowCount: result?.rows?.length || 0 
+      resultType: typeof result,
+      isArray: Array.isArray(result),
+      length: result?.length || 0,
+      hasRows: !!result?.rows,
+      rowCount: result?.rows?.length || result?.length || 0 
     })
     
-    if (!result || !result.rows) {
-      console.warn('getPastCompetitions: result or rows is undefined, returning empty array')
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let competitions: any[]
+    if (Array.isArray(result)) {
+      competitions = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      competitions = result.rows
+    } else {
+      console.warn('getPastCompetitions: unexpected result format, returning empty array')
       return []
     }
-    
-    return result.rows.map(dbRowToCompetition)
+
+    return competitions.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting past competitions:', error)
     return [] // Return empty array instead of throwing during build
