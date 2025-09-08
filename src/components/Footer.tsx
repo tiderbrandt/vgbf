@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Sponsor } from '@/types'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function Footer() {
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
@@ -175,13 +176,26 @@ export default function Footer() {
         {/* Copyright */}
         <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-400">
           <p>&copy; 2025 Västra Götalands Bågskytteförbund. Alla rättigheter förbehållna.</p>
-          <div className="mt-2">
-            <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Administration (admin)" aria-label="Administration">
-              Administration
-            </Link>
-          </div>
+          <FooterAdminLink />
         </div>
       </div>
     </footer>
+  )
+}
+
+function FooterAdminLink() {
+  const { isAuthenticated, loading } = useAuth()
+
+  // while loading, don't show anything to avoid layout shift
+  if (loading) return null
+
+  return (
+    <div className="mt-2">
+      {isAuthenticated ? (
+        <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Admin area" aria-label="Admin area">Admin</Link>
+      ) : (
+        <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Sign in" aria-label="Sign in">Sign in</Link>
+      )}
+    </div>
   )
 }
