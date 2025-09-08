@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { NewsArticle, ExternalNewsItem } from '@/types'
 import { getRecentNews } from '@/lib/news-storage-postgres'
 
@@ -83,19 +84,14 @@ export default async function SimpleNewsSection() {
               {local.map((item) => (
                 <article key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transform transition-all">
                   <div className="relative h-40 w-full bg-gray-100">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.imageAlt || item.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V7M8 3v4M16 3v4M8 11l2 2 4-4" />
-                        </svg>
-                      </div>
-                    )}
+                    {/* next/image handles local and remote images; next.config.js allows Vercel blob domains */}
+                    <Image
+                      src={item.imageUrl || '/vgbf-logo.png'}
+                      alt={item.imageAlt || item.title || 'VGBF'}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                    />
                   </div>
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-2">
