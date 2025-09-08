@@ -79,13 +79,35 @@ function clubToDbRow(club: Partial<Club>): any {
  * Get all clubs
  */
 export async function getAllClubs(): Promise<Club[]> {
-  const result = await sql`
-    SELECT * FROM clubs 
-    ORDER BY name ASC
-  `
+  try {
+    const result = await sql`
+      SELECT * FROM clubs 
+      ORDER BY name ASC
+    `
 
-  const rows = (result && (result as any).rows) ? (result as any).rows : (Array.isArray(result) ? result : [])
-  return rows.map(dbRowToClub)
+    console.log('getAllClubs result:', { 
+      resultType: typeof result,
+      isArray: Array.isArray(result),
+      length: result?.length || 0,
+      hasRows: !!result?.rows
+    })
+
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let rows: any[]
+    if (Array.isArray(result)) {
+      rows = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      rows = result.rows
+    } else {
+      console.warn('getAllClubs: unexpected result format, returning empty array')
+      return []
+    }
+
+    return rows.map(dbRowToClub)
+  } catch (error) {
+    console.error('Error getting all clubs:', error)
+    return []
+  }
 }
 
 /**

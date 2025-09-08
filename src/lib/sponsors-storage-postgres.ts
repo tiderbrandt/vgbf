@@ -39,7 +39,26 @@ function sponsorToDbRow(sponsor: Partial<Sponsor>): any {
  */
 export async function getAllSponsors(): Promise<Sponsor[]> {
   try {
-    const rows = await sql`SELECT * FROM sponsors WHERE is_active = true ORDER BY priority ASC, name ASC`
+    const result = await sql`SELECT * FROM sponsors WHERE is_active = true ORDER BY priority ASC, name ASC`
+    
+    console.log('getAllSponsors result:', { 
+      resultType: typeof result,
+      isArray: Array.isArray(result),
+      length: result?.length || 0,
+      hasRows: !!result?.rows
+    })
+
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let rows: any[]
+    if (Array.isArray(result)) {
+      rows = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      rows = result.rows
+    } else {
+      console.warn('getAllSponsors: unexpected result format, returning empty array')
+      return []
+    }
+
     return rows.map(dbRowToSponsor)
   } catch (error) {
     console.error('Error getting all sponsors:', error)
@@ -52,7 +71,18 @@ export async function getAllSponsors(): Promise<Sponsor[]> {
  */
 export async function getSponsorById(id: string): Promise<Sponsor | null> {
   try {
-    const rows = await sql`SELECT * FROM sponsors WHERE id = ${id}`
+    const result = await sql`SELECT * FROM sponsors WHERE id = ${id}`
+    
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let rows: any[]
+    if (Array.isArray(result)) {
+      rows = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      rows = result.rows
+    } else {
+      return null
+    }
+    
     return rows.length > 0 ? dbRowToSponsor(rows[0]) : null
   } catch (error) {
     console.error('Error getting sponsor by ID:', error)
@@ -146,12 +176,23 @@ export async function deleteSponsor(id: string): Promise<boolean> {
 export async function searchSponsors(query: string): Promise<Sponsor[]> {
   try {
     const searchTerm = `%${query}%`
-    const rows = await sql`
+    const result = await sql`
       SELECT * FROM sponsors 
       WHERE (name ILIKE ${searchTerm} OR description ILIKE ${searchTerm})
       AND is_active = true
       ORDER BY priority ASC, name ASC
     `
+    
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let rows: any[]
+    if (Array.isArray(result)) {
+      rows = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      rows = result.rows
+    } else {
+      return []
+    }
+    
     return rows.map(dbRowToSponsor)
   } catch (error) {
     console.error('Error searching sponsors:', error)
