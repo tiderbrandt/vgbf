@@ -271,10 +271,13 @@ export default function AdminPage() {
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-vgbf-blue focus:border-vgbf-blue"
                 />
               </div>
-              <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vgbf-blue">
+              <Link
+                href="/admin/settings"
+                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-vgbf-blue transition-colors"
+              >
                 <Icons.Settings />
                 <span className="ml-2 hidden sm:block">Inställningar</span>
-              </button>
+              </Link>
             </div>
           </div>
 
