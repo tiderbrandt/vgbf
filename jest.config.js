@@ -9,6 +9,9 @@ const createJestConfig = nextJest({
 const customJestConfig = {
     setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     testEnvironment: 'jest-environment-jsdom',
+    transform: {
+        '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { configFile: '<rootDir>/babel.jest.json' }],
+    },
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
