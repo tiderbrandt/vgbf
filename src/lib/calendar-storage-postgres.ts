@@ -1,5 +1,6 @@
 import { sql } from './database'
 import { CalendarEvent } from '@/types'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * PostgreSQL-based calendar storage implementation
@@ -142,8 +143,6 @@ export async function getCalendarEventById(id: string): Promise<CalendarEvent | 
  */
 export async function addCalendarEvent(eventData: Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>): Promise<CalendarEvent> {
   try {
-    // Generate a proper UUID
-    const { v4: uuidv4 } = require('uuid')
     const id = uuidv4()
     const dbData = calendarEventToDbRow({ ...eventData, id })
     

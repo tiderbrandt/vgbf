@@ -69,7 +69,6 @@ export async function POST(request: NextRequest) {
       title: body.title,
       description: body.description,
       date: body.date,
-      registrationDeadline: body.registrationDeadline,
       organizer: body.organizer,
       location: body.location,
       status: body.status || 'upcoming',
@@ -80,9 +79,14 @@ export async function POST(request: NextRequest) {
       contactEmail: body.contactEmail,
       fee: body.fee,
       equipment: body.equipment || [],
-      rules: body.rules,
       imageUrl: body.imageUrl || '',
-      imageAlt: body.imageAlt || ''
+      imageAlt: body.imageAlt || '',
+      // Note: registrationDeadline and rules are not in schema, so excluded
+      registrationDeadline: '', // Set to empty string for interface compatibility
+      rules: undefined, // Set to undefined for interface compatibility
+      endDate: body.endDate,
+      currentParticipants: body.currentParticipants,
+      isExternal: body.isExternal || false
     }
 
     const newCompetition = await addCompetition(competitionData)

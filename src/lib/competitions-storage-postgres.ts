@@ -25,7 +25,7 @@ function dbRowToCompetition(row: any): Competition {
     date: row.start_date,
     endDate: row.end_date || undefined,
     location: row.location || '',
-    registrationDeadline: row.registration_deadline || '',
+    registrationDeadline: '', // Not in schema, set to empty string
     maxParticipants: row.max_participants || undefined,
     currentParticipants: row.current_participants || undefined,
     category: row.category || 'other',
@@ -38,7 +38,7 @@ function dbRowToCompetition(row: any): Competition {
     imageAlt: row.image_alt || undefined,
     fee: row.entry_fee || undefined, // Note: Schema uses entry_fee
     equipment: parseJsonArray(row.equipment),
-    rules: row.rules || undefined,
+    rules: undefined, // Not in schema
     isExternal: row.is_external === true
   }
 }
@@ -51,7 +51,6 @@ function competitionToDbRow(competition: Partial<Competition>): any {
     start_date: competition.date,
     end_date: competition.endDate,
     location: competition.location,
-    registration_deadline: competition.registrationDeadline,
     max_participants: competition.maxParticipants,
     current_participants: competition.currentParticipants,
     category: competition.category,
@@ -64,8 +63,8 @@ function competitionToDbRow(competition: Partial<Competition>): any {
     image_alt: competition.imageAlt,
     entry_fee: competition.fee, // Note: Schema uses entry_fee
     equipment: JSON.stringify(competition.equipment || []),
-    rules: competition.rules,
     is_external: competition.isExternal === true
+    // Note: registration_deadline and rules are not in schema, so removed
   }
 }
 
@@ -74,8 +73,8 @@ function competitionToDbRow(competition: Partial<Competition>): any {
  */
 export async function getAllCompetitions(): Promise<Competition[]> {
   try {
-    const rows = await sql`SELECT * FROM competitions ORDER BY start_date ASC`
-    return rows.map(dbRowToCompetition)
+    const result = await sql`SELECT * FROM competitions ORDER BY start_date ASC`
+    return result.rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting all competitions:', error)
     throw new Error('Failed to fetch competitions')
@@ -87,12 +86,12 @@ export async function getAllCompetitions(): Promise<Competition[]> {
  */
 export async function getUpcomingCompetitions(): Promise<Competition[]> {
   try {
-    const rows = await sql`
+    const result = await sql`
       SELECT * FROM competitions 
       WHERE start_date >= CURRENT_DATE AND status = 'upcoming'
       ORDER BY start_date ASC
     `
-    return rows.map(dbRowToCompetition)
+    return result.rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting upcoming competitions:', error)
     throw new Error('Failed to fetch upcoming competitions')
@@ -104,12 +103,12 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
  */
 export async function getPastCompetitions(): Promise<Competition[]> {
   try {
-    const rows = await sql`
+    const result = await sql`
       SELECT * FROM competitions 
       WHERE start_date < CURRENT_DATE OR status = 'completed'
       ORDER BY start_date DESC
     `
-    return rows.map(dbRowToCompetition)
+    return result.rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting past competitions:', error)
     throw new Error('Failed to fetch past competitions')
@@ -121,8 +120,12 @@ export async function getPastCompetitions(): Promise<Competition[]> {
  */
 export async function getCompetitionById(id: string): Promise<Competition | null> {
   try {
-    const rows = await sql`SELECT * FROM competitions WHERE id = ${id}`
-    return rows.length > 0 ? dbRowToCompetition(rows[0]) : null
+    const result = await sql`SELECT * FROM competitions WHERE id = ${id}`
+    console.log('getCompetitionById query result:', { 
+      rows: result.rows.length,
+      firstRow: result.rows.length > 0 ? Object.keys(result.rows[0]) : 'no rows'
+    })
+    return result.rows.length > 0 ? dbRowToCompetition(result.rows[0]) : null
   } catch (error) {
     console.error('Error getting competition by ID:', error)
     throw new Error('Failed to fetch competition')
@@ -138,23 +141,25 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
     const dbData = competitionToDbRow({ ...competitionData, id })
     
     console.log('Adding competition with data:', dbData)
+    console.log('Generated UUID:', id)
     
-    // Insert based on actual schema columns
-    await sql`
+    // Insert based on actual schema columns (without registration_deadline and rules as they don't exist)
+    const insertResult = await sql`
       INSERT INTO competitions (
-        id, title, description, start_date, end_date, location, registration_deadline,
+        id, title, description, start_date, end_date, location,
         max_participants, current_participants, category, status, organizer,
         contact_email, registration_url, results_url, image_url, image_alt,
-        entry_fee, equipment, rules, is_external
+        entry_fee, equipment, is_external
       ) VALUES (
         ${id}, ${dbData.title}, ${dbData.description}, ${dbData.start_date}, ${dbData.end_date},
-        ${dbData.location}, ${dbData.registration_deadline}, ${dbData.max_participants}, 
-        ${dbData.current_participants}, ${dbData.category}, ${dbData.status}, ${dbData.organizer}, 
-        ${dbData.contact_email}, ${dbData.registration_url}, ${dbData.results_url}, 
-        ${dbData.image_url}, ${dbData.image_alt}, ${dbData.entry_fee}, ${dbData.equipment}, 
-        ${dbData.rules}, ${dbData.is_external}
+        ${dbData.location}, ${dbData.max_participants}, ${dbData.current_participants}, 
+        ${dbData.category}, ${dbData.status}, ${dbData.organizer}, ${dbData.contact_email},
+        ${dbData.registration_url}, ${dbData.results_url}, ${dbData.image_url}, 
+        ${dbData.image_alt}, ${dbData.entry_fee}, ${dbData.equipment}, ${dbData.is_external}
       )
     `
+    console.log('Insert result:', insertResult)
+    console.log('Looking for competition with ID:', id)
     
     const newCompetition = await getCompetitionById(id)
     if (!newCompetition) throw new Error('Failed to retrieve newly created competition')
