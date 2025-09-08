@@ -1,5 +1,6 @@
 import { sql } from './database'
 import { Competition } from '@/types'
+import { v4 as uuidv4 } from 'uuid'
 
 /**
  * PostgreSQL-based competitions storage implementation
@@ -35,7 +36,7 @@ function dbRowToCompetition(row: any): Competition {
     resultsUrl: row.results_url || undefined,
     imageUrl: row.image_url || undefined,
     imageAlt: row.image_alt || undefined,
-    fee: row.fee || undefined,
+    fee: row.entry_fee || undefined, // Note: Schema uses entry_fee
     equipment: parseJsonArray(row.equipment),
     rules: row.rules || undefined,
     isExternal: row.is_external === true
@@ -61,7 +62,7 @@ function competitionToDbRow(competition: Partial<Competition>): any {
     results_url: competition.resultsUrl,
     image_url: competition.imageUrl,
     image_alt: competition.imageAlt,
-    fee: competition.fee,
+    entry_fee: competition.fee, // Note: Schema uses entry_fee
     equipment: JSON.stringify(competition.equipment || []),
     rules: competition.rules,
     is_external: competition.isExternal === true
@@ -133,21 +134,24 @@ export async function getCompetitionById(id: string): Promise<Competition | null
  */
 export async function addCompetition(competitionData: Omit<Competition, 'id'>): Promise<Competition> {
   try {
-    const id = Date.now().toString()
+    const id = uuidv4()
     const dbData = competitionToDbRow({ ...competitionData, id })
     
+    console.log('Adding competition with data:', dbData)
+    
+    // Insert based on actual schema columns
     await sql`
       INSERT INTO competitions (
         id, title, description, start_date, end_date, location, registration_deadline,
         max_participants, current_participants, category, status, organizer,
         contact_email, registration_url, results_url, image_url, image_alt,
-        fee, equipment, rules, is_external
+        entry_fee, equipment, rules, is_external
       ) VALUES (
         ${id}, ${dbData.title}, ${dbData.description}, ${dbData.start_date}, ${dbData.end_date},
-        ${dbData.location}, ${dbData.registration_deadline}, ${dbData.max_participants},
-        ${dbData.current_participants}, ${dbData.category}, ${dbData.status}, ${dbData.organizer},
-        ${dbData.contact_email}, ${dbData.registration_url}, ${dbData.results_url},
-        ${dbData.image_url}, ${dbData.image_alt}, ${dbData.fee}, ${dbData.equipment},
+        ${dbData.location}, ${dbData.registration_deadline}, ${dbData.max_participants}, 
+        ${dbData.current_participants}, ${dbData.category}, ${dbData.status}, ${dbData.organizer}, 
+        ${dbData.contact_email}, ${dbData.registration_url}, ${dbData.results_url}, 
+        ${dbData.image_url}, ${dbData.image_alt}, ${dbData.entry_fee}, ${dbData.equipment}, 
         ${dbData.rules}, ${dbData.is_external}
       )
     `
