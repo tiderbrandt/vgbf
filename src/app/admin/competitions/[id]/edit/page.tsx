@@ -78,18 +78,18 @@ export default function EditCompetitionPage({ params }: Props) {
             }
           }
         } else {
-          alert('Tävling inte hittad')
+          error('Tävling inte hittad', 'Kunde inte ladda tävlingen')
           router.push('/admin')
         }
       }
-    } catch (error) {
-      console.error('Error loading competition:', error)
-      alert('Fel vid laddning av tävling')
+    } catch (err) {
+      console.error('Error loading competition:', err)
+      error('Fel vid laddning', 'Kunde inte ladda tävlingen')
       router.push('/admin')
     } finally {
       setLoading(false)
     }
-  }, [params.id, router])
+  }, [params.id, router, error])
 
   // Load competition
   useEffect(() => {
@@ -128,14 +128,14 @@ export default function EditCompetitionPage({ params }: Props) {
       if (data.success) {
         // Clear draft
         localStorage.removeItem(`competition-edit-${params.id}`)
-        alert('Tävling uppdaterad!')
+        success('Tävling uppdaterad!', 'Ändringarna har sparats')
         router.push('/admin')
       } else {
-        alert('Fel vid uppdatering: ' + data.error)
+        error('Fel vid uppdatering', data.error || 'Okänt fel')
       }
-    } catch (error) {
-      console.error('Error updating competition:', error)
-      alert('Fel vid uppdatering av tävling')
+    } catch (err) {
+      console.error('Error updating competition:', err)
+      error('Fel vid uppdatering', 'Kunde inte spara ändringarna')
     } finally {
       setSaving(false)
     }
@@ -144,7 +144,7 @@ export default function EditCompetitionPage({ params }: Props) {
   const saveDraft = () => {
     localStorage.setItem(`competition-edit-${params.id}`, JSON.stringify(formData))
     setLastSaved(new Date())
-    alert('Utkast sparat!')
+    success('Utkast sparat!', 'Dina ändringar har sparats lokalt')
   }
 
   const resetToOriginal = () => {
@@ -169,7 +169,7 @@ export default function EditCompetitionPage({ params }: Props) {
         imageAlt: originalCompetition.imageAlt || '',
       })
       localStorage.removeItem(`competition-edit-${params.id}`)
-      alert('Återställt till original!')
+      success('Återställt till original!', 'Alla ändringar har återställts')
     }
   }
 
