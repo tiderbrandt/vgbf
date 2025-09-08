@@ -10,10 +10,10 @@ function dbRowToRecord(row: any): DistrictRecord {
     id: row.id,
     category: row.category,
     class: row.class,
-    name: row.name,
-    club: row.club || '',
+    name: row.archer_name,
+    club: row.club_id || '', // Note: club_id might be a reference to clubs table
     score: row.score,
-    date: row.date,
+    date: row.competition_date,
     competition: row.competition || '',
     competitionUrl: row.competition_url || undefined,
     organizer: row.organizer || '',
@@ -25,10 +25,10 @@ function recordToDbRow(record: Partial<DistrictRecord>): any {
   return {
     category: record.category,
     class: record.class,
-    name: record.name,
-    club: record.club,
+    archer_name: record.name,
+    club_id: record.club,
     score: record.score,
-    date: record.date,
+    competition_date: record.date,
     competition: record.competition,
     competition_url: record.competitionUrl,
     organizer: record.organizer,
@@ -87,15 +87,18 @@ export async function getRecordsByCategory(category: string): Promise<DistrictRe
  */
 export async function addRecord(recordData: Omit<DistrictRecord, 'id'>): Promise<DistrictRecord> {
   try {
-    const id = Date.now().toString()
+    // Generate a proper UUID using PostgreSQL's uuid_generate_v4()
+    const result = await sql`SELECT uuid_generate_v4() as id`
+    const id = result[0]?.id || crypto.randomUUID()
+    
     const dbData = recordToDbRow({ ...recordData, id })
     
     await sql`
       INSERT INTO district_records (
-        id, category, class, name, club, score, date, competition, competition_url, organizer, notes
+        id, category, class, archer_name, club_id, score, competition_date, competition, competition_url, organizer, notes
       ) VALUES (
-        ${id}, ${dbData.category}, ${dbData.class}, ${dbData.name}, ${dbData.club},
-        ${dbData.score}, ${dbData.date}, ${dbData.competition}, ${dbData.competition_url},
+        ${id}, ${dbData.category}, ${dbData.class}, ${dbData.archer_name}, ${dbData.club_id},
+        ${dbData.score}, ${dbData.competition_date}, ${dbData.competition}, ${dbData.competition_url},
         ${dbData.organizer}, ${dbData.notes}
       )
     `
@@ -114,30 +117,27 @@ export async function addRecord(recordData: Omit<DistrictRecord, 'id'>): Promise
  */
 export async function updateRecord(id: string, recordData: Partial<DistrictRecord>): Promise<DistrictRecord | null> {
   try {
+    console.log('Updating record:', id, recordData)
     const dbData = recordToDbRow(recordData)
+    console.log('Mapped to DB data:', dbData)
     
-    // Build dynamic update query
-    const updateFields: string[] = []
-    const values: any[] = []
+    // Use the correct table name and column names
+    await sql`
+      UPDATE district_records SET
+        category = ${dbData.category},
+        class = ${dbData.class},
+        archer_name = ${dbData.archer_name},
+        club_id = ${dbData.club_id},
+        score = ${dbData.score},
+        competition_date = ${dbData.competition_date},
+        competition = ${dbData.competition},
+        competition_url = ${dbData.competition_url},
+        organizer = ${dbData.organizer},
+        notes = ${dbData.notes}
+      WHERE id = ${id}
+    `
     
-    Object.entries(dbData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        updateFields.push(`${key} = $${values.length + 1}`)
-        values.push(value)
-      }
-    })
-    
-    if (updateFields.length === 0) {
-      return await getRecordById(id)
-    }
-    
-    values.push(id)
-    const whereClause = `id = $${values.length}`
-    
-    const updateQuery = `UPDATE records SET ${updateFields.join(', ')} WHERE ${whereClause}`
-    
-    await sql.query(updateQuery, values)
-    
+    console.log('Record updated successfully')
     return await getRecordById(id)
   } catch (error) {
     console.error('Error updating record:', error)
