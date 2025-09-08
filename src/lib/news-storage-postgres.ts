@@ -130,16 +130,18 @@ export async function getRecentNews(limit: number = 4): Promise<NewsArticle[]> {
  */
 export async function addNews(newsData: Omit<NewsArticle, 'id'>): Promise<NewsArticle> {
   try {
-    const id = Date.now().toString()
+    // Generate a proper UUID
+    const { v4: uuidv4 } = require('uuid')
+    const id = uuidv4()
     const dbData = newsArticleToDbRow({ ...newsData, id })
     
     await sql`
       INSERT INTO news_articles (
-        id, title, excerpt, content, date, author, slug, featured, image_url, image_alt, tags
+        id, title, excerpt, content, published_date, author, slug, is_featured, image_url, image_alt, tags, is_published
       ) VALUES (
-        ${id}, ${dbData.title}, ${dbData.excerpt}, ${dbData.content}, ${dbData.date},
-        ${dbData.author}, ${dbData.slug}, ${dbData.featured}, ${dbData.image_url},
-        ${dbData.image_alt}, ${dbData.tags}
+        ${id}, ${dbData.title}, ${dbData.excerpt}, ${dbData.content}, ${dbData.published_date},
+        ${dbData.author}, ${dbData.slug}, ${dbData.is_featured}, ${dbData.image_url},
+        ${dbData.image_alt}, ${dbData.tags}, ${dbData.is_published}
       )
     `
     
