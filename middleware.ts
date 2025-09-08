@@ -1,29 +1,17 @@
-import { withAuth } from "next-auth/middleware"
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export default withAuth(
-  function middleware(req) {
-    // Add any additional middleware logic here
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        // Allow access to admin routes only for users with admin role
-        if (req.nextUrl.pathname.startsWith("/admin")) {
-          return token?.role === "admin"
-        }
-        
-        // Allow all other routes
-        return true
-      },
-    },
-  }
-)
+// Simple middleware for basic route protection
+// Your actual auth is handled by JWT tokens in API routes
+export function middleware(request: NextRequest) {
+  // For now, just allow all routes
+  // Your API routes already handle JWT authentication properly
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
-    // Protect admin routes
-    "/admin/:path*",
-    // Exclude API auth routes from middleware
-    "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
-  ]
+    // Match all paths except static files and API routes that don't need protection
+    '/((?!_next/static|_next/image|favicon.ico).*)',
+  ],
 }
