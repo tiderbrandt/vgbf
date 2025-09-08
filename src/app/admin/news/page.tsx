@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -15,26 +15,23 @@ export default function NewsAdminPage() {
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
 
-  const loadNews = useCallback(async () => {
+  useEffect(() => {
+    loadNews()
+  }, [])
+
+  const loadNews = async () => {
     try {
       const response = await fetch('/api/news')
       const data = await response.json()
       if (data.success) {
         setNews(data.data)
-      } else {
-        error('Fel vid laddning', 'Kunde inte ladda nyheter')
       }
-    } catch (err) {
-      console.error('Error loading news:', err)
-      error('Fel vid laddning', 'Kunde inte ansluta till servern')
+    } catch (error) {
+      console.error('Error loading news:', error)
     } finally {
       setLoading(false)
     }
-  }, [error])
-
-  useEffect(() => {
-    loadNews()
-  }, [loadNews])
+  }
 
   const deleteNews = async (id: string) => {
     if (!confirm('Är du säker på att du vill ta bort denna nyhet?')) {
