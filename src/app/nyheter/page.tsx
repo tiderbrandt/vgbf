@@ -22,9 +22,19 @@ export const fetchCache = 'force-no-store'
 
 async function getNewsData() {
   // Use the API endpoint to ensure consistency with admin interface
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'http://localhost:3000'
+  let baseUrl = 'http://localhost:3000'
+  
+  if (process.env.VERCEL_URL) {
+    baseUrl = `https://${process.env.VERCEL_URL}`
+  } else if (process.env.NODE_ENV === 'production') {
+    baseUrl = 'https://vgbf.vercel.app'
+  }
+  
+  console.log('Fetching news from:', `${baseUrl}/api/news`)
+  console.log('Environment:', { 
+    VERCEL_URL: process.env.VERCEL_URL, 
+    NODE_ENV: process.env.NODE_ENV 
+  })
   
   try {
     const response = await fetch(`${baseUrl}/api/news`, {
@@ -35,14 +45,16 @@ async function getNewsData() {
     })
     
     if (!response.ok) {
-      throw new Error('Failed to fetch news')
+      throw new Error(`API request failed: ${response.status}`)
     }
     
     const data = await response.json()
+    console.log('Successfully fetched news articles:', data.data?.length || 0)
     return data.data || []
   } catch (error) {
-    console.error('Error fetching news:', error)
+    console.error('Error fetching news from API:', error)
     // Fallback to direct database call
+    console.log('Falling back to direct database call')
     return await getAllNews()
   }
 }
