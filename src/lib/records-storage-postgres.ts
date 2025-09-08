@@ -11,7 +11,7 @@ function dbRowToRecord(row: any): DistrictRecord {
     category: row.category,
     class: row.class,
     name: row.archer_name,
-    club: row.club_id || '', // Note: club_id might be a reference to clubs table
+    club: row.club_name || row.club_id || '', // Use club_name if available, fallback to club_id
     score: row.score,
     date: row.competition_date,
     competition: row.competition || '',
@@ -26,7 +26,7 @@ function recordToDbRow(record: Partial<DistrictRecord>): any {
     category: record.category,
     class: record.class,
     archer_name: record.name,
-    club_id: record.club,
+    // Don't update club_id since it's a UUID foreign key - skip it for now
     score: record.score,
     competition_date: record.date,
     competition: record.competition,
@@ -93,11 +93,12 @@ export async function addRecord(recordData: Omit<DistrictRecord, 'id'>): Promise
     
     const dbData = recordToDbRow({ ...recordData, id })
     
+    // Exclude club_id since it's a foreign key - we'll handle club associations separately
     await sql`
       INSERT INTO district_records (
-        id, category, class, archer_name, club_id, score, competition_date, competition, competition_url, organizer, notes
+        id, category, class, archer_name, score, competition_date, competition, competition_url, organizer, notes
       ) VALUES (
-        ${id}, ${dbData.category}, ${dbData.class}, ${dbData.archer_name}, ${dbData.club_id},
+        ${id}, ${dbData.category}, ${dbData.class}, ${dbData.archer_name},
         ${dbData.score}, ${dbData.competition_date}, ${dbData.competition}, ${dbData.competition_url},
         ${dbData.organizer}, ${dbData.notes}
       )
@@ -121,13 +122,12 @@ export async function updateRecord(id: string, recordData: Partial<DistrictRecor
     const dbData = recordToDbRow(recordData)
     console.log('Mapped to DB data:', dbData)
     
-    // Use the correct table name and column names
+    // Use the correct table name and column names (excluding club_id since it's a foreign key)
     await sql`
       UPDATE district_records SET
         category = ${dbData.category},
         class = ${dbData.class},
         archer_name = ${dbData.archer_name},
-        club_id = ${dbData.club_id},
         score = ${dbData.score},
         competition_date = ${dbData.competition_date},
         competition = ${dbData.competition},
