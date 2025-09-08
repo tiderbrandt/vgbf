@@ -1,45 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminAuth } from '@/lib/auth'
+import { getSettings, updateSettings, resetSettings, createBackup } from '@/lib/settings-storage-postgres'
 
-// This would eventually connect to a database table for settings
-// For now, we'll use a simple in-memory storage simulation
-const defaultSettings = {
-  siteName: 'Västra Götalands Bågskytteförbund',
-  siteDescription: 'Officiell webbplats för Västra Götalands Bågskytteförbund',
-  adminEmail: 'admin@vgbf.se',
-  itemsPerPage: 10,
-  dateFormat: 'sv-SE',
-  enableRegistration: false,
-  enableNotifications: true,
-  backupFrequency: 'weekly',
-  maintenanceMode: false
-}
-
-// In a real implementation, this would be stored in the database
-let currentSettings = { ...defaultSettings }
-
+// GET - Retrieve current settings
 export async function GET(request: NextRequest) {
   try {
+    // Verify admin authentication
     const isAuthorized = await verifyAdminAuth(request)
     if (!isAuthorized) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
     }
 
-    return NextResponse.json({
-      success: true,
-      data: currentSettings
-    })
+    const result = await getSettings()
+    
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, data: result.data })
   } catch (error) {
-    console.error('Error fetching settings:', error)
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to fetch settings'
-    }, { status: 500 })
+    console.error('Error in GET /api/admin/settings:', error)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
 
+// PUT - Update settings
 export async function PUT(request: NextRequest) {
   try {
+    // Verify admin authentication
     const isAuthorized = await verifyAdminAuth(request)
     if (!isAuthorized) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
@@ -47,42 +35,34 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json()
     
-    // Validate the settings object
-    const allowedFields = [
-      'siteName', 'siteDescription', 'adminEmail', 'itemsPerPage', 
-      'dateFormat', 'enableRegistration', 'enableNotifications', 
-      'backupFrequency', 'maintenanceMode'
-    ]
+    // Validate required fields
+    const requiredFields = ['siteName', 'siteDescription', 'adminEmail', 'itemsPerPage', 'dateFormat', 'enableRegistration', 'enableNotifications', 'backupFrequency', 'maintenanceMode']
+    const missingFields = requiredFields.filter(field => !(field in body))
     
-    const filteredSettings = Object.keys(body)
-      .filter(key => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = body[key]
-        return obj
-      }, {} as any)
+    if (missingFields.length > 0) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `Missing required fields: ${missingFields.join(', ')}` 
+      }, { status: 400 })
+    }
 
-    // Update current settings
-    currentSettings = { ...currentSettings, ...filteredSettings }
+    const result = await updateSettings(body)
+    
+    if (!result.success) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+    }
 
-    // In a real implementation, you would save to database here
-    console.log('Updated settings:', currentSettings)
-
-    return NextResponse.json({
-      success: true,
-      data: currentSettings,
-      message: 'Settings updated successfully'
-    })
+    return NextResponse.json({ success: true, data: result.data })
   } catch (error) {
-    console.error('Error updating settings:', error)
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to update settings'
-    }, { status: 500 })
+    console.error('Error in PUT /api/admin/settings:', error)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
 
+// POST - Special actions (reset, backup)
 export async function POST(request: NextRequest) {
   try {
+    // Verify admin authentication
     const isAuthorized = await verifyAdminAuth(request)
     if (!isAuthorized) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
@@ -91,48 +71,29 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { action } = body
 
-    switch (action) {
-      case 'reset':
-        currentSettings = { ...defaultSettings }
-        return NextResponse.json({
-          success: true,
-          data: currentSettings,
-          message: 'Settings reset to defaults'
-        })
+    if (action === 'reset') {
+      const result = await resetSettings()
+      
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
 
-      case 'backup':
-        // Simulate backup creation
-        const backupData = {
-          timestamp: new Date().toISOString(),
-          settings: currentSettings,
-          // In real implementation, would include database backup
-        }
-        console.log('Backup created:', backupData)
-        return NextResponse.json({
-          success: true,
-          message: 'Backup created successfully',
-          data: { backupId: `backup_${Date.now()}` }
-        })
-
-      case 'export':
-        // Simulate data export
-        return NextResponse.json({
-          success: true,
-          message: 'Data export initiated',
-          data: { exportUrl: '/api/admin/export/data.json' }
-        })
-
-      default:
-        return NextResponse.json({
-          success: false,
-          error: 'Unknown action'
-        }, { status: 400 })
+      return NextResponse.json({ success: true, data: result.data, message: 'Settings reset to defaults' })
     }
+    
+    if (action === 'backup') {
+      const result = await createBackup()
+      
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, message: 'Backup created successfully' })
+    }
+
+    return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 })
   } catch (error) {
-    console.error('Error processing settings action:', error)
-    return NextResponse.json({
-      success: false,
-      error: 'Failed to process action'
-    }, { status: 500 })
+    console.error('Error in POST /api/admin/settings:', error)
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
   }
 }
