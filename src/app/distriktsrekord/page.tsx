@@ -3,6 +3,9 @@ import { getAllRecords as getDistrictRecords } from '@/lib/records-storage-postg
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 
+// Force dynamic rendering to always show latest data
+export const dynamic = 'force-dynamic'
+
 export default async function DistriktsrekordPage() {
   const records = await getDistrictRecords()
 
