@@ -8,9 +8,17 @@ function generateSponsorId(): string {
   return Date.now().toString()
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const sponsors = await getAllSponsors()
+    const { searchParams } = new URL(request.url)
+    const includeInactive = searchParams.get('includeInactive') === 'true'
+    
+    // For admin requests that want inactive sponsors, verify authentication
+    if (includeInactive && !verifyAdminAuth(request)) {
+      return createUnauthorizedResponse()
+    }
+    
+    const sponsors = await getAllSponsors(includeInactive)
     return NextResponse.json({ success: true, data: sponsors })
   } catch (error) {
     console.error('Error fetching sponsors:', error)

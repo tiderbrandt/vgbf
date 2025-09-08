@@ -19,7 +19,8 @@ export default function SponsorsAdminPage() {
 
   const loadSponsors = async () => {
     try {
-      const response = await fetch('/api/sponsors')
+      // Include inactive sponsors for admin view
+      const response = await fetch('/api/sponsors?includeInactive=true')
       const data = await response.json()
       if (data.success) {
         setSponsors(data.data)

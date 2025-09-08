@@ -35,17 +35,22 @@ function sponsorToDbRow(sponsor: Partial<Sponsor>): any {
 }
 
 /**
- * Get all sponsors
+ * Get all sponsors (active only by default)
  */
-export async function getAllSponsors(): Promise<Sponsor[]> {
+export async function getAllSponsors(includeInactive: boolean = false): Promise<Sponsor[]> {
   try {
-    const result = await sql`SELECT * FROM sponsors WHERE is_active = true ORDER BY priority ASC, name ASC`
+    const query = includeInactive 
+      ? sql`SELECT * FROM sponsors ORDER BY is_active DESC, priority ASC, name ASC`
+      : sql`SELECT * FROM sponsors WHERE is_active = true ORDER BY priority ASC, name ASC`
+    
+    const result = await query
     
     console.log('getAllSponsors result:', { 
       resultType: typeof result,
       isArray: Array.isArray(result),
       length: result?.length || 0,
-      hasRows: !!result?.rows
+      hasRows: !!result?.rows,
+      includeInactive
     })
 
     // Handle both Neon format (direct array) and pg format (result.rows)
