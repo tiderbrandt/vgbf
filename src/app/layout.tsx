@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { NextAuthProvider } from '@/components/NextAuthProvider'
 import ToastContainer from '@/components/ui/ToastContainer'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
 
@@ -33,12 +34,14 @@ export default function RootLayout({
     <html lang="sv">
       <body className={inter.className}>
         <ErrorBoundary>
-          <ToastProvider>
-            <AuthProvider>
-              {children}
-              <ToastContainer />
-            </AuthProvider>
-          </ToastProvider>
+          <NextAuthProvider>
+            <ToastProvider>
+              <AuthProvider>
+                {children}
+                <ToastContainer />
+              </AuthProvider>
+            </ToastProvider>
+          </NextAuthProvider>
         </ErrorBoundary>
       </body>
     </html>
