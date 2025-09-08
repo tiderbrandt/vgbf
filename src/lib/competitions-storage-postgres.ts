@@ -154,14 +154,27 @@ export async function getPastCompetitions(): Promise<Competition[]> {
 export async function getCompetitionById(id: string): Promise<Competition | null> {
   try {
     const result = await sql`SELECT * FROM competitions WHERE id = ${id}`
+    console.log('getCompetitionById raw query result:', result)
     console.log('getCompetitionById query result:', { 
-      rows: result.rows.length,
-      firstRow: result.rows.length > 0 ? Object.keys(result.rows[0]) : 'no rows'
+      length: result?.length,
+      firstRow: result.rows?.length > 0 ? Object.keys(result.rows[0]) : 'no rows',
+      isArray: Array.isArray(result),
+      type: typeof result,
+      rows: result.rows?.length
     })
-    return result.rows.length > 0 ? dbRowToCompetition(result.rows[0]) : null
+    
+    if (!result || !result.rows || result.rows.length === 0) {
+      console.log('getCompetitionById: No competition found with ID:', id)
+      return null
+    }
+    
+    console.log('getCompetitionById: Found competition, converting to Competition object...')
+    const competition = dbRowToCompetition(result.rows[0])
+    console.log('getCompetitionById: Converted competition:', { id: competition.id, title: competition.title })
+    return competition
   } catch (error) {
     console.error('Error getting competition by ID:', error)
-    throw new Error('Failed to fetch competition')
+    return null // Return null instead of throwing during retrieval
   }
 }
 
@@ -195,7 +208,12 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
     console.log('Looking for competition with ID:', id)
     
     const newCompetition = await getCompetitionById(id)
-    if (!newCompetition) throw new Error('Failed to retrieve newly created competition')
+    if (!newCompetition) {
+      console.error('Failed to retrieve newly created competition after INSERT. INSERT rowCount:', insertResult.rowCount)
+      throw new Error('Failed to retrieve newly created competition')
+    }
+    
+    console.log('Successfully created and retrieved competition:', { id: newCompetition.id, title: newCompetition.title })
     return newCompetition
   } catch (error) {
     console.error('Error adding competition:', error)
