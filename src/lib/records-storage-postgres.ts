@@ -1,5 +1,6 @@
 import { sql } from './database'
 import { DistrictRecord } from '@/types'
+import { randomUUID } from 'crypto'
 
 /**
  * PostgreSQL-based records storage implementation
@@ -10,10 +11,10 @@ function dbRowToRecord(row: any): DistrictRecord {
     id: row.id,
     category: row.category,
     class: row.class,
-    name: row.name,
-    club: row.club || '',
+    name: row.archer_name,  // Database column is archer_name
+    club: '', // TODO: Need to lookup club name from club_id, for now empty string
     score: row.score,
-    date: row.date,
+    date: row.competition_date, // Database column is competition_date
     competition: row.competition || '',
     competitionUrl: row.competition_url || undefined,
     organizer: row.organizer || '',
@@ -25,10 +26,10 @@ function recordToDbRow(record: Partial<DistrictRecord>): any {
   return {
     category: record.category,
     class: record.class,
-    name: record.name,
-    club: record.club,
+    archer_name: record.name,    // Map name to archer_name
+    club: record.club,           // We'll handle club_id mapping later
     score: record.score,
-    date: record.date,
+    competition_date: record.date, // Map date to competition_date
     competition: record.competition,
     competition_url: record.competitionUrl,
     organizer: record.organizer,
@@ -87,20 +88,22 @@ export async function getRecordsByCategory(category: string): Promise<DistrictRe
  */
 export async function addRecord(recordData: Omit<DistrictRecord, 'id'>): Promise<DistrictRecord> {
   try {
-    const id = Date.now().toString()
-    const dbData = recordToDbRow({ ...recordData, id })
+    // Generate UUID for new record
+    const newId = randomUUID()
+    
+    console.log('Adding record:', { category: recordData.category, name: recordData.name })
     
     await sql`
       INSERT INTO district_records (
-        id, category, class, name, club, score, date, competition, competition_url, organizer, notes
+        id, archer_name, club_id, category, class, score, competition, competition_date, competition_url, organizer, notes, verified
       ) VALUES (
-        ${id}, ${dbData.category}, ${dbData.class}, ${dbData.name}, ${dbData.club},
-        ${dbData.score}, ${dbData.date}, ${dbData.competition}, ${dbData.competition_url},
-        ${dbData.organizer}, ${dbData.notes}
+        ${newId}, ${recordData.name}, ${null}, ${recordData.category}, 
+        ${recordData.class}, ${recordData.score}, ${recordData.competition}, ${recordData.date},
+        ${recordData.competitionUrl}, ${recordData.organizer}, ${recordData.notes}, ${false}
       )
     `
     
-    const newRecord = await getRecordById(id)
+    const newRecord = await getRecordById(newId)
     if (!newRecord) throw new Error('Failed to retrieve newly created record')
     return newRecord
   } catch (error) {
