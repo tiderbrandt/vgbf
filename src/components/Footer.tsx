@@ -194,7 +194,7 @@ function FooterAdminLink() {
       {isAuthenticated ? (
         <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Admin area" aria-label="Admin area">Admin</Link>
       ) : (
-        <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Sign in" aria-label="Sign in">Sign in</Link>
+        <Link href="/admin" className="text-gray-400 hover:text-vgbf-gold transition-colors" title="Logga in" aria-label="Logga in">Logga in</Link>
       )}
     </div>
   )
