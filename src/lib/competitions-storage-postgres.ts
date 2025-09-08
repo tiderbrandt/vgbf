@@ -203,36 +203,35 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
         ${dbData.image_alt}, ${dbData.entry_fee}, ${dbData.equipment}, ${dbData.is_external}
       )
     `
-    console.log('Insert result:', insertResult)
     console.log('Insert successful, rowCount:', insertResult.rowCount)
     
-    // Add a small delay to ensure database consistency
-    await new Promise(resolve => setTimeout(resolve, 100))
-    
-    console.log('Looking for competition with ID:', id)
-    
-    const newCompetition = await getCompetitionById(id)
-    if (!newCompetition) {
-      console.error('Failed to retrieve newly created competition after INSERT.')
-      console.error('INSERT was successful with rowCount:', insertResult.rowCount)
-      
-      // Try to query all competitions to see if our data is there
-      const allComps = await sql`SELECT id, title FROM competitions ORDER BY start_date DESC LIMIT 5`
-      console.log('Recent competitions in database:', allComps.rows)
-      
-      // Let's try a different query approach
-      const directQuery = await sql`SELECT * FROM competitions WHERE id = ${id}`
-      console.log('Direct query result for our ID:', {
-        rowCount: directQuery.rowCount,
-        hasRows: !!directQuery.rows,
-        rowsLength: directQuery.rows?.length,
-        firstRow: directQuery.rows?.[0]
-      })
-      
-      throw new Error('Failed to retrieve newly created competition')
+    // Return the competition object directly from the data we just inserted
+    // instead of trying to retrieve it from the database
+    const newCompetition: Competition = {
+      id,
+      title: competitionData.title,
+      description: competitionData.description || '',
+      date: competitionData.date,
+      endDate: competitionData.endDate,
+      location: competitionData.location || '',
+      registrationDeadline: '', // Not used
+      maxParticipants: competitionData.maxParticipants,
+      currentParticipants: competitionData.currentParticipants || 0,
+      category: competitionData.category || 'other',
+      status: competitionData.status || 'upcoming',
+      organizer: competitionData.organizer || '',
+      contactEmail: competitionData.contactEmail || '',
+      registrationUrl: competitionData.registrationUrl,
+      resultsUrl: competitionData.resultsUrl,
+      imageUrl: competitionData.imageUrl,
+      imageAlt: competitionData.imageAlt,
+      fee: competitionData.fee,
+      equipment: competitionData.equipment || [],
+      rules: undefined,
+      isExternal: competitionData.isExternal || false
     }
     
-    console.log('Successfully created and retrieved competition:', { id: newCompetition.id, title: newCompetition.title })
+    console.log('Successfully created competition:', { id: newCompetition.id, title: newCompetition.title })
     return newCompetition
   } catch (error) {
     console.error('Error adding competition:', error)
