@@ -75,24 +75,32 @@ export async function getAllCompetitions(): Promise<Competition[]> {
   try {
     const result = await sql`SELECT * FROM competitions ORDER BY start_date ASC`
     console.log('getAllCompetitions result:', { 
-      hasResult: !!result, 
-      hasRows: !!result?.rows, 
-      rowCount: result?.rows?.length || 0 
+      resultType: typeof result,
+      isArray: Array.isArray(result),
+      length: result?.length || 0,
+      hasRows: !!result?.rows,
+      rowCount: result?.rows?.length || result?.length || 0 
     })
     
-    if (!result || !result.rows) {
-      console.warn('getAllCompetitions: result or rows is undefined, returning empty array')
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let competitions: any[]
+    if (Array.isArray(result)) {
+      // Neon format: result is the array directly
+      competitions = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      // pg format: result.rows is the array
+      competitions = result.rows
+    } else {
+      console.warn('getAllCompetitions: unexpected result format, returning empty array')
       return []
     }
-    
-    return result.rows.map(dbRowToCompetition)
+
+    return competitions.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting all competitions:', error)
     return [] // Return empty array instead of throwing during build
   }
-}
-
-/**
+}/**
  * Get upcoming competitions
  */
 export async function getUpcomingCompetitions(): Promise<Competition[]> {
@@ -103,24 +111,30 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
       ORDER BY start_date ASC
     `
     console.log('getUpcomingCompetitions result:', { 
-      hasResult: !!result, 
-      hasRows: !!result?.rows, 
-      rowCount: result?.rows?.length || 0 
+      resultType: typeof result,
+      isArray: Array.isArray(result),
+      length: result?.length || 0,
+      hasRows: !!result?.rows,
+      rowCount: result?.rows?.length || result?.length || 0 
     })
     
-    if (!result || !result.rows) {
-      console.warn('getUpcomingCompetitions: result or rows is undefined, returning empty array')
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let competitions: any[]
+    if (Array.isArray(result)) {
+      competitions = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      competitions = result.rows
+    } else {
+      console.warn('getUpcomingCompetitions: unexpected result format, returning empty array')
       return []
     }
-    
-    return result.rows.map(dbRowToCompetition)
+
+    return competitions.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting upcoming competitions:', error)
     return [] // Return empty array instead of throwing during build
   }
-}
-
-/**
+}/**
  * Get past/completed competitions
  */
 export async function getPastCompetitions(): Promise<Competition[]> {
@@ -156,19 +170,30 @@ export async function getCompetitionById(id: string): Promise<Competition | null
     console.log('getCompetitionById: Starting query for ID:', id)
     const result = await sql`SELECT * FROM competitions WHERE id = ${id}`
     
-    // Enhanced debugging
-    console.log('getCompetitionById: Raw result type:', typeof result)
-    console.log('getCompetitionById: Raw result keys:', Object.keys(result))
-    console.log('getCompetitionById: Raw result.rows type:', typeof result.rows)
-    console.log('getCompetitionById: Raw result.rows length:', result.rows?.length)
+    // Enhanced debugging for Neon vs pg format
+    console.log('getCompetitionById: Result type:', typeof result)
+    console.log('getCompetitionById: Is array:', Array.isArray(result))
+    console.log('getCompetitionById: Length:', result?.length)
+    console.log('getCompetitionById: Has rows property:', !!result?.rows)
     
-    if (result.rows?.length > 0) {
-      console.log('getCompetitionById: First row data:', result.rows[0])
-      const competition = dbRowToCompetition(result.rows[0])
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    let competitions: any[]
+    if (Array.isArray(result)) {
+      competitions = result
+    } else if (result?.rows && Array.isArray(result.rows)) {
+      competitions = result.rows
+    } else {
+      console.log('getCompetitionById: Unexpected result format')
+      return null
+    }
+    
+    if (competitions.length > 0) {
+      console.log('getCompetitionById: Found competition data:', competitions[0])
+      const competition = dbRowToCompetition(competitions[0])
       console.log('getCompetitionById: Successfully converted competition:', { id: competition.id, title: competition.title })
       return competition
     } else {
-      console.log('getCompetitionById: No rows found for ID:', id)
+      console.log('getCompetitionById: No competition found for ID:', id)
       return null
     }
   } catch (error) {

@@ -44,35 +44,32 @@ let usingPg = false
 
 // In local development, prefer pg fallback to avoid TLS/proxy certificate issues.
 // Force Neon only in production regardless of USE_PG_LOCAL.
-if (process.env.NODE_ENV !== 'production' && ((process.env.NODE_ENV === 'development' && process.env.USE_PG_LOCAL !== '0') || (process.env.USE_PG_LOCAL && process.env.USE_PG_LOCAL !== '0'))) {
+// UPDATED: Always use Neon when USE_PG_LOCAL=0 or not set
+if (process.env.USE_PG_LOCAL === '1') {
 	const f = createPgFallback()
 	client = f.tpl
 	poolRef = f.pool
 	usingPg = true
-	console.log('database helper: forcing pg Pool fallback for local development - USE_PG_LOCAL=', process.env.USE_PG_LOCAL)
+	console.log('database helper: forcing pg Pool fallback for local development - USE_PG_LOCAL=1')
 } else {
-	// In non-development environments attempt to load Neon serverless client.
-	// In development we avoid requiring Neon to prevent the fetch/TLS errors seen
-	// in some local environments. To force Neon in dev set ALLOW_NEON_IN_DEV=1 and
-	// USE_PG_LOCAL=0 explicitly.
-	if (process.env.NODE_ENV === 'development' && process.env.ALLOW_NEON_IN_DEV !== '1') {
-		console.log('database helper: running in development - skipping Neon import and using pg fallback')
+	// Use Neon serverless client for both development and production
+	try {
+		const { neon } = require('@neondatabase/serverless')
+		
+		// In development, disable SSL certificate validation to avoid local cert issues
+		if (process.env.NODE_ENV === 'development') {
+			process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+			console.log('database helper: disabled TLS certificate validation for local Neon development')
+		}
+		
+		client = neon(connectionString)
+		console.log('database helper: using Neon serverless client (USE_PG_LOCAL=0 or not set)')
+	} catch (e) {
+		console.error('database helper: failed to initialize Neon client, falling back to pg', e)
 		const f = createPgFallback()
 		client = f.tpl
 		poolRef = f.pool
 		usingPg = true
-	} else {
-		try {
-			const { neon } = require('@neondatabase/serverless')
-			client = neon(connectionString)
-			console.log('database helper: using Neon serverless client')
-		} catch (e) {
-			console.error('database helper: failed to initialize Neon client, falling back to pg', e)
-			const f = createPgFallback()
-			client = f.tpl
-			poolRef = f.pool
-			usingPg = true
-		}
 	}
 }
 
