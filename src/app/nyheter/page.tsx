@@ -12,13 +12,43 @@ export const metadata: Metadata = {
 }
 
 // Revalidate the page every 60 seconds to ensure fresh news data
-export const revalidate = 60
+export const revalidate = 0
 
 // Force dynamic rendering to prevent static generation
 export const dynamic = 'force-dynamic'
 
+// Fetch fresh data on every request
+export const fetchCache = 'force-no-store'
+
+async function getNewsData() {
+  // Use the API endpoint to ensure consistency with admin interface
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000'
+  
+  try {
+    const response = await fetch(`${baseUrl}/api/news`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch news')
+    }
+    
+    const data = await response.json()
+    return data.data || []
+  } catch (error) {
+    console.error('Error fetching news:', error)
+    // Fallback to direct database call
+    return await getAllNews()
+  }
+}
+
 export default async function NewsPage() {
-  const allNews = await getAllNews()
+  const allNews = await getNewsData()
 
   return (
     <main className="min-h-screen bg-white">

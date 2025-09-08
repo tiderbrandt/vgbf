@@ -24,11 +24,18 @@ export async function GET(request: NextRequest) {
         news = await getAllNews()
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: news,
       count: news.length
     })
+    
+    // Add cache control headers to prevent caching
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error('Error fetching news:', error)
     return NextResponse.json(
