@@ -153,3 +153,65 @@ export async function createBackup(): Promise<{ success: boolean; error?: string
     return { success: false, error: 'Failed to create backup' }
   }
 }
+
+// List all available backups
+export async function listBackups(): Promise<{ success: boolean; data?: any[]; error?: string }> {
+  try {
+    const result = await sql`
+      SELECT key, value, description, created_at
+      FROM admin_settings 
+      WHERE key LIKE 'backup_%'
+      ORDER BY created_at DESC
+    `
+    
+    const backups = result.map((row: any) => ({
+      id: row.key,
+      data: row.value,
+      description: row.description,
+      created_at: row.created_at
+    }))
+    
+    return { success: true, data: backups }
+  } catch (error) {
+    console.error('Error listing backups:', error)
+    return { success: false, error: 'Failed to list backups' }
+  }
+}
+
+// Restore settings from a backup
+export async function restoreFromBackup(backupId: string): Promise<SettingsResult> {
+  try {
+    // Get the backup data
+    const backupResult = await sql`
+      SELECT value FROM admin_settings WHERE key = ${backupId}
+    `
+    
+    if (backupResult.length === 0) {
+      return { success: false, error: 'Backup not found' }
+    }
+    
+    const backupData = backupResult[0].value
+    
+    // Validate that it's a backup with settings
+    if (!backupData.settings) {
+      return { success: false, error: 'Invalid backup format' }
+    }
+    
+    // Restore the settings
+    const result = await sql`
+      UPDATE admin_settings 
+      SET value = ${JSON.stringify(backupData.settings)}, updated_at = CURRENT_TIMESTAMP
+      WHERE key = 'site_config'
+      RETURNING value
+    `
+    
+    if (result.length === 0) {
+      return { success: false, error: 'Failed to restore settings' }
+    }
+    
+    return { success: true, data: result[0].value }
+  } catch (error) {
+    console.error('Error restoring from backup:', error)
+    return { success: false, error: 'Failed to restore from backup' }
+  }
+}

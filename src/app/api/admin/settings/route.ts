@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdminAuth } from '@/lib/auth'
-import { getSettings, updateSettings, resetSettings, createBackup } from '@/lib/settings-storage-postgres'
+import { getSettings, updateSettings, resetSettings, createBackup, listBackups, restoreFromBackup } from '@/lib/settings-storage-postgres'
 
 // GET - Retrieve current settings
 export async function GET(request: NextRequest) {
@@ -89,6 +89,32 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json({ success: true, message: 'Backup created successfully' })
+    }
+    
+    if (action === 'list-backups') {
+      const result = await listBackups()
+      
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, data: result.data })
+    }
+    
+    if (action === 'restore') {
+      const { backupId } = body
+      
+      if (!backupId) {
+        return NextResponse.json({ success: false, error: 'Backup ID is required' }, { status: 400 })
+      }
+      
+      const result = await restoreFromBackup(backupId)
+      
+      if (!result.success) {
+        return NextResponse.json({ success: false, error: result.error }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, data: result.data, message: 'Settings restored from backup' })
     }
 
     return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 })
