@@ -117,27 +117,66 @@ export async function addRecord(recordData: Omit<DistrictRecord, 'id'>): Promise
  */
 export async function updateRecord(id: string, recordData: Partial<DistrictRecord>): Promise<DistrictRecord | null> {
   try {
-    const dbData = recordToDbRow(recordData)
+    console.log('Updating record:', id, recordData)
     
-    // Build dynamic update query
-    const updateFields: string[] = []
+    // Build SET clauses for the fields we want to update
+    const updates: string[] = []
     const values: any[] = []
+    let paramIndex = 1
     
-    Object.entries(dbData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        updateFields.push(`${key} = $${values.length + 1}`)
-        values.push(value)
-      }
-    })
+    if (recordData.category !== undefined) {
+      updates.push(`category = $${paramIndex++}`)
+      values.push(recordData.category)
+    }
+    if (recordData.class !== undefined) {
+      updates.push(`class = $${paramIndex++}`)
+      values.push(recordData.class)
+    }
+    if (recordData.name !== undefined) {
+      updates.push(`archer_name = $${paramIndex++}`)
+      values.push(recordData.name)
+    }
+    if (recordData.club !== undefined) {
+      // For now, we'll ignore club_id since we don't have club mapping
+      // updates.push(`club_id = $${paramIndex++}`)
+      // values.push(recordData.club)
+    }
+    if (recordData.score !== undefined) {
+      updates.push(`score = $${paramIndex++}`)
+      values.push(recordData.score)
+    }
+    if (recordData.date !== undefined) {
+      updates.push(`competition_date = $${paramIndex++}`)
+      values.push(recordData.date)
+    }
+    if (recordData.competition !== undefined) {
+      updates.push(`competition = $${paramIndex++}`)
+      values.push(recordData.competition)
+    }
+    if (recordData.competitionUrl !== undefined) {
+      updates.push(`competition_url = $${paramIndex++}`)
+      values.push(recordData.competitionUrl)
+    }
+    if (recordData.organizer !== undefined) {
+      updates.push(`organizer = $${paramIndex++}`)
+      values.push(recordData.organizer)
+    }
+    if (recordData.notes !== undefined) {
+      updates.push(`notes = $${paramIndex++}`)
+      values.push(recordData.notes)
+    }
     
-    if (updateFields.length === 0) {
+    if (updates.length === 0) {
+      console.log('No fields to update')
       return await getRecordById(id)
     }
     
+    // Add the ID for the WHERE clause
     values.push(id)
-    const whereClause = `id = $${values.length}`
+    const whereParam = `$${paramIndex}`
     
-    const updateQuery = `UPDATE records SET ${updateFields.join(', ')} WHERE ${whereClause}`
+    const updateQuery = `UPDATE district_records SET ${updates.join(', ')} WHERE id = ${whereParam}`
+    console.log('Update query:', updateQuery, 'Values:', values)
     
     await sql.query(updateQuery, values)
     
