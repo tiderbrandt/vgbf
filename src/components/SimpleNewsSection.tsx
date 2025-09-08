@@ -4,7 +4,7 @@ import { getRecentNews } from '@/lib/news-storage-postgres'
 
 async function getExternalNews(): Promise<ExternalNewsItem[]> {
   try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/external-news`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/external-news`, {
       next: { revalidate: 3600 }
     })
     
