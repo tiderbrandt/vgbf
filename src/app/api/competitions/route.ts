@@ -17,7 +17,9 @@ export async function GET(request: NextRequest) {
   const category = searchParams.get('category')
 
   try {
-    let competitions
+    let competitions: Competition[] = []
+    
+    console.log('Competitions API GET - type:', type, 'category:', category)
     
     switch (type) {
       case 'upcoming':
@@ -28,6 +30,14 @@ export async function GET(request: NextRequest) {
         break
       default:
         competitions = await getAllCompetitions()
+    }
+
+    console.log('Competitions API GET - fetched:', competitions?.length || 0, 'competitions')
+
+    // Ensure competitions is always an array
+    if (!Array.isArray(competitions)) {
+      console.warn('Competitions result is not an array, setting to empty array')
+      competitions = []
     }
 
     // Filter by category if specified
@@ -45,7 +55,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       { 
         success: false, 
-        error: 'Failed to fetch competitions' 
+        error: 'Failed to fetch competitions',
+        data: [] // Always return empty array as fallback
       }, 
       { status: 500 }
     )

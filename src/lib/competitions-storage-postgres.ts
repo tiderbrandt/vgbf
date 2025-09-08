@@ -74,10 +74,21 @@ function competitionToDbRow(competition: Partial<Competition>): any {
 export async function getAllCompetitions(): Promise<Competition[]> {
   try {
     const result = await sql`SELECT * FROM competitions ORDER BY start_date ASC`
+    console.log('getAllCompetitions result:', { 
+      hasResult: !!result, 
+      hasRows: !!result?.rows, 
+      rowCount: result?.rows?.length || 0 
+    })
+    
+    if (!result || !result.rows) {
+      console.warn('getAllCompetitions: result or rows is undefined, returning empty array')
+      return []
+    }
+    
     return result.rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting all competitions:', error)
-    throw new Error('Failed to fetch competitions')
+    return [] // Return empty array instead of throwing during build
   }
 }
 
@@ -91,10 +102,21 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
       WHERE start_date >= CURRENT_DATE AND status = 'upcoming'
       ORDER BY start_date ASC
     `
+    console.log('getUpcomingCompetitions result:', { 
+      hasResult: !!result, 
+      hasRows: !!result?.rows, 
+      rowCount: result?.rows?.length || 0 
+    })
+    
+    if (!result || !result.rows) {
+      console.warn('getUpcomingCompetitions: result or rows is undefined, returning empty array')
+      return []
+    }
+    
     return result.rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting upcoming competitions:', error)
-    throw new Error('Failed to fetch upcoming competitions')
+    return [] // Return empty array instead of throwing during build
   }
 }
 
@@ -108,10 +130,21 @@ export async function getPastCompetitions(): Promise<Competition[]> {
       WHERE start_date < CURRENT_DATE OR status = 'completed'
       ORDER BY start_date DESC
     `
+    console.log('getPastCompetitions result:', { 
+      hasResult: !!result, 
+      hasRows: !!result?.rows, 
+      rowCount: result?.rows?.length || 0 
+    })
+    
+    if (!result || !result.rows) {
+      console.warn('getPastCompetitions: result or rows is undefined, returning empty array')
+      return []
+    }
+    
     return result.rows.map(dbRowToCompetition)
   } catch (error) {
     console.error('Error getting past competitions:', error)
-    throw new Error('Failed to fetch past competitions')
+    return [] // Return empty array instead of throwing during build
   }
 }
 

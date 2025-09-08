@@ -1,9 +1,26 @@
 import Link from 'next/link'
 import { getUpcomingCompetitions, getPastCompetitions as getCompletedCompetitions } from '@/lib/competitions-storage-postgres'
+import { Competition } from '@/types'
 
 export default async function CompetitionsSection() {
-  const upcomingCompetitions = await getUpcomingCompetitions()
-  const completedCompetitions = await getCompletedCompetitions()
+  let upcomingCompetitions: Competition[] = []
+  let completedCompetitions: Competition[] = []
+
+  try {
+    console.log('CompetitionsSection: Fetching competitions...')
+    upcomingCompetitions = await getUpcomingCompetitions()
+    completedCompetitions = await getCompletedCompetitions()
+    
+    console.log('CompetitionsSection: Fetched', upcomingCompetitions?.length || 0, 'upcoming and', completedCompetitions?.length || 0, 'completed competitions')
+  } catch (error) {
+    console.warn('CompetitionsSection: Failed to fetch competitions during build, using empty arrays:', error)
+    upcomingCompetitions = []
+    completedCompetitions = []
+  }
+
+  // Ensure we have arrays (defensive programming)
+  upcomingCompetitions = Array.isArray(upcomingCompetitions) ? upcomingCompetitions : []
+  completedCompetitions = Array.isArray(completedCompetitions) ? completedCompetitions : []
 
   // Show only first 3 of each for homepage
   const limitedUpcoming = upcomingCompetitions.slice(0, 3)
@@ -24,7 +41,7 @@ export default async function CompetitionsSection() {
           <div>
             <h3 className="text-2xl font-semibold text-vgbf-blue mb-6">Kommande</h3>
             <div className="space-y-4">
-              {limitedUpcoming.map((competition) => (
+              {limitedUpcoming.length > 0 ? limitedUpcoming.map((competition) => (
                 <div key={competition.id} className="bg-green-50 border-l-4 border-vgbf-green p-4 rounded-r-lg">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -40,7 +57,11 @@ export default async function CompetitionsSection() {
                     </span>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="bg-gray-50 border-l-4 border-gray-300 p-4 rounded-r-lg">
+                  <p className="text-gray-600 text-center">Inga kommande tävlingar för tillfället</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -48,7 +69,7 @@ export default async function CompetitionsSection() {
           <div>
             <h3 className="text-2xl font-semibold text-vgbf-blue mb-6">Avslutade</h3>
             <div className="space-y-4">
-              {limitedCompleted.map((competition) => (
+              {limitedCompleted.length > 0 ? limitedCompleted.map((competition) => (
                 <div key={competition.id} className="bg-gray-50 border-l-4 border-gray-400 p-4 rounded-r-lg">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -64,7 +85,11 @@ export default async function CompetitionsSection() {
                     </span>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="bg-gray-50 border-l-4 border-gray-300 p-4 rounded-r-lg">
+                  <p className="text-gray-600 text-center">Inga avslutade tävlingar att visa</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
