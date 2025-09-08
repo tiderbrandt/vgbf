@@ -12,28 +12,22 @@ export default function RecordsHighlight() {
           </p>
           
           <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="text-2xl font-bold text-vgbf-blue mb-2">🏹</div>
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 hover:shadow-md transition">
+              <div className="text-3xl font-bold text-vgbf-blue mb-2">🏹</div>
               <h3 className="font-semibold text-vgbf-blue mb-2">Utomhus</h3>
-              <p className="text-gray-600 text-sm">
-                70m/60m/50m/40m/30m 72/15 pilar
-              </p>
+              <p className="text-gray-600 text-sm">70m/60m/50m/40m/30m 72/15 pilar</p>
             </div>
-            
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="text-2xl font-bold text-vgbf-green mb-2">🎯</div>
+
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 hover:shadow-md transition">
+              <div className="text-3xl font-bold text-vgbf-green mb-2">🎯</div>
               <h3 className="font-semibold text-vgbf-blue mb-2">Inomhus</h3>
-              <p className="text-gray-600 text-sm">
-                18m/12m 15 & 30 pilar
-              </p>
+              <p className="text-gray-600 text-sm">18m/12m 15 & 30 pilar</p>
             </div>
-            
-            <div className="bg-gray-50 rounded-lg p-6">
-              <div className="text-2xl font-bold text-vgbf-gold mb-2">🏆</div>
+
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 hover:shadow-md transition">
+              <div className="text-3xl font-bold text-vgbf-gold mb-2">🏆</div>
               <h3 className="font-semibold text-vgbf-blue mb-2">900 Rond</h3>
-              <p className="text-gray-600 text-sm">
-                Fältbåge kategorier
-              </p>
+              <p className="text-gray-600 text-sm">Fältbåge kategorier</p>
             </div>
           </div>
           

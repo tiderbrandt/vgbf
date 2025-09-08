@@ -42,20 +42,18 @@ export default async function CompetitionsSection() {
             <h3 className="text-2xl font-semibold text-vgbf-blue mb-6">Kommande</h3>
             <div className="space-y-4">
               {limitedUpcoming.length > 0 ? limitedUpcoming.map((competition) => (
-                <div key={competition.id} className="bg-green-50 border-l-4 border-vgbf-green p-4 rounded-r-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-vgbf-blue">{competition.title}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{competition.organizer}</p>
-                      <p className="text-sm text-gray-600 mt-1">{competition.location}</p>
-                      <p className="text-sm text-vgbf-green font-medium mt-1">
-                        {new Date(competition.date).toLocaleDateString('sv-SE')}
-                      </p>
+                <div key={competition.id} className="rounded-lg overflow-hidden">
+                  <a href={`/tavlingar/${competition.id}`} className="block bg-green-50 border-l-4 border-vgbf-green p-4 rounded-r-lg hover:shadow-md hover:-translate-y-0.5 transform transition">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-vgbf-blue">{competition.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{competition.organizer}</p>
+                        <p className="text-sm text-gray-600 mt-1">{competition.location}</p>
+                        <p className="text-sm text-vgbf-green font-medium mt-1">{new Date(competition.date).toLocaleDateString('sv-SE')}</p>
+                      </div>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">{new Date(competition.date).getDate()} {new Date(competition.date).toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</span>
                     </div>
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
-                      {new Date(competition.date).getDate()} {new Date(competition.date).toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}
-                    </span>
-                  </div>
+                  </a>
                 </div>
               )) : (
                 <div className="bg-gray-50 border-l-4 border-gray-300 p-4 rounded-r-lg">
@@ -70,20 +68,18 @@ export default async function CompetitionsSection() {
             <h3 className="text-2xl font-semibold text-vgbf-blue mb-6">Avslutade</h3>
             <div className="space-y-4">
               {limitedCompleted.length > 0 ? limitedCompleted.map((competition) => (
-                <div key={competition.id} className="bg-gray-50 border-l-4 border-gray-400 p-4 rounded-r-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-700">{competition.title}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{competition.organizer}</p>
-                      <p className="text-sm text-gray-600 mt-1">{competition.location}</p>
-                      <p className="text-sm text-gray-500 font-medium mt-1">
-                        {new Date(competition.date).toLocaleDateString('sv-SE')}
-                      </p>
+                <div key={competition.id} className="rounded-lg overflow-hidden">
+                  <a href={`/tavlingar/${competition.id}`} className="block bg-gray-50 border-l-4 border-gray-400 p-4 rounded-r-lg hover:shadow-md hover:-translate-y-0.5 transform transition">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-700">{competition.title}</h4>
+                        <p className="text-sm text-gray-600 mt-1">{competition.organizer}</p>
+                        <p className="text-sm text-gray-600 mt-1">{competition.location}</p>
+                        <p className="text-sm text-gray-500 font-medium mt-1">{new Date(competition.date).toLocaleDateString('sv-SE')}</p>
+                      </div>
+                      <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">{new Date(competition.date).getDate()} {new Date(competition.date).toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</span>
                     </div>
-                    <span className="text-xs bg-gray-200 text-gray-600 px-2 py-1 rounded">
-                      {new Date(competition.date).getDate()} {new Date(competition.date).toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}
-                    </span>
-                  </div>
+                  </a>
                 </div>
               )) : (
                 <div className="bg-gray-50 border-l-4 border-gray-300 p-4 rounded-r-lg">
