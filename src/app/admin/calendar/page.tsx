@@ -153,8 +153,8 @@ export default function AdminCalendarPage() {
     setFormData({
       title: event.title,
       description: event.description,
-      date: event.date,
-      endDate: event.endDate || '',
+      date: event.date instanceof Date ? event.date.toISOString().split('T')[0] : event.date,
+      endDate: event.endDate ? (event.endDate instanceof Date ? event.endDate.toISOString().split('T')[0] : event.endDate) : '',
       time: event.time,
       endTime: event.endTime || '',
       location: event.location || '',
@@ -232,8 +232,11 @@ export default function AdminCalendarPage() {
     setShowForm(false)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('sv-SE')
+  const formatDate = (dateValue: string | Date) => {
+    if (dateValue instanceof Date) {
+      return dateValue.toLocaleDateString('sv-SE')
+    }
+    return new Date(dateValue).toLocaleDateString('sv-SE')
   }
 
   const getTypeLabel = (type: string) => {

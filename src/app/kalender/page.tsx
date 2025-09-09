@@ -164,11 +164,17 @@ export default function CalendarPage() {
     return time
   }
 
-  const formatDate = (dateStr?: string, endDateStr?: string) => {
-    if (!dateStr) return 'Ej specificerat'
+  const formatDate = (dateValue?: string | Date, endDateValue?: string | Date) => {
+    if (!dateValue) return 'Ej specificerat'
     
     try {
-      const date = new Date(dateStr + (dateStr.includes('T') ? '' : 'T00:00:00'))
+      let date: Date
+      if (dateValue instanceof Date) {
+        date = dateValue
+      } else {
+        date = new Date(dateValue + (dateValue.includes('T') ? '' : 'T00:00:00'))
+      }
+      
       const formatter = new Intl.DateTimeFormat('sv-SE', {
         weekday: 'long',
         year: 'numeric',
@@ -176,8 +182,13 @@ export default function CalendarPage() {
         day: 'numeric'
       })
       
-      if (endDateStr && endDateStr !== dateStr) {
-        const endDate = new Date(endDateStr + (endDateStr.includes('T') ? '' : 'T00:00:00'))
+      if (endDateValue && endDateValue !== dateValue) {
+        let endDate: Date
+        if (endDateValue instanceof Date) {
+          endDate = endDateValue
+        } else {
+          endDate = new Date(endDateValue + (endDateValue.includes('T') ? '' : 'T00:00:00'))
+        }
         const endFormatter = new Intl.DateTimeFormat('sv-SE', {
           month: 'long',
           day: 'numeric'
@@ -187,8 +198,8 @@ export default function CalendarPage() {
       
       return formatter.format(date)
     } catch (error) {
-      console.error('Date formatting error:', error, 'for date:', dateStr)
-      return dateStr
+      console.error('Date formatting error:', error, 'for date:', dateValue)
+      return dateValue instanceof Date ? dateValue.toLocaleDateString('sv-SE') : (dateValue || 'Ogiltigt datum')
     }
   }
 

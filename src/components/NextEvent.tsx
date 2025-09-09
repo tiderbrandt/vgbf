@@ -60,54 +60,24 @@ function findNextEvent(events: CalendarEvent[], now = new Date()) {
     return null
   }
   
-  console.log('NextEvent: Finding next event from', events.length, 'events')
-  console.log('NextEvent: Current date for comparison:', now)
-  
   const upcoming = events
-    .filter((e) => {
-      const valid = e && e.status === 'upcoming'
-      if (!valid) console.log('NextEvent: Filtered out due to status:', e?.title, e?.status)
-      return valid
-    })
-    .filter((e) => {
-      const valid = e.isPublic !== false
-      if (!valid) console.log('NextEvent: Filtered out due to not public:', e?.title, e?.isPublic)
-      return valid
-    })
-    .filter((e) => {
-      const valid = e.date && (typeof e.date === 'string' || e.date instanceof Date)
-      if (!valid) console.log('NextEvent: Filtered out due to invalid date:', e?.title, e?.date, typeof e?.date)
-      return valid
-    })
+    .filter((e) => e && e.status === 'upcoming')
+    .filter((e) => e.isPublic !== false)
+    .filter((e) => e.date && (typeof e.date === 'string' || e.date instanceof Date))
     .map((e) => ({ ev: e, date: parseDate(e.date) }))
     .filter((x) => {
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-      const valid = x.date >= todayStart
-      if (!valid) console.log('NextEvent: Filtered out due to past date:', x.ev.title, x.date, 'vs', todayStart)
-      return valid
+      return x.date >= todayStart
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime())
-
-  console.log('NextEvent: Final upcoming events:', upcoming.length)
-  if (upcoming.length > 0) {
-    console.log('NextEvent: Selected event:', upcoming[0].ev.title, upcoming[0].date)
-  }
 
   return upcoming.length ? upcoming[0].ev : null
 }
 
 export default async function NextEvent() {
   try {
-    console.log('NextEvent: Starting to fetch events')
     const events = await fetchPublicEvents()
-    console.log('NextEvent: Fetched events:', events?.length || 0)
-    
-    if (events && events.length > 0) {
-      console.log('NextEvent: Sample event:', events[0])
-    }
-    
     const next = findNextEvent(events)
-    console.log('NextEvent: Found next event:', next?.title || 'none')
 
     if (!next) {
       return (
