@@ -1,27 +1,37 @@
 # Västra Götalands Bågskytteförbund (VGBF) Website
 
-Modern, responsive website for Västra Götalands Bågskytteförbund built with Next.js, TypeScript, and Tailwind CSS.
+Modern, responsive website for Västra Götalands Bågskytteförbund built with Next.js, TypeScript, and Tailwind CSS with full database integration.
+
+## 🌟 Current Status
+
+✅ **Production Ready**: Fully deployed at [vgbf.vercel.app](https://vgbf.vercel.app)  
+✅ **Database Integration**: PostgreSQL with Neon serverless database  
+✅ **Admin System**: Complete content management interface  
+✅ **Calendar System**: Full event management with CRUD operations  
+✅ **News Management**: Local news + external RSS integration  
 
 ## Features
 
-- 🏹 Modern and responsive design
-- 📱 Mobile-first approach
-- ⚡ Fast performance with Next.js
-- 🎨 Custom VGBF branding and colors
-- 📰 Dynamic news system with full CRUD operations
-- � External news integration from Riksidrottsförbundet RSS feed
-- �🏆 Competitions section (upcoming and completed)
-- 🏢 Contact information and footer
-- 🔗 Links to external resources
-- 📝 Admin interface for news management
-- 🏷️ News tagging and categorization
+- � **Modern Design**: Responsive, mobile-first approach with custom VGBF branding
+- � **Event Calendar**: Complete calendar system with month/list views and admin management
+- 📰 **News System**: Local news management + external RSS feed integration
+- 🏆 **Competitions**: Upcoming and completed competitions with external data integration
+- 👥 **Club Directory**: Searchable directory of member clubs with detailed profiles
+- 🏅 **Records System**: District records management with category filtering
+- 👨‍💼 **Board Members**: Management board with contact information
+- � **Admin Interface**: Complete admin panel for content management
+- 🗃️ **Database**: PostgreSQL with Neon serverless for production scalability
 
 ## Tech Stack
 
-- **Framework**: Next.js 14.2.32
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Development**: ESLint for code quality
+- **Framework**: Next.js 14.2.32 with App Router
+- **Language**: TypeScript for type safety
+- **Styling**: Tailwind CSS with custom VGBF design system
+- **Database**: PostgreSQL with Neon serverless for production
+- **Authentication**: JWT-based admin authentication
+- **Image Storage**: Vercel Blob for file uploads
+- **External APIs**: RSS feed integration, ICS calendar parsing
+- **Deployment**: Vercel with automatic deployments from GitHub
 
 ## Getting Started
 
@@ -29,13 +39,14 @@ Modern, responsive website for Västra Götalands Bågskytteförbund built with 
 
 - Node.js 18+
 - npm or yarn package manager
+- PostgreSQL database (Neon account for production)
 
-### Installation
+### Environment Setup
 
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/tiderbrandt/vgbf.git
 cd vgbf
 ```
 
@@ -45,13 +56,28 @@ cd vgbf
 npm install
 ```
 
-3. Run the development server:
+3. Set up environment variables:
+Create a `.env.local` file with:
+
+```bash
+# Database
+DATABASE_URL="your-neon-postgres-url"
+USE_PG_LOCAL=0
+
+# Admin Authentication
+JWT_SECRET="your-jwt-secret"
+
+# Blob Storage (optional)
+BLOB_READ_WRITE_TOKEN="your-vercel-blob-token"
+```
+
+4. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Available Scripts
 
@@ -59,6 +85,7 @@ npm run dev
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+- `npm test` - Run test suite (Jest + React Testing Library)
 
 ## Project Structure
 
@@ -66,34 +93,40 @@ npm run dev
 src/
 ├── app/
 │   ├── admin/
-│   │   └── page.tsx         # News admin interface
+│   │   ├── calendar/         # Calendar event management
+│   │   ├── clubs/           # Club management
+│   │   ├── competitions/    # Competition management
+│   │   ├── news/            # News management
+│   │   ├── records/         # Records management
+│   │   └── page.tsx         # Admin dashboard
 │   ├── api/
-│   │   ├── external-news/
-│   │   │   └── route.ts     # External RSS news API
-│   │   └── news/
-│   │       ├── route.ts     # News API endpoints
-│   │       └── [slug]/
-│   │           └── route.ts # Individual news API
-│   ├── nyheter/
-│   │   ├── page.tsx         # News listing page
-│   │   └── [slug]/
-│   │       └── page.tsx     # Individual news article
-│   ├── globals.css          # Global styles
-│   ├── layout.tsx           # Root layout
-│   └── page.tsx             # Home page
+│   │   ├── auth/            # Authentication endpoints
+│   │   ├── calendar/        # Calendar API
+│   │   ├── clubs/           # Clubs API
+│   │   ├── competitions/    # Competitions API
+│   │   ├── news/            # News API
+│   │   ├── records/         # Records API
+│   │   └── external-*/      # External data integrations
+│   ├── kalender/            # Public calendar page
+│   ├── klubbar/             # Clubs directory
+│   ├── nyheter/             # News pages
+│   ├── distriktsrekord/     # Records page
+│   ├── tavlingar/           # Competitions page
+│   └── page.tsx             # Homepage
 ├── components/
-│   ├── admin/
-│   │   └── NewsForm.tsx     # News creation/editing form
-│   ├── EnhancedNewsSection.tsx # Combined local & external news
-│   ├── Header.tsx           # Navigation header
-│   ├── Hero.tsx             # Hero section
-│   ├── NewsSection.tsx      # Original news display
-│   ├── CompetitionsSection.tsx # Competitions
-│   └── Footer.tsx           # Site footer
-├── data/
-│   └── news.ts              # News data and utilities
-└── types/
-    └── index.ts             # TypeScript type definitions
+│   ├── admin/               # Admin interface components
+│   ├── ui/                  # Reusable UI components
+│   ├── Header.tsx           # Navigation
+│   ├── Footer.tsx           # Site footer
+│   ├── NextEvent.tsx        # Next event display
+│   └── *Section.tsx         # Various content sections
+├── lib/
+│   ├── *-storage-postgres.ts # Database access layers
+│   ├── auth.ts              # Authentication utilities
+│   └── db-helper.ts         # Database helper
+├── data/                    # Static/seed data
+├── types/                   # TypeScript definitions
+└── __tests__/              # Test files
 ```
 
 ## Deployment
@@ -111,121 +144,130 @@ npm run build
 npm run start
 ```
 
-## News Management
+## Content Management
 
-The website includes a complete news management system with both local and external news sources:
+### Calendar System
 
-### Features
+Complete event management with public calendar display:
 
-- **Dynamic News Loading**: News articles are loaded from a centralized data source
-- **External News Integration**: Automatically fetches news from Riksidrottsförbundet RSS feed
-- **Individual Article Pages**: Each local news article has its own dedicated page
-- **Admin Interface**: Simple admin panel for managing local news articles
-- **Tagging System**: Categorize local news with tags
-- **Featured Articles**: Mark important local news as featured
-- **API Endpoints**: RESTful API for news operations
+- **Admin Interface**: `/admin/calendar` - Create, edit, delete events
+- **Public Calendar**: `/kalender` - Month and list views
+- **Event Types**: Competition, course, meeting, social, training, other
+- **Features**: Registration tracking, capacity management, public/private events
+- **Frontend Integration**: Next event displayed on homepage
 
-### External News Integration
+### News Management
 
-The website automatically fetches and displays news from [Riksidrottsförbundet's RSS feed](https://www.rf.se/rss-alla-nyheter):
+Dual news system with local content and external RSS integration:
 
-- **Automatic Updates**: News is cached for 1 hour and refreshed automatically
-- **Development Mode**: Falls back to mock data when RSS feed is unavailable (e.g., SSL certificate issues in development)
-- **Error Handling**: Gracefully handles failures and shows local news only if external fetch fails
-- **External Links**: RSS news items link directly to the original articles on RF.se
+- **Local News**: Full CRUD operations via admin interface
+- **External News**: Automatic RSS feed integration from Riksidrottsförbundet  
+- **Admin Panel**: `/admin/news` - Manage local news articles
+- **API Endpoints**: RESTful endpoints for all news operations
+- **Featured Articles**: Highlight important local news
 
-### Usage
+### Clubs Directory
 
-#### Viewing News
+Searchable directory of member clubs:
 
-- **Homepage**: Shows both local VGBF news and external Riksidrottsförbundet news
-- **News Page**: `/nyheter` - Shows all local news articles in a grid layout
-- **Individual Articles**: `/nyheter/[slug]` - Full article view for local news
-- **External News**: Opens in new tab/window when clicked
+- **Admin Management**: `/admin/clubs` - Add, edit club information
+- **Public Directory**: `/klubbar` - Searchable club listings with filters
+- **Features**: Location-based filtering, new member welcome status
+- **Club Profiles**: Individual pages for each club with detailed information
 
-#### Managing News (Admin)
+### Competitions Management
 
-- **Admin Panel**: `/admin` - Simple interface for local news management
-- **Add News**: Click "Lägg till nyhet" to create new articles
-- **Edit News**: Click "Redigera" on any article in the admin table
-- **Delete News**: Click "Ta bort" to remove articles
+Competition tracking and display:
 
-#### API Endpoints
+- **Admin Interface**: `/admin/competitions` - Manage competition data
+- **Public Pages**: `/tavlingar` - Upcoming, ongoing, and completed competitions
+- **External Integration**: ICS calendar parsing for external competitions
+- **Status Tracking**: Automatic status updates (upcoming → ongoing → completed)
 
-- `GET /api/news` - Get all local news articles
-- `GET /api/news?type=featured` - Get featured local articles only
-- `GET /api/news?type=recent&limit=4` - Get recent local articles with limit
-- `GET /api/news/[slug]` - Get specific local article by slug
-- `GET /api/external-news` - Get latest news from Riksidrottsförbundet RSS feed
+### Records System
 
-### Data Structure
+District records management:
 
-News articles include:
+- **Admin Interface**: `/admin/records` - Manage shooting records
+- **Public Display**: `/distriktsrekord` - Category-filtered records display
+- **Categories**: Different shooting disciplines and age groups
+- **Features**: Record progression tracking, historical data
 
-- **title**: Article headline
-- **excerpt**: Short summary for previews
-- **content**: Full article content
-- **date**: Publication date
-- **author**: Article author (optional)
-- **slug**: URL-friendly identifier
-- **featured**: Whether article is marked as important
-- **tags**: Array of category tags
+### Board Members
 
-### Adding New News Articles
+Management board information:
 
-1. Navigate to `/admin`
-2. Click "Lägg till nyhet"
-3. Fill in the form:
-   - **Rubrik**: Article title (required)
-   - **Utdrag**: Short excerpt for previews (required)
-   - **Innehåll**: Full article content (required)
-   - **Författare**: Author name (optional)
-   - **Taggar**: Comma-separated tags (optional)
-   - **Markera som viktig**: Check to feature the article
-4. Click "Lägg till" to save
+- **Admin Interface**: `/admin/board` - Manage board member information
+- **Public Display**: `/styrelsen` - Board structure and contact information
+- **Features**: Role-based organization, contact details
 
-The system automatically generates:
+## Database & Authentication
 
-- **slug**: URL-friendly version of the title
-- **date**: Current date
-- **id**: Unique identifier
+### Database Schema
 
-### Customization
+PostgreSQL database with the following main tables:
 
-To modify the news system:
+- `calendar_events` - Event calendar with CRUD operations
+- `clubs` - Member club directory
+- `competitions` - Competition tracking and management  
+- `news` - Local news articles with tagging
+- `records` - District shooting records
+- `board_members` - Management board information
+- `settings` - Site configuration
 
-- **Data Source**: Edit `src/data/news.ts` to change default articles
-- **Styling**: Modify components in `src/components/`
-- **API Logic**: Update `src/app/api/news/` for custom endpoints
-- **Admin Interface**: Customize `src/app/admin/page.tsx`
+### Authentication
+
+JWT-based authentication for admin access:
+
+- **Admin Login**: `/admin` - Secure login with session management
+- **Protected Routes**: All admin endpoints require valid JWT token
+- **Session Management**: Automatic token renewal and logout handling
+
+### External Integrations
+
+- **RSS Feeds**: Automatic news fetching from Riksidrottsförbundet
+- **ICS Calendar**: External competition data parsing
+- **Blob Storage**: Image uploads for news, clubs, and other content
 
 ## Customization
 
-### Colors
+### Design System
 
-Custom VGBF colors are defined in `tailwind.config.js`:
+Custom VGBF colors defined in `tailwind.config.js`:
 
 - `vgbf-blue`: #003366 (primary)
-- `vgbf-gold`: #FFD700 (accent)
+- `vgbf-gold`: #FFD700 (accent)  
 - `vgbf-green`: #006633 (secondary)
 
-## Content Management
+### Content Configuration
 
-### News System
+- **Homepage Sections**: Modify components in `/src/components/`
+- **Navigation**: Update `Header.tsx` for menu changes
+- **Footer**: Edit contact info and links in `Footer.tsx`
+- **Admin Interface**: Customize admin panels in `/src/app/admin/`
 
-- **Storage**: JSON file (`data/news.json`)
-- **Admin Interface**: Visit `/admin` to manage articles
-- **Features**: Add, edit, delete, tag articles, mark as featured
-- **API**: RESTful endpoints for all operations
-- **Persistence**: All changes saved automatically
+## Development Guidelines
 
-See [NEWS_STORAGE.md](./NEWS_STORAGE.md) for detailed documentation.
+### Code Quality
 
-### Content Updates
+- **TypeScript**: Full type safety with strict mode enabled
+- **ESLint**: Code quality and consistency checking
+- **Testing**: Jest + React Testing Library for component testing
+- **Error Handling**: Comprehensive error boundaries and API error handling
 
-- News articles: Use admin interface at `/admin`
-- Competitions: Modify the `competitions` array in `CompetitionsSection.tsx`
-- Contact info: Edit contact details in `Footer.tsx`
+### Performance
+
+- **Server Components**: Extensive use of React Server Components
+- **Image Optimization**: Next.js Image component with Vercel Blob storage
+- **Caching**: Strategic caching of external API calls and static content
+- **Database**: Optimized queries with connection pooling
+
+### Security
+
+- **SQL Injection Protection**: Parameterized queries and input validation
+- **XSS Prevention**: Content sanitization and CSP headers
+- **Authentication**: Secure JWT implementation with proper session management
+- **CORS**: Proper cross-origin request handling
 
 ## Contributing
 
