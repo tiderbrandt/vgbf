@@ -1,31 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Sponsor } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Footer() {
-  const [sponsors, setSponsors] = useState<Sponsor[]>([])
-
-  useEffect(() => {
-    loadSponsors()
-  }, [])
-
-  const loadSponsors = async () => {
-    try {
-      const response = await fetch('/api/sponsors')
-      const data = await response.json()
-      if (data.success) {
-        // Only show active sponsors
-        setSponsors(data.data.filter((sponsor: Sponsor) => sponsor.isActive))
-      }
-    } catch (error) {
-      console.error('Error loading sponsors:', error)
-    }
-  }
-
   return (
     <footer className="bg-vgbf-blue text-white">
       <div className="container mx-auto px-4 py-12">
@@ -107,71 +86,6 @@ export default function Footer() {
             </div>
           </div>
         </div>
-
-        {/* Sponsors */}
-        {sponsors.length > 0 && (
-          <div className="border-t border-gray-600 mt-8 pt-8 pb-4 bg-gray-100 rounded-lg mx-4">
-            <h3 className="font-bold text-xl mb-1 text-center text-gray-800">Sponsorer</h3>
-            <div className="flex flex-wrap justify-center gap-4">
-              {sponsors.map((sponsor) => (
-                <div key={sponsor.id} className="flex items-center">
-                  {sponsor.logoUrl ? (
-                    sponsor.website ? (
-                      <a 
-                        href={sponsor.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="block hover:opacity-80 transition-opacity"
-                        title={sponsor.description || sponsor.name}
-                      >
-                        <div className="relative w-40 h-40">
-                          <Image
-                            src={sponsor.logoUrl}
-                            alt={sponsor.logoAlt || sponsor.name}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      </a>
-                    ) : (
-                      <div 
-                        className="relative w-40 h-40"
-                        title={sponsor.description || sponsor.name}
-                      >
-                        <Image
-                          src={sponsor.logoUrl}
-                          alt={sponsor.logoAlt || sponsor.name}
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                    )
-                  ) : (
-                    // Fallback for sponsors without logos - show name as text
-                    sponsor.website ? (
-                      <a 
-                        href={sponsor.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-vgbf-gold hover:text-yellow-400 transition-colors text-sm"
-                        title={sponsor.description || sponsor.name}
-                      >
-                        {sponsor.name}
-                      </a>
-                    ) : (
-                      <span 
-                        className="text-vgbf-gold text-sm"
-                        title={sponsor.description || sponsor.name}
-                      >
-                        {sponsor.name}
-                      </span>
-                    )
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Copyright */}
         <div className="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-400">
