@@ -82,41 +82,50 @@ export default async function SimpleNewsSection() {
             <h3 className="text-2xl font-bold text-vgbf-blue mb-6">VGBF Nyheter</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {local.map((item) => (
-                <article key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg hover:-translate-y-1 transform transition-all">
-                  <div className="relative h-40 w-full bg-gray-100">
+                <article key={item.id} className="group bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-2 transform transition-all duration-300">
+                  <div className="relative h-48 w-full bg-gradient-to-br from-vgbf-blue/5 to-vgbf-green/5 overflow-hidden">
                     {/* next/image handles local and remote images; next.config.js allows Vercel blob domains */}
                     <Image
                       src={item.imageUrl || '/vgbf-logo.png'}
                       alt={item.imageAlt || item.title || 'VGBF'}
                       fill
                       sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
                   <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-sm text-gray-500">
-                        {new Date(item.date).toLocaleDateString('sv-SE')}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-vgbf-green rounded-full"></div>
+                        <span className="text-sm text-gray-500 font-medium">
+                          {new Date(item.date).toLocaleDateString('sv-SE')}
+                        </span>
                       </div>
                       {item.featured && (
-                        <span className="bg-vgbf-gold text-vgbf-blue px-2 py-1 rounded text-xs font-semibold">
+                        <span className="bg-gradient-to-r from-vgbf-gold to-yellow-400 text-vgbf-blue px-3 py-1 rounded-full text-xs font-bold shadow-sm">
                           Viktigt
                         </span>
                       )}
                     </div>
-                    <h4 className="text-xl font-semibold text-vgbf-blue mb-3">
+                    <h4 className="text-xl font-bold text-vgbf-blue mb-3 group-hover:text-vgbf-green transition-colors duration-200 leading-tight">
                       {item.title}
                     </h4>
-                    <p className="text-gray-600 mb-4 line-clamp-3">
+                    <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
                       {item.excerpt}
                     </p>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                       <div>
                         {item.author && (
-                          <p className="text-sm text-gray-500 mb-0">Av: {item.author}</p>
+                          <p className="text-sm text-gray-500 font-medium">Av: {item.author}</p>
                         )}
                       </div>
-                      <a href={`/nyheter/${item.slug}`} className="text-vgbf-blue font-medium hover:text-vgbf-green transition-colors">Läs mer →</a>
+                      <a href={`/nyheter/${item.slug}`} className="inline-flex items-center gap-1 text-vgbf-blue font-semibold hover:text-vgbf-green transition-colors duration-200 group/link">
+                        Läs mer 
+                        <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
                     </div>
                   </div>
                 </article>
@@ -131,40 +140,46 @@ export default async function SimpleNewsSection() {
             <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Nyheter från Riksidrottsförbundet</h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {external.map((item) => (
-                <article key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-blue-500">
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="text-sm text-gray-500">
-                        {new Date(item.date).toLocaleDateString('sv-SE')}
+                <article key={item.id} className="group bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-md border border-blue-100 overflow-hidden hover:shadow-xl hover:-translate-y-2 transform transition-all duration-300">
+                  <div className="relative">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                          <span className="text-sm text-gray-600 font-medium">
+                            {new Date(item.date).toLocaleDateString('sv-SE')}
+                          </span>
+                        </div>
+                        <span className="bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold border border-blue-200">
+                          {item.source}
+                        </span>
                       </div>
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">
-                        {item.source}
-                      </span>
-                    </div>
-                    <h4 className="text-xl font-semibold text-vgbf-blue mb-3">
+                      <h4 className="text-xl font-bold text-vgbf-blue mb-3 group-hover:text-blue-700 transition-colors duration-200 leading-tight">
+                        <a 
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:underline"
+                        >
+                          {item.title}
+                        </a>
+                      </h4>
+                      <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
+                        {item.excerpt}
+                      </p>
                       <a 
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:underline"
+                        className="inline-flex items-center gap-1 text-blue-600 font-semibold hover:text-blue-800 transition-colors duration-200 group/link"
                       >
-                        {item.title}
+                        Läs mer på RF.se 
+                        <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
                       </a>
-                    </h4>
-                    <p className="text-gray-600 mb-4 line-clamp-3">
-                      {item.excerpt}
-                    </p>
-                    <a 
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-vgbf-blue font-medium hover:text-vgbf-green transition-colors inline-flex items-center"
-                    >
-                      Läs mer på RF.se 
-                      <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
+                    </div>
                   </div>
                 </article>
               ))}

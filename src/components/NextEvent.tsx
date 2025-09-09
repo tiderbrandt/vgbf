@@ -98,49 +98,87 @@ export default async function NextEvent() {
     return (
       <section className="py-8">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-white rounded-lg p-6 border shadow-sm hover:shadow-md transition">
-            <div className="flex flex-col md:flex-row items-start gap-4">
+          <div className="max-w-4xl mx-auto bg-gradient-to-br from-white to-vgbf-blue/5 rounded-2xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="flex flex-col md:flex-row items-start gap-6">
               <div className="flex-shrink-0">
-                <div className="text-center bg-vgbf-blue text-white rounded-md px-4 py-3 shadow">
-                  <div className="text-lg font-bold">{new Date(next.date).toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
-                  <div className="text-sm">{new Date(next.date).toLocaleDateString('sv-SE', { month: 'short' })}</div>
+                <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-xl px-6 py-4 shadow-lg transform hover:scale-105 transition-transform duration-200">
+                  <div className="text-2xl font-bold">{new Date(next.date).toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
+                  <div className="text-sm font-medium opacity-90">{new Date(next.date).toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
                 </div>
               </div>
 
               <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-vgbf-blue">{next.title}</h3>
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="text-2xl font-bold text-vgbf-blue leading-tight">{next.title}</h3>
                   <span className={getTypeBadgeClass(next.type)} aria-hidden>{capitalize(next.type || 'evenemang')}</span>
                 </div>
 
-                <div className="text-sm text-gray-600 mt-1">{formatDateRange(next)} {next.time ? `• ${next.time}` : ''}</div>
-                {next.location && <div className="text-sm text-gray-600 mt-1">Plats: {next.location}</div>}
-                <p className="mt-3 text-gray-700 text-sm">{next.description}</p>
+                <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                  <div className="flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>{formatDateRange(next)} {next.time ? `• ${next.time}` : ''}</span>
+                  </div>
+                </div>
+                {next.location && (
+                  <div className="flex items-center gap-1 text-sm text-gray-600 mb-4">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>{next.location}</span>
+                  </div>
+                )}
+                <p className="text-gray-700 text-sm leading-relaxed mb-4">{next.description}</p>
 
                 {typeof next.currentParticipants === 'number' && typeof next.maxParticipants === 'number' && (
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-gray-600">
-                      <div>Anmälningar: {next.currentParticipants}/{next.maxParticipants}</div>
-                      <div>{Math.round((next.currentParticipants / next.maxParticipants) * 100)}%</div>
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div className="flex items-center justify-between text-sm text-gray-700 mb-2">
+                      <div className="font-medium">Anmälningar: {next.currentParticipants}/{next.maxParticipants}</div>
+                      <div className="font-bold text-vgbf-blue">{Math.round((next.currentParticipants / next.maxParticipants) * 100)}%</div>
                     </div>
-                    <div className="w-full bg-gray-100 h-2 rounded mt-1 overflow-hidden">
-                      <div style={{ width: `${Math.min(100, (next.currentParticipants / next.maxParticipants) * 100)}%` }} className="h-2 bg-vgbf-blue" />
+                    <div className="w-full bg-gray-200 h-3 rounded-full overflow-hidden">
+                      <div 
+                        style={{ width: `${Math.min(100, (next.currentParticipants / next.maxParticipants) * 100)}%` }} 
+                        className="h-3 bg-gradient-to-r from-vgbf-green to-green-400 rounded-full transition-all duration-500 ease-out"
+                      />
                     </div>
                   </div>
                 )}
 
-                <div className="mt-4 flex items-center gap-3">
-                  <Link href="/kalender" className="inline-flex items-center px-4 py-2 bg-vgbf-blue text-white rounded hover:bg-blue-700 text-sm font-medium">Fler evenemang</Link>
+                <div className="flex items-center gap-3 pt-2">
+                  <Link href="/kalender" className="inline-flex items-center gap-2 px-6 py-3 bg-vgbf-blue text-white rounded-lg hover:bg-blue-700 text-sm font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+                    </svg>
+                    Fler evenemang
+                  </Link>
 
                   {next.registrationRequired ? (
                     next.registrationUrl ? (
-                      <a href={next.registrationUrl} target="_blank" rel="noreferrer" className="inline-flex items-center px-3 py-2 border rounded text-sm hover:bg-gray-50">Anmäl dig</a>
+                      <a href={next.registrationUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-vgbf-green text-white rounded-lg hover:bg-green-700 text-sm font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Anmäl dig
+                      </a>
                     ) : (
-                      <button disabled className="inline-flex items-center px-3 py-2 border rounded text-sm text-gray-400 bg-gray-50 cursor-not-allowed">Anmälning stängd</button>
+                      <button disabled className="inline-flex items-center gap-2 px-6 py-3 border-2 border-gray-300 text-gray-400 bg-gray-50 rounded-lg text-sm font-semibold cursor-not-allowed">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                        Anmälning stängd
+                      </button>
                     )
                   ) : (
                     next.registrationUrl && (
-                      <a href={next.registrationUrl} target="_blank" rel="noreferrer" className="inline-flex items-center px-3 py-2 border rounded text-sm hover:bg-gray-50">Info</a>
+                      <a href={next.registrationUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-vgbf-blue text-vgbf-blue rounded-lg hover:bg-vgbf-blue hover:text-white text-sm font-semibold transition-all duration-200">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Mer info
+                      </a>
                     )
                   )}
                 </div>

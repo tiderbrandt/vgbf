@@ -48,43 +48,58 @@ export default function RecordsHighlight() {
         Nu samlade på ett ställe för enkel åtkomst och uppdatering.
       </p>
 
-          <div className="flex justify-center gap-3 mb-6">
+          <div className="flex justify-center gap-2 mb-8">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelected(cat.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition ${selected === cat.id ? 'bg-vgbf-blue text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                  selected === cat.id 
+                    ? 'bg-gradient-to-r from-vgbf-blue to-blue-600 text-white shadow-lg' 
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:border-vgbf-blue/30'
+                }`}
                 aria-pressed={selected === cat.id}
               >
-                <span className="mr-2">{cat.emoji}</span>
+                <span className="mr-2 text-lg">{cat.emoji}</span>
                 {cat.title}
               </button>
             ))}
           </div>
 
-          <div className="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 hover:shadow-md transition mb-6">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
-                <div className="text-4xl">{active.emoji}</div>
+          <div className="bg-gradient-to-br from-white via-blue-50/30 to-white rounded-2xl p-8 shadow-lg border border-blue-100 hover:shadow-xl transition-all duration-300 mb-8">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-6">
+                <div className="text-5xl p-4 bg-gradient-to-br from-vgbf-blue/10 to-blue-100 rounded-2xl">{active.emoji}</div>
                 <div className="text-left">
-                  <h3 className="font-semibold text-vgbf-blue text-xl">{active.title}</h3>
-                  <p className="text-gray-600 text-sm">{active.subtitle}</p>
+                  <h3 className="font-bold text-vgbf-blue text-2xl mb-1">{active.title}</h3>
+                  <p className="text-gray-600">{active.subtitle}</p>
                 </div>
               </div>
               <div className="text-right">
-                <Link href="/distriktsrekord" className="text-sm text-gray-600 hover:text-vgbf-blue">Visa alla rekord →</Link>
+                <Link href="/distriktsrekord" className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-vgbf-blue font-medium group">
+                  Visa alla rekord 
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             </div>
 
-            <div className="mt-6 grid gap-3">
+            <div className="grid gap-4">
               {active.sample.map((r, i) => (
-                <div key={i} className="flex items-center justify-between p-3 bg-white rounded border">
-                  <div>
-                    <div className="text-sm text-gray-600">{r.class} • {r.year}</div>
-                    <div className="font-semibold">{r.holder}</div>
+                <div key={i} className="flex items-center justify-between p-6 bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-100 hover:border-vgbf-blue/30 hover:shadow-md transition-all duration-300 group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-vgbf-gold to-yellow-400 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
+                      #{i + 1}
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-600 font-medium mb-1">{r.class} • {r.year}</div>
+                      <div className="font-bold text-vgbf-blue group-hover:text-blue-700 transition-colors">{r.holder}</div>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-bold text-vgbf-blue">{r.score}</div>
+                    <div className="text-2xl font-bold text-vgbf-blue group-hover:text-blue-700 transition-colors">{r.score}</div>
+                    <div className="text-xs text-gray-500 font-medium">poäng</div>
                   </div>
                 </div>
               ))}
@@ -93,10 +108,13 @@ export default function RecordsHighlight() {
 
           <Link 
             href="/distriktsrekord"
-            className="inline-flex items-center px-8 py-3 bg-vgbf-blue text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-vgbf-blue to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
           >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+            </svg>
             Se alla distriktsrekord
-            <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
