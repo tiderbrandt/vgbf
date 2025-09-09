@@ -41,14 +41,12 @@ export default function RecordsHighlight() {
   const active = categories.find((c) => c.id === selected) || categories[0]
 
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Distriktsrekord</h2>
-          <p className="text-gray-600 text-lg mb-6">
-            Upptäck våra distriktsrekord inom olika kategorier och klasser.
-            Nu samlade på ett ställe för enkel åtkomst och uppdatering.
-          </p>
+    <div className="max-w-2xl mx-auto text-center">
+      <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Distriktsrekord</h2>
+      <p className="text-gray-600 text-lg mb-6">
+        Upptäck våra distriktsrekord inom olika kategorier och klasser.
+        Nu samlade på ett ställe för enkel åtkomst och uppdatering.
+      </p>
 
           <div className="flex justify-center gap-3 mb-6">
             {categories.map((cat) => (
@@ -102,8 +100,6 @@ export default function RecordsHighlight() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </Link>
-        </div>
-      </div>
-    </section>
+    </div>
   )
 }

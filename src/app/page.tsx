@@ -3,6 +3,7 @@ import Hero from '@/components/Hero'
 import SimpleNewsSection from '@/components/SimpleNewsSection'
 import CompetitionsSection from '@/components/CompetitionsSection'
 import RecordsHighlight from '@/components/RecordsHighlight'
+import SponsorsSection from '@/components/SponsorsSection'
 import NextEvent from '@/components/NextEvent'
 import Footer from '@/components/Footer'
 
@@ -30,7 +31,21 @@ export default function Home() {
         </div>
       </section>
       <CompetitionsSection />
-      <RecordsHighlight />
+      
+      {/* Records and Sponsors side by side */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-12 lg:grid-cols-2">
+            <div>
+              <RecordsHighlight />
+            </div>
+            <div>
+              <SponsorsSection />
+            </div>
+          </div>
+        </div>
+      </section>
+      
       <Footer />
     </main>
   )
