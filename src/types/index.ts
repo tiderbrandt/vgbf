@@ -99,8 +99,8 @@ export interface CalendarEvent {
   id: string
   title: string
   description: string
-  date: string
-  endDate?: string
+  date: string | Date
+  endDate?: string | Date
   time: string
   endTime?: string
   location?: string
@@ -113,8 +113,8 @@ export interface CalendarEvent {
   currentParticipants?: number
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled'
   isPublic: boolean
-  createdAt: string
-  updatedAt: string
+  createdAt: string | Date
+  updatedAt: string | Date
 }
 
 export interface Sponsor {
