@@ -32,6 +32,11 @@ async function fetchPublicEvents() {
 
 function parseDate(d: string) {
   // Handle both ISO strings and simple date strings
+  if (!d || typeof d !== 'string') {
+    console.error('parseDate received non-string value:', d)
+    return new Date() // fallback to current date
+  }
+  
   if (d.includes('T')) {
     // ISO string like "2025-09-10T00:00:00.000Z"
     return new Date(d)
@@ -61,9 +66,15 @@ function formatDateRange(ev: CalendarEvent) {
 }
 
 function findNextEvent(events: CalendarEvent[], now = new Date()) {
+  if (!Array.isArray(events)) {
+    console.error('findNextEvent received non-array events:', events)
+    return null
+  }
+  
   const upcoming = events
-    .filter((e) => e.status === 'upcoming')
+    .filter((e) => e && e.status === 'upcoming')
     .filter((e) => e.isPublic !== false)
+    .filter((e) => e.date && typeof e.date === 'string') // Ensure date exists and is string
     .map((e) => ({ ev: e, date: parseDate(e.date) }))
     .filter((x) => x.date >= new Date(now.getFullYear(), now.getMonth(), now.getDate()))
     .sort((a, b) => a.date.getTime() - b.date.getTime())

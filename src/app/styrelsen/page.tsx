@@ -186,7 +186,7 @@ export default function StylesenPage() {
                     <p className="font-medium text-gray-900">{member.name}</p>
                     <p className="text-sm text-gray-600">{member.club}</p>
                     <p className="text-xs text-vgbf-green font-medium">{member.title}</p>
-                    {member.description && !member.title.includes(member.description) && (
+                    {member.description && member.title && typeof member.title === 'string' && !member.title.includes(member.description) && (
                       <p className="text-sm text-gray-500 mt-1">{member.description}</p>
                     )}
                   </div>

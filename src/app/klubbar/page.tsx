@@ -38,9 +38,15 @@ export default function ClubsPage() {
 
   // Filter clubs based on search and filters
   const filteredClubs = clubs.filter(club => {
-    const matchesSearch = club.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         club.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         club.description.toLowerCase().includes(searchTerm.toLowerCase())
+    if (!club) return false
+    
+    const name = club.name || ''
+    const city = club.city || ''
+    const description = club.description || ''
+    
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         city.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         description.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesLocation = locationFilter === 'all' || club.city === locationFilter
     const matchesWelcoming = !welcomingNewFilter || club.welcomesNewMembers
