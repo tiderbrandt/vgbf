@@ -176,27 +176,28 @@ export async function updateCalendarEvent(id: string, eventData: Partial<Calenda
   try {
     const dbData = calendarEventToDbRow(eventData)
     
-    // Build dynamic update query
-    const updateFields: string[] = []
-    const values: any[] = []
-    
-    Object.entries(dbData).forEach(([key, value]) => {
-      if (value !== undefined) {
-        updateFields.push(`${key} = $${values.length + 1}`)
-        values.push(value)
-      }
-    })
-    
-    if (updateFields.length === 0) {
-      return await getCalendarEventById(id)
-    }
-    
-    values.push(id)
-    const whereClause = `id = $${values.length}`
-    
-    const updateQuery = `UPDATE calendar_events SET ${updateFields.join(', ')} WHERE ${whereClause}`
-    
-    await sql.query(updateQuery, values)
+    // Use a simpler approach with direct SQL template strings
+    await sql`
+      UPDATE calendar_events SET
+        title = COALESCE(${dbData.title}, title),
+        description = COALESCE(${dbData.description}, description),
+        start_date = COALESCE(${dbData.start_date}, start_date),
+        end_date = COALESCE(${dbData.end_date}, end_date),
+        start_time = COALESCE(${dbData.start_time}, start_time),
+        end_time = COALESCE(${dbData.end_time}, end_time),
+        location = COALESCE(${dbData.location}, location),
+        event_type = COALESCE(${dbData.event_type}, event_type),
+        organizer = COALESCE(${dbData.organizer}, organizer),
+        contact_email = COALESCE(${dbData.contact_email}, contact_email),
+        registration_required = COALESCE(${dbData.registration_required}, registration_required),
+        registration_url = COALESCE(${dbData.registration_url}, registration_url),
+        max_participants = COALESCE(${dbData.max_participants}, max_participants),
+        current_participants = COALESCE(${dbData.current_participants}, current_participants),
+        status = COALESCE(${dbData.status}, status),
+        is_public = COALESCE(${dbData.is_public}, is_public),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+    `
     
     return await getCalendarEventById(id)
   } catch (error) {

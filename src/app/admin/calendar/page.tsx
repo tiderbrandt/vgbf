@@ -56,15 +56,23 @@ export default function AdminCalendarPage() {
   const fetchEvents = useCallback(async () => {
     try {
       setLoading(true)
+      const authToken = Cookies.get('auth-token')
+      console.log('Fetching events with auth token:', authToken ? 'Present' : 'Missing')
+      
       const response = await fetch('/api/calendar', {
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('auth-token')}`
-        }
+        headers: authToken ? {
+          'Authorization': `Bearer ${authToken}`
+        } : {}
       })
+      
+      console.log('Calendar fetch response:', response.status, response.statusText)
+      
       if (response.ok) {
         const data = await response.json()
         setEvents(data.data || data)
       } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Calendar fetch error:', response.status, errorData)
         error('Kunde inte ladda kalenderhändelser')
       }
     } catch (err) {
@@ -83,6 +91,9 @@ export default function AdminCalendarPage() {
     e.preventDefault()
     
     try {
+      const authToken = Cookies.get('auth-token')
+      console.log('Submitting event with auth token:', authToken ? 'Present' : 'Missing')
+      
       const eventData = {
         ...formData,
         maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : undefined,
@@ -94,33 +105,41 @@ export default function AdminCalendarPage() {
         contactEmail: formData.contactEmail || undefined,
         registrationUrl: formData.registrationUrl || undefined
       }
+      
+      console.log('Event data to submit:', { title: eventData.title, date: eventData.date })
 
       let response
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json'
+      }
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+      
       if (editingEvent) {
         response = await fetch(`/api/calendar?id=${editingEvent.id}`, {
           method: 'PUT',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Cookies.get('auth-token')}`
-          },
+          headers,
           body: JSON.stringify(eventData)
         })
       } else {
         response = await fetch('/api/calendar', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${Cookies.get('auth-token')}`
-          },
+          headers,
           body: JSON.stringify(eventData)
         })
       }
+      
+      console.log('Calendar submit response:', response.status, response.statusText)
 
       if (response.ok) {
         await fetchEvents()
         resetForm()
         success(editingEvent ? 'Händelse uppdaterad!' : 'Händelse skapad!')
       } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Calendar submit error:', response.status, errorData)
         error('Kunde inte spara händelse')
       }
     } catch (err) {
@@ -159,17 +178,27 @@ export default function AdminCalendarPage() {
 
     try {
       setDeleting(id)
+      const authToken = Cookies.get('auth-token')
+      console.log('Deleting event with auth token:', authToken ? 'Present' : 'Missing')
+      
+      const headers: Record<string, string> = {}
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+      
       const response = await fetch(`/api/calendar?id=${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${Cookies.get('auth-token')}`
-        }
+        headers
       })
+      
+      console.log('Calendar delete response:', response.status, response.statusText)
 
       if (response.ok) {
         await fetchEvents()
         success('Händelse borttagen!')
       } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('Calendar delete error:', response.status, errorData)
         error('Kunde inte ta bort händelse')
       }
     } catch (err) {
