@@ -1,5 +1,6 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import ShareButtons from '@/components/ShareButtons'
 import { getNewsBySlug, getAllNews } from '@/lib/news-storage-postgres'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -23,9 +24,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       }
     }
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://vgbf.se'
+    const articleUrl = `${baseUrl}/nyheter/${article.slug}`
+
     return {
       title: `${article.title} - Västra Götalands Bågskytteförbund`,
       description: article.excerpt,
+      openGraph: {
+        title: article.title,
+        description: article.excerpt,
+        url: articleUrl,
+        siteName: 'Västra Götalands Bågskytteförbund',
+        type: 'article',
+        publishedTime: article.date,
+        authors: article.author ? [article.author] : undefined,
+        images: article.imageUrl ? [
+          {
+            url: article.imageUrl,
+            alt: article.imageAlt || article.title,
+          }
+        ] : [
+          {
+            url: `${baseUrl}/vgbf-logo.png`,
+            alt: 'Västra Götalands Bågskytteförbund',
+          }
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: article.title,
+        description: article.excerpt,
+        images: article.imageUrl ? [article.imageUrl] : [`${baseUrl}/vgbf-logo.png`],
+      },
     }
   } catch (error) {
     console.warn('Failed to generate metadata for news article:', error)
@@ -56,10 +86,10 @@ export default async function NewsArticlePage({ params }: Props) {
       <main className="min-h-screen bg-white">
         <Header />
         
-        <div className="container mx-auto px-4 py-16">
+        <div className="container mx-auto px-4 py-16 print-article">
           <div className="max-w-4xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="mb-8">
+          <nav className="mb-8 no-print">
             <ol className="flex items-center space-x-2 text-sm text-gray-500">
               <li><Link href="/" className="hover:text-vgbf-blue">Hem</Link></li>
               <li>/</li>
@@ -71,7 +101,7 @@ export default async function NewsArticlePage({ params }: Props) {
 
           {/* Article Header */}
           <header className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 article-meta">
               <div className="text-sm text-gray-500">
                 {new Date(article.date).toLocaleDateString('sv-SE', {
                   year: 'numeric',
@@ -107,6 +137,16 @@ export default async function NewsArticlePage({ params }: Props) {
             )}
           </header>
 
+          {/* Share Buttons */}
+          <div className="mb-8 pb-6 border-b border-gray-200 share-buttons no-print">
+            <ShareButtons 
+              url={`/nyheter/${article.slug}`}
+              title={article.title}
+              description={article.excerpt}
+              size="md"
+            />
+          </div>
+
           {/* Article Content */}
           <div className="prose prose-lg max-w-none">
             <div className="text-xl text-gray-700 mb-8 font-medium border-l-4 border-vgbf-gold pl-6">
@@ -135,7 +175,7 @@ export default async function NewsArticlePage({ params }: Props) {
           </div>
 
           {/* Back to News */}
-          <div className="mt-12 pt-8 border-t border-gray-200">
+          <div className="mt-12 pt-8 border-t border-gray-200 no-print">
             <Link 
               href="/nyheter"
               className="inline-flex items-center text-vgbf-blue hover:text-vgbf-green transition-colors font-medium"

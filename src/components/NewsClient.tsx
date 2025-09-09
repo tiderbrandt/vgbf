@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import ShareButtons from './ShareButtons'
 import { NewsArticle } from '@/types'
 
 export default function NewsClient() {
@@ -104,7 +105,7 @@ export default function NewsClient() {
               </Link>
             </h2>
             <p className="text-gray-600 mb-4 line-clamp-3">{article.excerpt}</p>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between items-center mb-3">
               <span className="text-sm text-gray-500">Av: {article.author}</span>
               <Link 
                 href={`/nyheter/${article.slug}`}
@@ -112,6 +113,18 @@ export default function NewsClient() {
               >
                 Läs mer →
               </Link>
+            </div>
+            
+            {/* Quick Share */}
+            <div className="pt-3 border-t border-gray-100">
+              <ShareButtons 
+                url={`/nyheter/${article.slug}`}
+                title={article.title}
+                description={article.excerpt}
+                size="sm"
+                showLabel={false}
+                className="justify-end"
+              />
             </div>
           </div>
         </article>
