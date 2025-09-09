@@ -43,38 +43,44 @@ export default function CalendarPage() {
   const month = currentDate.getMonth()
 
   useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true)
+        console.log('Fetching calendar events for:', { year, month: month + 1 })
+        const response = await fetch(`/api/calendar?public=true`)
+        console.log('Calendar API response status:', response.status)
+        
+        if (response.ok) {
+          const eventsData = await response.json()
+          console.log('Calendar events received:', eventsData.length, 'events')
+          setEvents(eventsData)
+        } else {
+          console.error('Failed to fetch calendar events:', response.status)
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    const fetchExternalCompetitions = async () => {
+      try {
+        const response = await fetch('/api/external-competitions')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.success) {
+            setExternalCompetitions(data.data)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching external competitions:', error)
+      }
+    }
+
     fetchEvents()
     fetchExternalCompetitions()
   }, [year, month])
-
-  const fetchEvents = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/calendar?public=true&year=${year}&month=${month + 1}`)
-      if (response.ok) {
-        const eventsData = await response.json()
-        setEvents(eventsData)
-      }
-    } catch (error) {
-      console.error('Error fetching events:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchExternalCompetitions = async () => {
-    try {
-      const response = await fetch('/api/external-competitions')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.success) {
-          setExternalCompetitions(data.data)
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching external competitions:', error)
-    }
-  }
 
   const navigateMonth = (direction: 'prev' | 'next') => {
     setCurrentDate(prev => {
@@ -111,8 +117,9 @@ export default function CalendarPage() {
   const getEventsForDate = (date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
     const localEvents = events.filter(event => {
-      const eventStart = event.date
-      const eventEnd = event.endDate || event.date
+      // Parse event dates properly - they come as ISO strings from API
+      const eventStart = new Date(event.date).toISOString().split('T')[0]
+      const eventEnd = event.endDate ? new Date(event.endDate).toISOString().split('T')[0] : eventStart
       return dateStr >= eventStart && dateStr <= eventEnd
     })
     
@@ -213,6 +220,9 @@ export default function CalendarPage() {
                   <h2 className="text-xl font-semibold">
                     {MONTHS[month]} {year}
                   </h2>
+                  <div className="text-sm text-gray-500">
+                    ({events.length} händelser)
+                  </div>
                   <button
                     onClick={() => navigateMonth('next')}
                     className="p-2 rounded hover:bg-gray-200"
@@ -300,52 +310,64 @@ export default function CalendarPage() {
           {!loading && view === 'list' && (
             <div className="space-y-4">
               {events
-                .filter(event => new Date(event.date) >= new Date())
+                .filter(event => {
+                  // Filter for future events, handling timezone properly
+                  const eventDate = new Date(event.date)
+                  const today = new Date()
+                  today.setHours(0, 0, 0, 0) // Reset time to start of day
+                  return eventDate >= today
+                })
                 .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .map(event => (
-                  <div key={event.id} className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
-                          <span className={`px-2 py-1 rounded text-xs ${EVENT_TYPE_COLORS[event.type]}`}>
-                            {EVENT_TYPE_LABELS[event.type]}
-                          </span>
-                          <span>{formatDate(event.date, event.endDate)}</span>
-                          <span>{formatTime(event.time, event.endTime)}</span>
-                          {event.location && <span>📍 {event.location}</span>}
+                .map(event => {
+                  const eventType = (event.type || 'other') as keyof typeof EVENT_TYPE_COLORS
+                  const eventTypeLabel = EVENT_TYPE_LABELS[eventType] || eventType
+                  const eventTypeColor = EVENT_TYPE_COLORS[eventType] || EVENT_TYPE_COLORS.other
+                  
+                  return (
+                    <div key={event.id} className="bg-white rounded-lg shadow-md p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+                          <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                            <span className={`px-2 py-1 rounded text-xs ${eventTypeColor}`}>
+                              {eventTypeLabel}
+                            </span>
+                            <span>{formatDate(event.date, event.endDate)}</span>
+                            <span>{formatTime(event.time, event.endTime)}</span>
+                            {event.location && <span>📍 {event.location}</span>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <p className="text-gray-700 mb-4">{event.description}</p>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-gray-600">
-                        {event.organizer && (
-                          <span>Arrangör: {event.organizer}</span>
+                      
+                      <p className="text-gray-700 mb-4">{event.description}</p>
+                      
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-600">
+                          {event.organizer && (
+                            <span>Arrangör: {event.organizer}</span>
+                          )}
+                        </div>
+                        
+                        {event.registrationRequired && event.registrationUrl && (
+                          <a
+                            href={event.registrationUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-vgbf-green text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                          >
+                            Anmäl dig
+                          </a>
                         )}
                       </div>
                       
-                      {event.registrationRequired && event.registrationUrl && (
-                        <a
-                          href={event.registrationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-vgbf-green text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
-                        >
-                          Anmäl dig
-                        </a>
+                      {event.maxParticipants && (
+                        <div className="mt-4 text-sm text-gray-600">
+                          Anmälda: {event.currentParticipants || 0}/{event.maxParticipants}
+                        </div>
                       )}
                     </div>
-                    
-                    {event.maxParticipants && (
-                      <div className="mt-4 text-sm text-gray-600">
-                        Anmälda: {event.currentParticipants || 0}/{event.maxParticipants}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  )
+                })}
               
               {events.length === 0 && (
                 <div className="text-center py-8">
