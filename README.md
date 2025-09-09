@@ -8,7 +8,7 @@ Modern, responsive website for Västra Götalands Bågskytteförbund built with 
 ✅ **Database Integration**: PostgreSQL with Neon serverless database  
 ✅ **Admin System**: Complete content management interface  
 ✅ **Calendar System**: Full event management with CRUD operations  
-✅ **News Management**: Local news + external RSS integration  
+✅ **News Management**: Local news + external RSS integration
 
 ## Features
 
@@ -57,7 +57,7 @@ npm install
 ```
 
 3. Set up environment variables:
-Create a `.env.local` file with:
+   Create a `.env.local` file with:
 
 ```bash
 # Database
@@ -161,7 +161,7 @@ Complete event management with public calendar display:
 Dual news system with local content and external RSS integration:
 
 - **Local News**: Full CRUD operations via admin interface
-- **External News**: Automatic RSS feed integration from Riksidrottsförbundet  
+- **External News**: Automatic RSS feed integration from Riksidrottsförbundet
 - **Admin Panel**: `/admin/news` - Manage local news articles
 - **API Endpoints**: RESTful endpoints for all news operations
 - **Featured Articles**: Highlight important local news
@@ -209,7 +209,7 @@ PostgreSQL database with the following main tables:
 
 - `calendar_events` - Event calendar with CRUD operations
 - `clubs` - Member club directory
-- `competitions` - Competition tracking and management  
+- `competitions` - Competition tracking and management
 - `news` - Local news articles with tagging
 - `records` - District shooting records
 - `board_members` - Management board information
@@ -236,7 +236,7 @@ JWT-based authentication for admin access:
 Custom VGBF colors defined in `tailwind.config.js`:
 
 - `vgbf-blue`: #003366 (primary)
-- `vgbf-gold`: #FFD700 (accent)  
+- `vgbf-gold`: #FFD700 (accent)
 - `vgbf-green`: #006633 (secondary)
 
 ### Content Configuration

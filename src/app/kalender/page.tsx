@@ -37,7 +37,7 @@ export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'month' | 'list'>('month')
-  const [showExternal, setShowExternal] = useState(true)
+  const [showExternal, setShowExternal] = useState(false) // Temporarily disable to test
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -132,32 +132,40 @@ export default function CalendarPage() {
     return [...localEvents, ...extEvents]
   }
 
-  const formatTime = (time: string, endTime?: string) => {
+  const formatTime = (time?: string, endTime?: string) => {
+    if (!time) return 'Ej specificerad'
     if (endTime) {
       return `${time} - ${endTime}`
     }
     return time
   }
 
-  const formatDate = (dateStr: string, endDateStr?: string) => {
-    const date = new Date(dateStr + 'T00:00:00')
-    const formatter = new Intl.DateTimeFormat('sv-SE', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+  const formatDate = (dateStr?: string, endDateStr?: string) => {
+    if (!dateStr) return 'Ej specificerat'
     
-    if (endDateStr && endDateStr !== dateStr) {
-      const endDate = new Date(endDateStr + 'T00:00:00')
-      const endFormatter = new Intl.DateTimeFormat('sv-SE', {
+    try {
+      const date = new Date(dateStr + (dateStr.includes('T') ? '' : 'T00:00:00'))
+      const formatter = new Intl.DateTimeFormat('sv-SE', {
+        weekday: 'long',
+        year: 'numeric',
         month: 'long',
         day: 'numeric'
       })
-      return `${formatter.format(date)} - ${endFormatter.format(endDate)}`
+      
+      if (endDateStr && endDateStr !== dateStr) {
+        const endDate = new Date(endDateStr + (endDateStr.includes('T') ? '' : 'T00:00:00'))
+        const endFormatter = new Intl.DateTimeFormat('sv-SE', {
+          month: 'long',
+          day: 'numeric'
+        })
+        return `${formatter.format(date)} - ${endFormatter.format(endDate)}`
+      }
+      
+      return formatter.format(date)
+    } catch (error) {
+      console.error('Date formatting error:', error, 'for date:', dateStr)
+      return dateStr
     }
-    
-    return formatter.format(date)
   }
 
   return (
@@ -273,14 +281,22 @@ export default function CalendarPage() {
                       
                       <div className="space-y-1">
                         {dayEvents.slice(0, 3).map(event => {
-                          const eventType = event.external ? 'competition' : (event.type || 'other')
+                          // Check if this is an external event
+                          const isExternal = !event.type && (event as any).external !== undefined
+                          const eventType = isExternal ? 'competition' : (event.type || 'other')
                           const colorClass = EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other
-                          const isExternal = event.external
                           
                           return (
                             <div
                               key={event.id}
-                              onClick={() => setSelectedEvent(event)}
+                              onClick={() => {
+                                try {
+                                  console.log('Event clicked:', event);
+                                  setSelectedEvent(event);
+                                } catch (error) {
+                                  console.error('Error selecting event:', error);
+                                }
+                              }}
                               className={`text-xs p-1 rounded cursor-pointer hover:opacity-80 ${colorClass} ${
                                 isExternal ? 'border-2 border-dashed' : ''
                               }`}
@@ -395,9 +411,19 @@ export default function CalendarPage() {
                 
                 <div className="space-y-3 mb-4">
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 rounded text-sm ${EVENT_TYPE_COLORS[selectedEvent.type]}`}>
-                      {EVENT_TYPE_LABELS[selectedEvent.type]}
-                    </span>
+                    {(() => {
+                      // Check if this is an external competition (from ICS feed)
+                      const isExternal = !selectedEvent.type && (selectedEvent as any).external !== undefined
+                      const eventType = isExternal ? 'competition' : (selectedEvent.type || 'other')
+                      const colorClass = EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other
+                      const labelText = EVENT_TYPE_LABELS[eventType as keyof typeof EVENT_TYPE_LABELS] || eventType
+                      
+                      return (
+                        <span className={`px-2 py-1 rounded text-sm ${colorClass}`}>
+                          {isExternal && '🏆 '}{labelText}
+                        </span>
+                      )
+                    })()}
                   </div>
                   
                   <div className="text-gray-700">
@@ -405,7 +431,7 @@ export default function CalendarPage() {
                   </div>
                   
                   <div className="text-gray-700">
-                    <strong>Tid:</strong> {formatTime(selectedEvent.time, selectedEvent.endTime)}
+                    <strong>Tid:</strong> {selectedEvent.time ? formatTime(selectedEvent.time, selectedEvent.endTime) : 'Ej specificerad'}
                   </div>
                   
                   {selectedEvent.location && (
