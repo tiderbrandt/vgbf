@@ -137,16 +137,6 @@ export default async function NewsArticlePage({ params }: Props) {
             )}
           </header>
 
-          {/* Share Buttons */}
-          <div className="mb-8 pb-6 border-b border-gray-200 share-buttons no-print">
-            <ShareButtons 
-              url={`/nyheter/${article.slug}`}
-              title={article.title}
-              description={article.excerpt}
-              size="md"
-            />
-          </div>
-
           {/* Article Content */}
           <div className="prose prose-lg max-w-none">
             <div className="text-xl text-gray-700 mb-8 font-medium border-l-4 border-vgbf-gold pl-6">
@@ -172,6 +162,16 @@ export default async function NewsArticlePage({ params }: Props) {
             <div className="text-gray-800 leading-relaxed whitespace-pre-line">
               {article.content}
             </div>
+          </div>
+
+          {/* Share Buttons */}
+          <div className="mt-8 pt-6 border-t border-gray-200 share-buttons no-print">
+            <ShareButtons 
+              url={`/nyheter/${article.slug}`}
+              title={article.title}
+              description={article.excerpt}
+              size="md"
+            />
           </div>
 
           {/* Back to News */}
