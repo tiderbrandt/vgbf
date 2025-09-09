@@ -5,6 +5,25 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import { CalendarEvent } from '@/types'
 
+// Type for external competitions from ICS feed
+type ExternalCompetition = {
+  id: string
+  title: string
+  description?: string
+  date: string
+  endDate?: string
+  location?: string
+  category?: string
+  status?: string
+  organizer?: string
+  contactEmail?: string
+  registrationDeadline?: string
+  isExternal: true
+}
+
+// Combined type for display
+type DisplayEvent = CalendarEvent | ExternalCompetition
+
 const MONTHS = [
   'Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni',
   'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'
@@ -33,14 +52,19 @@ const EVENT_TYPE_LABELS = {
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [events, setEvents] = useState<CalendarEvent[]>([])
-  const [externalCompetitions, setExternalCompetitions] = useState<any[]>([])
-  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
+  const [externalCompetitions, setExternalCompetitions] = useState<ExternalCompetition[]>([])
+  const [selectedEvent, setSelectedEvent] = useState<DisplayEvent | null>(null)
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'month' | 'list'>('month')
-  const [showExternal, setShowExternal] = useState(false) // Temporarily disable to test
+  const [showExternal, setShowExternal] = useState(true)
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
+
+  // Helper function to check if event is external
+  const isExternalEvent = (event: DisplayEvent): event is ExternalCompetition => {
+    return 'isExternal' in event && event.isExternal === true
+  }
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -282,7 +306,7 @@ export default function CalendarPage() {
                       <div className="space-y-1">
                         {dayEvents.slice(0, 3).map(event => {
                           // Check if this is an external event
-                          const isExternal = !event.type && (event as any).external !== undefined
+                          const isExternal = isExternalEvent(event)
                           const eventType = isExternal ? 'competition' : (event.type || 'other')
                           const colorClass = EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other
                           
@@ -305,7 +329,7 @@ export default function CalendarPage() {
                                 {isExternal && '🏆 '}{event.title}
                               </div>
                               <div className="truncate">
-                                {event.time ? formatTime(event.time, event.endTime) : 'Heldag'}
+                                {(!isExternal && event.time) ? formatTime(event.time, event.endTime) : 'Heldag'}
                               </div>
                             </div>
                           )
@@ -413,7 +437,7 @@ export default function CalendarPage() {
                   <div className="flex items-center space-x-2">
                     {(() => {
                       // Check if this is an external competition (from ICS feed)
-                      const isExternal = !selectedEvent.type && (selectedEvent as any).external !== undefined
+                      const isExternal = isExternalEvent(selectedEvent)
                       const eventType = isExternal ? 'competition' : (selectedEvent.type || 'other')
                       const colorClass = EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other
                       const labelText = EVENT_TYPE_LABELS[eventType as keyof typeof EVENT_TYPE_LABELS] || eventType
@@ -431,7 +455,7 @@ export default function CalendarPage() {
                   </div>
                   
                   <div className="text-gray-700">
-                    <strong>Tid:</strong> {selectedEvent.time ? formatTime(selectedEvent.time, selectedEvent.endTime) : 'Ej specificerad'}
+                    <strong>Tid:</strong> {!isExternalEvent(selectedEvent) && selectedEvent.time ? formatTime(selectedEvent.time, selectedEvent.endTime) : 'Ej specificerad'}
                   </div>
                   
                   {selectedEvent.location && (
@@ -449,14 +473,14 @@ export default function CalendarPage() {
                 
                 <p className="text-gray-700 mb-4">{selectedEvent.description}</p>
                 
-                {selectedEvent.maxParticipants && (
+                {!isExternalEvent(selectedEvent) && selectedEvent.maxParticipants && (
                   <div className="text-sm text-gray-600 mb-4">
                     Anmälda: {selectedEvent.currentParticipants || 0}/{selectedEvent.maxParticipants}
                   </div>
                 )}
                 
                 <div className="flex space-x-3">
-                  {selectedEvent.registrationRequired && selectedEvent.registrationUrl && (
+                  {!isExternalEvent(selectedEvent) && selectedEvent.registrationRequired && selectedEvent.registrationUrl && (
                     <a
                       href={selectedEvent.registrationUrl}
                       target="_blank"
@@ -467,7 +491,7 @@ export default function CalendarPage() {
                     </a>
                   )}
                   
-                  {selectedEvent.contactEmail && (
+                  {!isExternalEvent(selectedEvent) && selectedEvent.contactEmail && (
                     <a
                       href={`mailto:${selectedEvent.contactEmail}`}
                       className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition-colors"
