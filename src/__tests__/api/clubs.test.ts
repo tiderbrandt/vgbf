@@ -225,8 +225,9 @@ describe('/api/clubs API Routes', () => {
         data: updatedClub,
       })
       // The route strips the id from the update payload before calling updateClub
-      const expectedUpdates = { ...updateData }
-      delete expectedUpdates.id
+  const expectedUpdates = { ...updateData }
+  // cast to any so we can delete the id in the test without TS error
+  delete (expectedUpdates as any).id
       expect(mockClubsStorage.updateClub).toHaveBeenCalledWith('123', expectedUpdates)
     })
 
