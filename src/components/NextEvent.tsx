@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import { getPublicEvents } from '@/lib/calendar-storage-postgres'
 
-// Server component: fetch calendar data from the API and pick next upcoming public event
+// Server component: fetch calendar data directly from database
 type CalendarEvent = {
   id: string
   title: string
@@ -20,9 +21,8 @@ type CalendarEvent = {
 }
 async function fetchPublicEvents() {
   try {
-    const res = await fetch('/api/calendar?public=true', { next: { revalidate: 60 } })
-    if (!res.ok) return []
-    const events: CalendarEvent[] = await res.json()
+    // Fetch directly from database for server component
+    const events = await getPublicEvents()
     return events
   } catch (e) {
     console.error('Failed to fetch calendar events', e)
@@ -31,8 +31,15 @@ async function fetchPublicEvents() {
 }
 
 function parseDate(d: string) {
-  const parts = d.split('-').map((p) => parseInt(p, 10))
-  return new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1)
+  // Handle both ISO strings and simple date strings
+  if (d.includes('T')) {
+    // ISO string like "2025-09-10T00:00:00.000Z"
+    return new Date(d)
+  } else {
+    // Simple date string like "2025-09-10"
+    const parts = d.split('-').map((p) => parseInt(p, 10))
+    return new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1)
+  }
 }
 
 function formatDateRange(ev: CalendarEvent) {
