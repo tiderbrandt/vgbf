@@ -396,6 +396,258 @@ export default function AdminCalendarPage() {
 
         <Footer />
       </main>
+
+      {/* Form Modal */}
+      {showForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  {editingEvent ? 'Redigera händelse' : 'Ny händelse'}
+                </h2>
+                <button
+                  onClick={resetForm}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Titel *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title}
+                      onChange={(e) => setFormData({...formData, title: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                      required
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Beskrivning
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Startdatum *
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({...formData, date: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Slutdatum
+                    </label>
+                    <input
+                      type="date"
+                      value={formData.endDate}
+                      onChange={(e) => setFormData({...formData, endDate: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Starttid *
+                    </label>
+                    <input
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => setFormData({...formData, time: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sluttid
+                    </label>
+                    <input
+                      type="time"
+                      value={formData.endTime}
+                      onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Plats
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.location}
+                      onChange={(e) => setFormData({...formData, location: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Typ
+                    </label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData({...formData, type: e.target.value as CalendarEvent['type']})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    >
+                      {EVENT_TYPE_OPTIONS.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Status
+                    </label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({...formData, status: e.target.value as CalendarEvent['status']})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    >
+                      {STATUS_OPTIONS.map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Arrangör
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.organizer}
+                      onChange={(e) => setFormData({...formData, organizer: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Kontakt-email
+                    </label>
+                    <input
+                      type="email"
+                      value={formData.contactEmail}
+                      onChange={(e) => setFormData({...formData, contactEmail: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.registrationRequired}
+                        onChange={(e) => setFormData({...formData, registrationRequired: e.target.checked})}
+                        className="mr-2"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Anmälan krävs</span>
+                    </label>
+                  </div>
+
+                  {formData.registrationRequired && (
+                    <>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Anmälningslänk
+                        </label>
+                        <input
+                          type="url"
+                          value={formData.registrationUrl}
+                          onChange={(e) => setFormData({...formData, registrationUrl: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Max deltagare
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.maxParticipants}
+                          onChange={(e) => setFormData({...formData, maxParticipants: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Nuvarande deltagare
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.currentParticipants}
+                          onChange={(e) => setFormData({...formData, currentParticipants: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue"
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  <div className="md:col-span-2">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={formData.isPublic}
+                        onChange={(e) => setFormData({...formData, isPublic: e.target.checked})}
+                        className="mr-2"
+                      />
+                      <span className="text-sm font-medium text-gray-700">Publikt evenemang</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-6 border-t">
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Avbryt
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-vgbf-blue text-white rounded-md hover:bg-blue-700"
+                  >
+                    {editingEvent ? 'Uppdatera' : 'Skapa'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </ProtectedRoute>
   )
 }
