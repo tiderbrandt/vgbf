@@ -25,6 +25,8 @@ export default async function CompetitionsSection() {
   // Show only first 3 of each for homepage
   const limitedUpcoming = upcomingCompetitions.slice(0, 3)
   const limitedCompleted = completedCompetitions.slice(0, 3)
+  const featuredUpcoming = limitedUpcoming.length > 0 ? limitedUpcoming[0] : null
+  const otherUpcoming = featuredUpcoming ? limitedUpcoming.slice(1) : limitedUpcoming
 
   return (
     <section className="py-16 bg-white">
@@ -39,11 +41,33 @@ export default async function CompetitionsSection() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Upcoming Competitions */}
           <div>
-            <h3 className="text-2xl font-semibold text-vgbf-blue mb-6">Kommande</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-semibold text-vgbf-blue">Kommande</h3>
+              <Link href="/tavlingar/kommande" className="text-sm text-gray-600 hover:text-vgbf-blue">Visa alla →</Link>
+            </div>
+
             <div className="space-y-4">
-              {limitedUpcoming.length > 0 ? limitedUpcoming.map((competition) => (
+              {featuredUpcoming ? (
+                <div className="rounded-lg overflow-hidden">
+                  <a href={`/tavlingar/${featuredUpcoming.id}`} className="block bg-vgbf-green text-white p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="text-xs uppercase bg-white/10 inline-block px-3 py-1 rounded mb-2">Nästa</div>
+                        <h4 className="font-semibold text-xl">{featuredUpcoming.title}</h4>
+                        <p className="text-sm mt-1 opacity-90">{featuredUpcoming.organizer} — {featuredUpcoming.location}</p>
+                        <p className="text-sm font-medium mt-2">{new Date(featuredUpcoming.date).toLocaleDateString('sv-SE')}</p>
+                      </div>
+                      <div className="ml-4 text-right">
+                        <div className="text-sm bg-white/20 text-white px-3 py-1 rounded">{new Date(featuredUpcoming.date).getDate()} {new Date(featuredUpcoming.date).toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
+                      </div>
+                    </div>
+                  </a>
+                </div>
+              ) : null}
+
+              {otherUpcoming.length > 0 ? otherUpcoming.map((competition) => (
                 <div key={competition.id} className="rounded-lg overflow-hidden">
-                  <a href={`/tavlingar/${competition.id}`} className="block bg-green-50 border-l-4 border-vgbf-green p-4 rounded-r-lg hover:shadow-md hover:-translate-y-0.5 transform transition">
+                  <a href={`/tavlingar/${competition.id}`} className="block bg-green-50 border-l-4 border-vgbf-green p-4 rounded-r-lg hover:shadow-md hover:-translate-y-0.5 transform transition" aria-label={`Tävling ${competition.title}`}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold text-vgbf-blue">{competition.title}</h4>
