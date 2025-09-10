@@ -11,21 +11,38 @@ interface GenerateImageRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('AI Image Generation API called')
+    
     // Verify authentication
     const isAuthenticated = verifyAdminAuth(request)
     if (!isAuthenticated) {
+      console.log('Authentication failed')
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    const body = await request.json() as GenerateImageRequest
+    console.log('Authentication successful')
+
+    let body: GenerateImageRequest
+    try {
+      body = await request.json() as GenerateImageRequest
+      console.log('Request body parsed:', { hasPrompt: !!body.prompt, promptLength: body.prompt?.length, style: body.style, size: body.size })
+    } catch (error) {
+      console.error('Failed to parse request body:', error)
+      return NextResponse.json(
+        { success: false, error: 'Ogiltigt request format', debug: 'Failed to parse JSON body' },
+        { status: 400 }
+      )
+    }
+
     const { prompt, style = 'photographic', size = '1024x1024' } = body
 
     if (!prompt || prompt.trim().length === 0) {
+      console.log('Prompt validation failed:', { prompt })
       return NextResponse.json(
-        { success: false, error: 'Prompt är obligatorisk' },
+        { success: false, error: 'Prompt är obligatorisk', debug: 'Empty or missing prompt' },
         { status: 400 }
       )
     }

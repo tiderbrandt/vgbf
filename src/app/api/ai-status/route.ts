@@ -4,17 +4,27 @@ import { getSettings } from '@/lib/settings-storage-postgres'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('AI Status endpoint called')
+    
+    // Check if JWT_SECRET is available
+    const hasJwtSecret = !!process.env.JWT_SECRET
+    console.log('JWT_SECRET available:', hasJwtSecret)
+    
     // Verify authentication
     const isAuthenticated = verifyAdminAuth(request)
     if (!isAuthenticated) {
+      console.log('Authentication failed in status endpoint')
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized', debug: { hasJwtSecret } },
         { status: 401 }
       )
     }
 
+    console.log('Authentication successful in status endpoint')
+
     // Get settings
     const settingsResult = await getSettings()
+    console.log('Settings result:', { success: settingsResult.success, error: settingsResult.error })
     
     const status = {
       settingsLoaded: settingsResult.success,
@@ -24,8 +34,11 @@ export async function GET(request: NextRequest) {
       hasGeminiInSettings: !!(settingsResult.data?.geminiApiKey),
       hasOpenAIInEnv: !!process.env.OPENAI_API_KEY,
       hasGeminiInEnv: !!process.env.GEMINI_API_KEY,
+      hasJwtSecret,
       timestamp: new Date().toISOString()
     }
+
+    console.log('Status response:', status)
 
     return NextResponse.json({
       success: true,
