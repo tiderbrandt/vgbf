@@ -374,12 +374,12 @@ export default function SettingsPage() {
                           <p className="mt-2 text-sm text-gray-500">
                             Din Hugging Face API token används för att generera bilder med Stable Diffusion. 
                             <a 
-                              href="https://aistudio.google.com/app/apikey" 
+                              href="https://huggingface.co/settings/tokens" 
                               target="_blank" 
                               rel="noopener noreferrer"
                               className="text-vgbf-blue hover:underline ml-1"
                             >
-                              Skaffa en API-nyckel här →
+                              Skaffa en gratis token här →
                             </a>
                           </p>
                         </div>
@@ -409,7 +409,7 @@ export default function SettingsPage() {
                           <div className="flex items-center gap-4">
                             <button
                               onClick={testHuggingFaceAPI}
-                              disabled={testingApi || !((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || (settings.aiImageProvider === 'gemini' && settings.geminiApiKey))}
+                              disabled={testingApi || !settings.huggingfaceApiKey}
                               className="bg-vgbf-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-vgbf-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                               {testingApi ? (
@@ -420,14 +420,14 @@ export default function SettingsPage() {
                               ) : (
                                 <>
                                   <span>🧪</span>
-                                  <span>Testa {settings.aiImageProvider === 'openai' ? 'OpenAI' : 'Gemini'} API</span>
+                                  <span>Testa Hugging Face API</span>
                                 </>
                               )}
                             </button>
 
-                            {!((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || (settings.aiImageProvider === 'gemini' && settings.geminiApiKey)) && (
+                            {!settings.huggingfaceApiKey && (
                               <p className="text-sm text-gray-500">
-                                ⚠️ Konfigurera en API-nyckel först för att kunna testa
+                                ⚠️ Konfigurera Hugging Face API token först för att kunna testa
                               </p>
                             )}
                           </div>
@@ -478,18 +478,18 @@ export default function SettingsPage() {
                           </div>
                           <div className="bg-gray-50 rounded-lg p-4">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-700">Gemini Status</span>
+                              <span className="text-sm font-medium text-gray-700">Hugging Face Status</span>
                               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                settings.geminiApiKey ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                settings.huggingfaceApiKey ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                               }`}>
-                                {settings.geminiApiKey ? '✓ Konfigurerad' : '✗ Ej konfigurerad'}
+                                {settings.huggingfaceApiKey ? '✓ Konfigurerad' : '✗ Ej konfigurerad'}
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {settings.geminiApiKey && (
+                      {settings.huggingfaceApiKey && (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                           <div className="flex items-start">
                             <div className="flex-shrink-0">
@@ -500,7 +500,7 @@ export default function SettingsPage() {
                                 AI Bildgenerering aktiverad!
                               </h3>
                               <div className="mt-2 text-sm text-green-700">
-                                <p>Du kan nu använda {settings.aiImageProvider === 'openai' ? 'OpenAI DALL-E 3' : 'Google Gemini'} för bildgenerering när du skapar eller redigerar nyheter.</p>
+                                <p>Du kan nu använda Hugging Face Stable Diffusion för bildgenerering när du skapar eller redigerar nyheter.</p>
                               </div>
                             </div>
                           </div>
