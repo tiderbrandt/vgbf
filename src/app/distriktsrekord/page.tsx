@@ -19,21 +19,33 @@ export default async function DistriktsrekordPage() {
   return (
     <main className="min-h-screen bg-white">
       <Header />
-      <div className="bg-gray-50">
-      {/* Header */}
-      <div className="bg-vgbf-blue text-white py-8">
-        <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold">Distriktsrekord</h1>
-          <p className="text-blue-100 mt-2">
+      
+      {/* Hero section with gradient - matching front page */}
+      <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-green text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+            Distriktsrekord
+          </h1>
+          <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto opacity-95">
             Västra Götalands Bågskytteförbund officiella distriktsrekord
           </p>
+          
+          <div className="mt-10 max-w-3xl mx-auto text-sm text-white/90">
+            <p>Här hittar du alla aktuella distriktsrekord för Västra Götaland i bågskytesporten.</p>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="container mx-auto px-4 py-8">
+      
+      {/* Content section with consistent styling */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="mb-6 text-center md:text-left">
+          <h2 className="text-2xl font-bold text-vgbf-blue">Information om distriktsrekord</h2>
+          <p className="text-gray-600 mt-2">Anmälan och regler för distriktsrekord.</p>
+        </div>
+        
         {/* Information section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-vgbf-blue mb-4">Information om distriktsrekord</h2>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
           <div className="prose max-w-none text-gray-600">
             <p className="mb-4">
               Anmälan om distriktsrekord skall vara VGBF tillhanda senast 3 veckor efter 
@@ -53,11 +65,18 @@ export default async function DistriktsrekordPage() {
           </div>
         </div>
 
+        
+        {/* Records section */}
+        <div className="mb-6 text-center md:text-left">
+          <h2 className="text-2xl font-bold text-vgbf-blue">Aktuella distriktsrekord</h2>
+          <p className="text-gray-600 mt-2">Alla gällande rekord för Västra Götaland sorterade per kategori.</p>
+        </div>
+
         {/* Records by category */}
         {Object.keys(groupedRecords).length > 0 ? (
           Object.entries(groupedRecords).map(([category, categoryRecords]: [string, any]) => (
-            <div key={category} className="bg-white rounded-lg shadow-md mb-6">
-              <div className="bg-vgbf-green text-white px-6 py-3 rounded-t-lg">
+            <div key={category} className="bg-white rounded-lg shadow-sm border border-gray-100 mb-6">
+              <div className="bg-gradient-to-r from-vgbf-green to-green-600 text-white px-6 py-4 rounded-t-lg">
                 <h3 className="text-lg font-semibold">{category}</h3>
               </div>
               <div className="overflow-x-auto">
@@ -124,16 +143,16 @@ export default async function DistriktsrekordPage() {
             </div>
           ))
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-8 text-center">
             <p className="text-gray-500">Inga distriktsrekord hittades.</p>
           </div>
         )}
 
         {/* Back to home */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-12">
           <Link 
             href="/"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-vgbf-blue hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-vgbf-blue to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm"
           >
             Tillbaka till startsidan
           </Link>
@@ -143,8 +162,8 @@ export default async function DistriktsrekordPage() {
         <div className="text-center mt-4 text-sm text-gray-500">
           Sidan uppdaterad {new Date().toLocaleDateString('sv-SE')}
         </div>
-      </div>
-      </div>
+      </section>
+      
       <Footer />
     </main>
   )
