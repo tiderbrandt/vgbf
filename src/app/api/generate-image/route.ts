@@ -80,6 +80,15 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // Validate OpenAI API key format
+    if (provider === 'openai' && openaiApiKey && !openaiApiKey.startsWith('sk-')) {
+      console.error('Invalid OpenAI key format:', openaiApiKey.substring(0, 10) + '...')
+      return NextResponse.json(
+        { success: false, error: 'Ogiltig OpenAI API-nyckel format. Nyckeln ska börja med "sk-"', debug: 'API key does not start with sk-' },
+        { status: 400 }
+      )
+    }
+    
     if (provider === 'gemini' && !geminiApiKey) {
       console.error('Gemini key missing')
       return NextResponse.json(
@@ -108,27 +117,72 @@ export async function POST(request: NextRequest) {
 // OpenAI DALL-E 3 image generation
 async function generateWithOpenAI(apiKey: string, prompt: string, size: string, style: string) {
   try {
+    console.log('Starting OpenAI image generation:', {
+      keyPrefix: apiKey.substring(0, 7) + '...',
+      promptLength: prompt.length,
+      size,
+      style
+    })
+
+    const requestBody = {
+      model: 'dall-e-3',
+      prompt: prompt,
+      n: 1,
+      size: size,
+      quality: 'standard',
+      style: style === 'photographic' ? 'natural' : 'vivid',
+    }
+
+    console.log('OpenAI request body:', requestBody)
+
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'dall-e-3',
-        prompt: prompt,
-        n: 1,
-        size: size,
-        quality: 'standard',
-        style: style === 'photographic' ? 'natural' : 'vivid',
-      }),
+      body: JSON.stringify(requestBody),
     })
+
+    console.log('OpenAI response status:', response.status)
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => null)
-      console.error('OpenAI API error:', errorData)
+      console.error('OpenAI API error details:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorData
+      })
+
+      // More specific error messages based on status code
+      let errorMessage = 'OpenAI API fel'
+      let debugInfo = `Status: ${response.status}`
+
+      if (response.status === 401) {
+        errorMessage = 'Ogiltig OpenAI API-nyckel. Kontrollera att nyckeln är korrekt.'
+        debugInfo = 'API key authentication failed'
+      } else if (response.status === 429) {
+        errorMessage = 'OpenAI API gräns nådd. Försök igen senare eller kontrollera din kvot.'
+        debugInfo = 'Rate limit or quota exceeded'
+      } else if (response.status === 400) {
+        const errorMsg = errorData?.error?.message || 'Ogiltigt request'
+        errorMessage = `OpenAI request fel: ${errorMsg}`
+        debugInfo = `Bad request: ${errorMsg}`
+      } else if (response.status === 500) {
+        errorMessage = 'OpenAI server fel. Försök igen senare.'
+        debugInfo = 'OpenAI internal server error'
+      } else {
+        errorMessage = `OpenAI API fel (${response.status}): ${errorData?.error?.message || response.statusText}`
+        debugInfo = `HTTP ${response.status}: ${errorData?.error?.message || response.statusText}`
+      }
+
       return NextResponse.json(
-        { success: false, error: 'OpenAI API fel. Kontrollera din API-nyckel.' },
+        { 
+          success: false, 
+          error: errorMessage,
+          debug: debugInfo,
+          openaiError: errorData
+        },
         { status: response.status }
       )
     }

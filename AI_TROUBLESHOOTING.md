@@ -1,10 +1,13 @@
 # 🚨 AI Image Generation 503 Error - Troubleshooting Guide
 
 ## Problem
+
 Getting a **503 Service Unavailable** error when trying to use AI image generation on production (Vercel).
 
 ## Root Cause
+
 The 503 error typically occurs because:
+
 1. **No API keys configured** - Neither in admin settings nor environment variables
 2. **Database connection issues** - Settings can't be loaded from the database
 3. **Function timeout** - The API call is taking too long
@@ -12,13 +15,16 @@ The 503 error typically occurs because:
 ## 🔧 Quick Fix Solutions
 
 ### Solution 1: Configure Environment Variables on Vercel
+
 The fastest way to fix this is to add API keys as environment variables:
 
 1. **Go to Vercel Dashboard**
+
    - Visit [vercel.com/dashboard](https://vercel.com/dashboard)
    - Select your VGBF project
 
 2. **Add Environment Variables**
+
    - Go to Settings → Environment Variables
    - Add one or both of these:
      ```
@@ -30,20 +36,24 @@ The fastest way to fix this is to add API keys as environment variables:
    - Trigger a new deployment to apply the environment variables
 
 ### Solution 2: Use Admin Settings (Alternative)
+
 1. Go to your production admin settings: `https://vgbf.vercel.app/admin/settings`
 2. Navigate to the "AI & API" tab
 3. Configure your API keys there
 4. Save settings
 
 ### Solution 3: Use Setup Scripts
+
 Run the provided setup scripts:
 
 **For Windows (PowerShell):**
+
 ```powershell
 .\setup-ai-env.ps1
 ```
 
 **For Mac/Linux (Bash):**
+
 ```bash
 chmod +x setup-ai-env.sh
 ./setup-ai-env.sh
@@ -52,14 +62,18 @@ chmod +x setup-ai-env.sh
 ## 🔍 Debugging Steps
 
 ### 1. Check API Status
+
 Visit: `https://vgbf.vercel.app/api/ai-status`
 This will show you:
+
 - Whether settings are loading
 - Which provider is configured
 - Whether API keys are available
 
 ### 2. Check Local Development
+
 Test locally first:
+
 ```bash
 npm run dev
 # Visit http://localhost:3001/admin/news/new
@@ -67,6 +81,7 @@ npm run dev
 ```
 
 ### 3. Check Vercel Logs
+
 1. Go to Vercel Dashboard → Your Project → Functions
 2. Look at the logs for `/api/generate-image`
 3. Check for specific error messages
@@ -74,6 +89,7 @@ npm run dev
 ## 🎯 Expected API Response
 
 ### Successful Response
+
 ```json
 {
   "success": true,
@@ -86,6 +102,7 @@ npm run dev
 ```
 
 ### Error Response (503)
+
 ```json
 {
   "success": false,
@@ -97,12 +114,14 @@ npm run dev
 ## 🚀 Getting API Keys
 
 ### OpenAI DALL-E 3
+
 1. Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 2. Create a new API key
 3. Copy the key (starts with `sk-`)
 4. Ensure you have credits/billing set up
 
 ### Google Gemini (Optional)
+
 1. Go to [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 2. Create a new API key
 3. Copy the key (starts with `AIza`)
@@ -110,6 +129,7 @@ npm run dev
 ## ✅ Verification Steps
 
 After configuration:
+
 1. ✅ Environment variables are set on Vercel
 2. ✅ Project is redeployed
 3. ✅ `/api/ai-status` returns success
@@ -128,6 +148,7 @@ If you're still getting 503 errors:
 ## 🎯 Current Status
 
 The AI image generation system supports:
+
 - ✅ **OpenAI DALL-E 3** (Primary, fully functional)
 - ⚠️ **Google Gemini** (Structure ready, API may need adjustment)
 - ✅ **Dual configuration** (Admin settings + Environment variables)

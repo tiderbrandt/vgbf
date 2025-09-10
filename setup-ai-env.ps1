@@ -13,7 +13,8 @@ Write-Host ""
 try {
     $vercelVersion = vercel --version 2>$null
     Write-Host "✅ Vercel CLI found: $vercelVersion" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "❌ Vercel CLI not found. Please install it first:" -ForegroundColor Red
     Write-Host "   npm i -g vercel" -ForegroundColor Yellow
     exit 1
@@ -26,7 +27,8 @@ Write-Host "🔐 Checking Vercel authentication..." -ForegroundColor Yellow
 try {
     $whoami = vercel whoami 2>$null
     Write-Host "✅ Authenticated with Vercel as: $whoami" -ForegroundColor Green
-} catch {
+}
+catch {
     Write-Host "Please login to Vercel first:" -ForegroundColor Yellow
     vercel login
 }
@@ -66,7 +68,8 @@ if ($setupOpenAI -eq "y" -or $setupOpenAI -eq "Y") {
         echo $openaiKeyPlain | vercel env add OPENAI_API_KEY production
         echo $openaiKeyPlain | vercel env add OPENAI_API_KEY preview
         Write-Host "✅ OpenAI API key configured" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Invalid OpenAI API key format (should start with 'sk-')" -ForegroundColor Red
     }
 }
@@ -90,7 +93,8 @@ if ($setupGemini -eq "y" -or $setupGemini -eq "Y") {
         echo $geminiKeyPlain | vercel env add GEMINI_API_KEY production
         echo $geminiKeyPlain | vercel env add GEMINI_API_KEY preview
         Write-Host "✅ Gemini API key configured" -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Host "❌ Invalid Gemini API key format (should start with 'AIza')" -ForegroundColor Red
     }
 }
