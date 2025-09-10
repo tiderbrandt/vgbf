@@ -41,6 +41,11 @@ export default function SettingsPage() {
   })
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
+  const [testingApi, setTestingApi] = useState(false)
+  const [apiTestResults, setApiTestResults] = useState<{
+    openai?: { success: boolean; message: string; timestamp?: string }
+    gemini?: { success: boolean; message: string; timestamp?: string }
+  }>({})
 
   // Load settings on mount
   useEffect(() => {
@@ -128,6 +133,63 @@ export default function SettingsPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const testAIProvider = async (provider: 'openai' | 'gemini') => {
+    setTestingApi(true)
+    
+    try {
+      const response = await authenticatedApiCall('/api/generate-image', {
+        method: 'POST',
+        body: JSON.stringify({
+          prompt: 'Test image generation - a simple blue circle on white background',
+          style: 'photographic',
+          size: '1024x1024'
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        setApiTestResults(prev => ({
+          ...prev,
+          [provider]: {
+            success: true,
+            message: `✅ ${provider === 'openai' ? 'OpenAI DALL-E 3' : 'Google Gemini'} fungerar korrekt!`,
+            timestamp: new Date().toLocaleTimeString('sv-SE')
+          }
+        }))
+        success('API Test lyckades!', `${provider === 'openai' ? 'OpenAI' : 'Gemini'} API fungerar korrekt.`)
+      } else {
+        setApiTestResults(prev => ({
+          ...prev,
+          [provider]: {
+            success: false,
+            message: `❌ ${data.error || 'API test misslyckades'}`,
+            timestamp: new Date().toLocaleTimeString('sv-SE')
+          }
+        }))
+        error('API Test misslyckades', data.error || 'Ett oväntat fel inträffade.')
+      }
+    } catch (err) {
+      console.error('API test error:', err)
+      setApiTestResults(prev => ({
+        ...prev,
+        [provider]: {
+          success: false,
+          message: `❌ Nätverksfel vid test av ${provider === 'openai' ? 'OpenAI' : 'Gemini'}`,
+          timestamp: new Date().toLocaleTimeString('sv-SE')
+        }
+      }))
+      error('API Test fel', `Kunde inte testa ${provider === 'openai' ? 'OpenAI' : 'Gemini'} API.`)
+    } finally {
+      setTestingApi(false)
+    }
+  }
+
+  const testCurrentProvider = () => {
+    const provider = settings.aiImageProvider || 'openai'
+    testAIProvider(provider)
   }
 
   const tabs = [
@@ -384,6 +446,86 @@ export default function SettingsPage() {
                           </div>
                         </div>
                       )}
+
+                      {/* API Testing Section */}
+                      <div className="border-t pt-6">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4">🧪 API Testning</h3>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                          <div className="flex items-start">
+                            <div className="flex-shrink-0">
+                              <span className="text-2xl">🔬</span>
+                            </div>
+                            <div className="ml-3">
+                              <h4 className="text-sm font-medium text-blue-800">
+                                Testa API-anslutning
+                              </h4>
+                              <div className="mt-2 text-sm text-blue-700">
+                                <p>Testa om din API-nyckel fungerar genom att generera en testbild. Detta kommer att förbruka en liten mängd API-krediter.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          {/* Test Button */}
+                          <div className="flex items-center gap-4">
+                            <button
+                              onClick={testCurrentProvider}
+                              disabled={testingApi || !((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || (settings.aiImageProvider === 'gemini' && settings.geminiApiKey))}
+                              className="bg-vgbf-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-vgbf-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                              {testingApi ? (
+                                <>
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                  <span>Testar API...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>🧪</span>
+                                  <span>Testa {settings.aiImageProvider === 'openai' ? 'OpenAI' : 'Gemini'} API</span>
+                                </>
+                              )}
+                            </button>
+
+                            {!((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || (settings.aiImageProvider === 'gemini' && settings.geminiApiKey)) && (
+                              <p className="text-sm text-gray-500">
+                                ⚠️ Konfigurera en API-nyckel först för att kunna testa
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Test Results */}
+                          {Object.keys(apiTestResults).length > 0 && (
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-medium text-gray-700">Testresultat:</h4>
+                              {Object.entries(apiTestResults).map(([provider, result]) => (
+                                <div
+                                  key={provider}
+                                  className={`border rounded-lg p-3 ${
+                                    result.success
+                                      ? 'border-green-200 bg-green-50'
+                                      : 'border-red-200 bg-red-50'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <span className="text-sm font-medium capitalize">
+                                        {provider === 'openai' ? '🔵 OpenAI DALL-E 3' : '🔶 Google Gemini'}
+                                      </span>
+                                      <p className="text-sm mt-1">{result.message}</p>
+                                    </div>
+                                    {result.timestamp && (
+                                      <span className="text-xs text-gray-500">
+                                        {result.timestamp}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
 
                       <div className="border-t pt-6">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">API Status</h3>
