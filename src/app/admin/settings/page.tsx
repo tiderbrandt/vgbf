@@ -332,8 +332,8 @@ export default function SettingsPage() {
                   </div>
                 )}
 
-                {/* AI & API Settings - Temporarily disabled */}
-                {false && activeTab === 'ai' && (
+                {/* AI & API Settings */}
+                {activeTab === 'ai' && (
                   <div className="p-6">
                     <h2 className="text-xl font-semibold text-gray-900 mb-6">AI & API Inställningar</h2>
                     
