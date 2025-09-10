@@ -33,8 +33,9 @@ export async function POST(request: NextRequest) {
     // Get settings to check which AI provider to use
     const settingsResult = await getSettings()
     if (!settingsResult.success || !settingsResult.data) {
+      console.error('Settings loading failed:', settingsResult.error)
       return NextResponse.json(
-        { success: false, error: 'Kunde inte ladda inställningar' },
+        { success: false, error: 'Kunde inte ladda inställningar', debug: settingsResult.error },
         { status: 500 }
       )
     }
@@ -42,20 +43,30 @@ export async function POST(request: NextRequest) {
     const settings = settingsResult.data
     const provider = settings.aiImageProvider || 'openai'
     
+    console.log('AI Image Generation Request:', {
+      provider,
+      hasOpenAI: !!settings.openaiApiKey,
+      hasGemini: !!settings.geminiApiKey,
+      hasEnvOpenAI: !!process.env.OPENAI_API_KEY,
+      hasEnvGemini: !!process.env.GEMINI_API_KEY
+    })
+    
     // Check if we have the appropriate API key
     const openaiApiKey = settings.openaiApiKey || process.env.OPENAI_API_KEY
     const geminiApiKey = settings.geminiApiKey || process.env.GEMINI_API_KEY
     
     if (provider === 'openai' && !openaiApiKey) {
+      console.error('OpenAI key missing')
       return NextResponse.json(
-        { success: false, error: 'OpenAI API key inte konfigurerad' },
+        { success: false, error: 'OpenAI API key inte konfigurerad', debug: 'No OpenAI key found in settings or environment' },
         { status: 500 }
       )
     }
     
     if (provider === 'gemini' && !geminiApiKey) {
+      console.error('Gemini key missing')
       return NextResponse.json(
-        { success: false, error: 'Gemini API key inte konfigurerad' },
+        { success: false, error: 'Gemini API key inte konfigurerad', debug: 'No Gemini key found in settings or environment' },
         { status: 500 }
       )
     }
