@@ -408,7 +408,7 @@ export default function SettingsPage() {
                           {/* Test Button */}
                           <div className="flex items-center gap-4">
                             <button
-                              onClick={testGeminiAPI}
+                              onClick={testHuggingFaceAPI}
                               disabled={testingApi || !((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || (settings.aiImageProvider === 'gemini' && settings.geminiApiKey))}
                               className="bg-vgbf-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-vgbf-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
