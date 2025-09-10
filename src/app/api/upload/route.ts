@@ -1,6 +1,6 @@
-import { put } from '@vercel/blob';
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/auth';
+import { uploadToCloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   console.log('Upload API called')
@@ -13,12 +13,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    // Check if BLOB_READ_WRITE_TOKEN is available
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      console.error('BLOB_READ_WRITE_TOKEN environment variable not found')
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error('Cloudinary environment variables not found')
       return NextResponse.json({ 
         success: false,
-        error: 'Blob storage not configured. Please add BLOB_READ_WRITE_TOKEN environment variable.' 
+        error: 'Image storage not configured. Please add Cloudinary environment variables.' 
       }, { status: 500 });
     }
 
@@ -44,27 +44,34 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ success: false, error: 'No file data provided' }, { status: 400 });
     }
 
+    // Convert request body to buffer
+    const bytes = await request.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
     // Generate unique filename to prevent conflicts
     const timestamp = Date.now();
     const randomString = Math.random().toString(36).substring(2, 8);
     const uniqueFileName = `${timestamp}-${randomString}-${filename}`;
-    const blobPath = `uploads/${type}/${uniqueFileName}`;
     
-    console.log('Uploading to blob:', { blobPath });
+    console.log('Uploading to Cloudinary:', { uniqueFileName, type });
     
-    // ⚠️ The below code is for App Router Route Handlers only
-    const blob = await put(blobPath, request.body, {
-      access: 'public',
+    // Upload to Cloudinary
+    const result = await uploadToCloudinary(buffer, {
+      folder: `vgbf/${type}`,
+      filename: uniqueFileName
     });
 
-    console.log('File uploaded to Vercel Blob successfully:', blob.url);
+    console.log('File uploaded to Cloudinary successfully:', result.url);
 
     return NextResponse.json({ 
       success: true,
       data: {
-        url: blob.url,
+        url: result.url,
         fileName: uniqueFileName,
-        downloadUrl: blob.downloadUrl 
+        publicId: result.publicId,
+        secureUrl: result.secureUrl,
+        width: result.width,
+        height: result.height
       }
     });
   } catch (error) {

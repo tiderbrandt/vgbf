@@ -2,6 +2,20 @@
 const nextConfig = {
     images: {
         remotePatterns: [
+            // Cloudinary domains
+            {
+                protocol: 'https',
+                hostname: 'res.cloudinary.com',
+                port: '',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cloudinary.com',
+                port: '',
+                pathname: '/**',
+            },
+            // Legacy Vercel Blob domains (for existing images)
             {
                 protocol: 'https',
                 hostname: '*.public.blob.vercel-storage.com',

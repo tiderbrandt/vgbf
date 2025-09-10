@@ -23,6 +23,7 @@
     "@vercel/blob": "^1.1.1",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "^2.7.0",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
