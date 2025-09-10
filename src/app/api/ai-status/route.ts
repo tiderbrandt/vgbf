@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
     const status = {
       settingsLoaded: settingsResult.success,
       settingsError: settingsResult.error || null,
-      provider: 'gemini',
-      hasGeminiInSettings: !!(settingsResult.data?.geminiApiKey),
-      hasGeminiInEnv: !!process.env.GEMINI_API_KEY,
+      provider: 'huggingface',
+      hasHuggingFaceInSettings: !!(settingsResult.data?.huggingfaceApiKey),
+      hasHuggingFaceInEnv: !!process.env.HUGGINGFACE_API_KEY,
       hasJwtSecret,
       timestamp: new Date().toISOString()
     }

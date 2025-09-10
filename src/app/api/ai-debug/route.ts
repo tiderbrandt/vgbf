@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
       settingsLoaded: settingsResult.success,
       settingsError: settingsResult.error || null,
       rawSettings: settingsResult.data,
-      provider: 'gemini',
-      hasGeminiInSettings: !!(settingsResult.data?.geminiApiKey),
-      hasGeminiInEnv: !!process.env.GEMINI_API_KEY,
+      provider: 'huggingface',
+      hasHuggingFaceInSettings: !!(settingsResult.data?.huggingfaceApiKey),
+      hasHuggingFaceInEnv: !!process.env.HUGGINGFACE_API_KEY,
       timestamp: new Date().toISOString()
     }
 

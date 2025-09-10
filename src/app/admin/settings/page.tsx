@@ -17,9 +17,7 @@ interface SiteSettings {
   enableNotifications: boolean
   backupFrequency: string
   maintenanceMode: boolean
-  openaiApiKey?: string
-  geminiApiKey?: string
-  aiImageProvider?: 'openai' | 'gemini'
+  huggingfaceApiKey?: string
 }
 
 export default function SettingsPage() {
@@ -35,9 +33,7 @@ export default function SettingsPage() {
     enableNotifications: true,
     backupFrequency: 'weekly',
     maintenanceMode: false,
-    openaiApiKey: '',
-    geminiApiKey: '',
-    aiImageProvider: 'openai'
+    huggingfaceApiKey: ''
   })
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
@@ -135,7 +131,7 @@ export default function SettingsPage() {
     }
   }
 
-  const testGeminiAPI = async () => {
+  const testHuggingFaceAPI = async () => {
     setTestingApi(true)
     
     try {
@@ -153,17 +149,17 @@ export default function SettingsPage() {
       if (data.success) {
         setApiTestResults(prev => ({
           ...prev,
-          gemini: {
+          huggingface: {
             success: true,
-            message: `✅ Google Gemini fungerar korrekt!`,
+            message: `✅ Hugging Face fungerar korrekt!`,
             timestamp: new Date().toLocaleTimeString('sv-SE')
           }
         }))
-        success('API Test lyckades!', 'Gemini API fungerar korrekt.')
+        success('API Test lyckades!', 'Hugging Face API fungerar korrekt.')
       } else {
         setApiTestResults(prev => ({
           ...prev,
-          gemini: {
+          huggingface: {
             success: false,
             message: `❌ ${data.error || 'API test misslyckades'}`,
             timestamp: new Date().toLocaleTimeString('sv-SE')
@@ -175,13 +171,13 @@ export default function SettingsPage() {
       console.error('API test error:', err)
       setApiTestResults(prev => ({
         ...prev,
-        gemini: {
+        huggingface: {
           success: false,
-          message: `❌ Nätverksfel vid test av Gemini`,
+          message: `❌ Nätverksfel vid test av Hugging Face`,
           timestamp: new Date().toLocaleTimeString('sv-SE')
         }
       }))
-      error('API Test fel', 'Kunde inte testa Gemini API.')
+      error('API Test fel', 'Kunde inte testa Hugging Face API.')
     } finally {
       setTestingApi(false)
     }
@@ -352,31 +348,31 @@ export default function SettingsPage() {
                               AI Bildgenerering
                             </h3>
                             <div className="mt-2 text-sm text-blue-700">
-                              <p>Konfigurera Google Gemini för automatisk bildgenerering när du skapar nyheter.</p>
+                              <p>Konfigurera Hugging Face för automatisk bildgenerering när du skapar nyheter med en generös gratis nivå.</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Gemini Configuration */}
+                      {/* Hugging Face Configuration */}
                       <div className="border border-gray-200 rounded-lg p-4">
                         <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                          <span className="mr-2">🔶</span>
-                          Google Gemini
+                          <span className="mr-2">🤗</span>
+                          Hugging Face Stable Diffusion
                         </h3>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Gemini API Nyckel
+                            Hugging Face API Token
                           </label>
                           <input
                             type="password"
-                            value={settings.geminiApiKey || ''}
-                            onChange={(e) => setSettings({...settings, geminiApiKey: e.target.value})}
-                            placeholder="AIza..."
+                            value={settings.huggingfaceApiKey || ''}
+                            onChange={(e) => setSettings({...settings, huggingfaceApiKey: e.target.value})}
+                            placeholder="hf_..."
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-vgbf-blue focus:border-vgbf-blue"
                           />
                           <p className="mt-2 text-sm text-gray-500">
-                            Din Google Gemini API-nyckel används för att generera bilder. 
+                            Din Hugging Face API token används för att generera bilder med Stable Diffusion. 
                             <a 
                               href="https://aistudio.google.com/app/apikey" 
                               target="_blank" 

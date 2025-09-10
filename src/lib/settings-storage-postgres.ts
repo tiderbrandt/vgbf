@@ -10,7 +10,7 @@ export interface AdminSettings {
   enableNotifications: boolean
   backupFrequency: string
   maintenanceMode: boolean
-  geminiApiKey?: string
+  huggingfaceApiKey?: string
 }
 
 export interface SettingsResult {
@@ -70,7 +70,7 @@ export async function getSettings(): Promise<SettingsResult> {
         enableNotifications: true,
         backupFrequency: 'weekly',
         maintenanceMode: false,
-        geminiApiKey: ''
+        huggingfaceApiKey: ''
       }
       
       // Insert default settings
@@ -280,8 +280,8 @@ export async function validateSettings(settings: AdminSettings): Promise<{ isVal
   }
   
   // Validate API key formats if provided
-  if (settings.geminiApiKey && settings.geminiApiKey.trim() && !settings.geminiApiKey.startsWith('AIza')) {
-    errors.push('Gemini API key must start with "AIza"')
+  if (settings.huggingfaceApiKey && settings.huggingfaceApiKey.trim() && !settings.huggingfaceApiKey.startsWith('hf_')) {
+    errors.push('Hugging Face API key must start with "hf_"')
   }
   
   return { isValid: errors.length === 0, errors }
