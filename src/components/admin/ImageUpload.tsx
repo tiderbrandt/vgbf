@@ -110,8 +110,11 @@ export default function ImageUpload({
       
       if (!token) {
         error('Ej inloggad', 'Du måste vara inloggad för att generera bilder.')
+        setGenerating(false)
         return
       }
+
+      console.log('Starting AI image generation...', { prompt: aiPrompt, style: aiStyle })
 
       const response = await fetch('/api/generate-image', {
         method: 'POST',
@@ -126,9 +129,42 @@ export default function ImageUpload({
         }),
       })
 
-      const data = await response.json()
+      console.log('AI generation response status:', response.status)
 
-      if (data.success) {
+      // Check if response is OK
+      if (!response.ok) {
+        console.error('API response not OK:', response.status, response.statusText)
+        
+        // Try to parse error response
+        let errorMessage = 'Ett oväntat fel inträffade vid bildgenerering.'
+        try {
+          const errorData = await response.json()
+          console.error('API error data:', errorData)
+          errorMessage = errorData.error || errorMessage
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+          errorMessage = `API fel (${response.status}): ${response.statusText}`
+        }
+        
+        error('Fel vid bildgenerering', errorMessage)
+        setGenerating(false)
+        return
+      }
+
+      // Parse successful response
+      let data
+      try {
+        data = await response.json()
+        console.log('AI generation response data:', data)
+      } catch (parseError) {
+        console.error('Failed to parse success response:', parseError)
+        error('Fel vid bildgenerering', 'Kunde inte läsa API-svar.')
+        setGenerating(false)
+        return
+      }
+
+      if (data.success && data.data && data.data.url) {
+        console.log('AI generation successful:', data.data.url)
         setPreviewUrl(data.data.url)
         onImageUploaded(data.data.url, aiPrompt)
         setImageAlt(aiPrompt)
@@ -136,11 +172,13 @@ export default function ImageUpload({
         success('Bild genererad!', `AI-bilden har genererats framgångsrikt med ${providerName}.`)
         setShowAIGenerator(false)
       } else {
-        error('Fel vid bildgenerering', data.error || 'Ett oväntat fel inträffade.')
+        console.error('AI generation failed:', data)
+        const errorMessage = data.error || data.debug || 'Ett oväntat fel inträffade.'
+        error('Fel vid bildgenerering', errorMessage)
       }
     } catch (err) {
-      console.error('AI generation error:', err)
-      error('Fel vid bildgenerering', 'Ett oväntat fel inträffade vid bildgenerering.')
+      console.error('AI generation network error:', err)
+      error('Fel vid bildgenerering', 'Nätverksfel vid bildgenerering. Kontrollera din internetanslutning.')
     } finally {
       setGenerating(false)
     }
