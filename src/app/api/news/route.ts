@@ -3,6 +3,9 @@ import { getAllNews, getFeaturedNews, getRecentNews, addNews, updateNews, delete
 import { NewsArticle } from '@/types'
 import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
+// Force this route to be dynamic for admin operations
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   console.log('GET /api/news called')
   const { searchParams } = new URL(request.url)

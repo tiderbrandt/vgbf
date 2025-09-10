@@ -3,6 +3,9 @@ import { getAllSponsors, addSponsor, updateSponsor, deleteSponsor } from '@/lib/
 import { Sponsor } from '@/types'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
+// Force this route to be dynamic for admin operations
+export const dynamic = 'force-dynamic'
+
 // Helper function to generate sponsor ID (keeping for compatibility)
 function generateSponsorId(): string {
   return Date.now().toString()

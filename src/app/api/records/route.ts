@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAllRecords as getDistrictRecords, addRecord, deleteRecord } from '@/lib/records-storage-postgres'
 import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
 
+// Force this route to be dynamic for admin operations
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const records = await getDistrictRecords()
