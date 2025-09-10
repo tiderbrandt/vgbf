@@ -65,13 +65,26 @@ export async function POST(request: NextRequest) {
       hasEnvHuggingFace: !!process.env.HUGGINGFACE_API_KEY
     })
     
-    // Check for Hugging Face API key
+    // Check for Hugging Face API key (with backward compatibility)
     const huggingfaceApiKey = settings.huggingfaceApiKey || process.env.HUGGINGFACE_API_KEY
     
     if (!huggingfaceApiKey) {
       console.error('Hugging Face key missing')
+      console.log('Available settings keys:', Object.keys(settings))
+      console.log('Looking for huggingfaceApiKey, found:', !!settings.huggingfaceApiKey)
+      console.log('Environment HUGGINGFACE_API_KEY:', !!process.env.HUGGINGFACE_API_KEY)
+      
       return NextResponse.json(
-        { success: false, error: 'Hugging Face API key inte konfigurerad', debug: 'No Hugging Face key found in settings or environment' },
+        { 
+          success: false, 
+          error: 'Hugging Face API key inte konfigurerad. Gå till Admin > Inställningar > AI & API för att konfigurera din token.', 
+          debug: {
+            message: 'No Hugging Face key found in settings or environment',
+            hasSettingsKey: !!settings.huggingfaceApiKey,
+            hasEnvKey: !!process.env.HUGGINGFACE_API_KEY,
+            availableSettingsKeys: Object.keys(settings)
+          }
+        },
         { status: 500 }
       )
     }
