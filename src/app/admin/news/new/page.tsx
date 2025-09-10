@@ -183,8 +183,10 @@ export default function NewNewsPage() {
                 </label>
                 <ImageUpload
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
-                    updateField('imageUrl', imageUrl);
-                    updateField('imageAlt', imageAlt);
+                    updateFields({
+                      imageUrl: imageUrl,
+                      imageAlt: imageAlt
+                    });
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}

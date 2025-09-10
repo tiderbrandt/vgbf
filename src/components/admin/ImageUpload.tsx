@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import Cookies from 'js-cookie'
 import { useToast } from '@/contexts/ToastContext'
@@ -33,6 +33,14 @@ export default function ImageUpload({
   const [aiPrompt, setAiPrompt] = useState('')
   const [aiStyle, setAiStyle] = useState<'photographic' | 'digital-art' | 'cinematic'>('photographic')
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Use useCallback to prevent unnecessary re-renders that could affect focus
+  const handleImageUploaded = useCallback((imageUrl: string, imageAlt: string) => {
+    // Use requestAnimationFrame to ensure DOM updates are complete before state change
+    requestAnimationFrame(() => {
+      onImageUploaded(imageUrl, imageAlt)
+    })
+  }, [onImageUploaded])
 
   const handleFileSelect = async (file: File) => {
     if (!file) return
@@ -82,7 +90,8 @@ export default function ImageUpload({
       const data = await response.json()
 
       if (data.success) {
-        onImageUploaded(data.data.url, imageAlt || file.name)
+        // Use the callback to prevent focus issues
+        handleImageUploaded(data.data.url, imageAlt || file.name)
         success('Bild uppladdad!', 'Bilden har laddats upp framgångsrikt.')
       } else {
         error('Fel vid uppladdning', data.error || 'Ett oväntat fel inträffade.')
@@ -166,9 +175,12 @@ export default function ImageUpload({
       if (data.success && data.data && data.data.url) {
         console.log('AI generation successful:', data.data.url)
         setPreviewUrl(data.data.url)
-        onImageUploaded(data.data.url, aiPrompt)
         setImageAlt(aiPrompt)
-        const providerName = data.data.provider === 'openai' ? 'OpenAI DALL-E 3' : 'Google Gemini'
+        
+        // Use the callback to prevent focus issues
+        handleImageUploaded(data.data.url, aiPrompt)
+        
+        const providerName = data.data.provider === 'openai' ? 'OpenAI DALL-E 3' : 'Hugging Face Stable Diffusion'
         success('Bild genererad!', `AI-bilden har genererats framgångsrikt med ${providerName}.`)
         setShowAIGenerator(false)
       } else {
@@ -221,7 +233,7 @@ export default function ImageUpload({
   const handleRemoveImage = () => {
     setPreviewUrl(null)
     setImageAlt('')
-    onImageUploaded('', '')
+    handleImageUploaded('', '')
   }
 
   const handleClick = () => {
