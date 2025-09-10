@@ -44,7 +44,7 @@ export default function NewsClient() {
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+          <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden animate-pulse">
             <div className="h-48 bg-gray-200"></div>
             <div className="p-6">
               <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -65,7 +65,7 @@ export default function NewsClient() {
         <p className="text-red-600">Fel vid laddning av nyheter: {error}</p>
         <button 
           onClick={() => window.location.reload()} 
-          className="mt-4 px-4 py-2 bg-vgbf-blue text-white rounded hover:bg-blue-600"
+          className="mt-4 px-6 py-3 bg-gradient-to-r from-vgbf-blue to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-sm"
         >
           Försök igen
         </button>
@@ -76,7 +76,7 @@ export default function NewsClient() {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
       {news.map((article: NewsArticle) => (
-        <article key={article.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+        <article key={article.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200">
           {article.imageUrl && (
             <div className="relative h-48">
               <Image
@@ -108,7 +108,7 @@ export default function NewsClient() {
               <span className="text-sm text-gray-500">Av: {article.author}</span>
               <Link 
                 href={`/nyheter/${article.slug}`}
-                className="text-vgbf-blue hover:text-blue-600 font-medium inline-flex items-center"
+                className="text-vgbf-blue hover:text-blue-700 font-medium inline-flex items-center transition-colors duration-200"
               >
                 Läs mer →
               </Link>
