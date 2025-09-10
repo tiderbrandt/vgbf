@@ -132,7 +132,8 @@ export default function ImageUpload({
         setPreviewUrl(data.data.url)
         onImageUploaded(data.data.url, aiPrompt)
         setImageAlt(aiPrompt)
-        success('Bild genererad!', 'AI-bilden har genererats framgångsrikt.')
+        const providerName = data.data.provider === 'openai' ? 'OpenAI DALL-E 3' : 'Google Gemini'
+        success('Bild genererad!', `AI-bilden har genererats framgångsrikt med ${providerName}.`)
         setShowAIGenerator(false)
       } else {
         error('Fel vid bildgenerering', data.error || 'Ett oväntat fel inträffade.')

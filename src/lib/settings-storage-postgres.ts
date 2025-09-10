@@ -10,6 +10,9 @@ export interface AdminSettings {
   enableNotifications: boolean
   backupFrequency: string
   maintenanceMode: boolean
+  openaiApiKey?: string
+  geminiApiKey?: string
+  aiImageProvider?: 'openai' | 'gemini'
 }
 
 export interface SettingsResult {
@@ -68,7 +71,10 @@ export async function getSettings(): Promise<SettingsResult> {
         enableRegistration: false,
         enableNotifications: true,
         backupFrequency: 'weekly',
-        maintenanceMode: false
+        maintenanceMode: false,
+        openaiApiKey: '',
+        geminiApiKey: '',
+        aiImageProvider: 'openai'
       }
       
       // Insert default settings
