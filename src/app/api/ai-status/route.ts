@@ -29,10 +29,8 @@ export async function GET(request: NextRequest) {
     const status = {
       settingsLoaded: settingsResult.success,
       settingsError: settingsResult.error || null,
-      provider: settingsResult.data?.aiImageProvider || 'openai',
-      hasOpenAIInSettings: !!(settingsResult.data?.openaiApiKey),
+      provider: 'gemini',
       hasGeminiInSettings: !!(settingsResult.data?.geminiApiKey),
-      hasOpenAIInEnv: !!process.env.OPENAI_API_KEY,
       hasGeminiInEnv: !!process.env.GEMINI_API_KEY,
       hasJwtSecret,
       timestamp: new Date().toISOString()

@@ -135,7 +135,7 @@ export default function SettingsPage() {
     }
   }
 
-  const testAIProvider = async (provider: 'openai' | 'gemini') => {
+  const testGeminiAPI = async () => {
     setTestingApi(true)
     
     try {
@@ -153,17 +153,17 @@ export default function SettingsPage() {
       if (data.success) {
         setApiTestResults(prev => ({
           ...prev,
-          [provider]: {
+          gemini: {
             success: true,
-            message: `✅ ${provider === 'openai' ? 'OpenAI DALL-E 3' : 'Google Gemini'} fungerar korrekt!`,
+            message: `✅ Google Gemini fungerar korrekt!`,
             timestamp: new Date().toLocaleTimeString('sv-SE')
           }
         }))
-        success('API Test lyckades!', `${provider === 'openai' ? 'OpenAI' : 'Gemini'} API fungerar korrekt.`)
+        success('API Test lyckades!', 'Gemini API fungerar korrekt.')
       } else {
         setApiTestResults(prev => ({
           ...prev,
-          [provider]: {
+          gemini: {
             success: false,
             message: `❌ ${data.error || 'API test misslyckades'}`,
             timestamp: new Date().toLocaleTimeString('sv-SE')
@@ -175,21 +175,16 @@ export default function SettingsPage() {
       console.error('API test error:', err)
       setApiTestResults(prev => ({
         ...prev,
-        [provider]: {
+        gemini: {
           success: false,
-          message: `❌ Nätverksfel vid test av ${provider === 'openai' ? 'OpenAI' : 'Gemini'}`,
+          message: `❌ Nätverksfel vid test av Gemini`,
           timestamp: new Date().toLocaleTimeString('sv-SE')
         }
       }))
-      error('API Test fel', `Kunde inte testa ${provider === 'openai' ? 'OpenAI' : 'Gemini'} API.`)
+      error('API Test fel', 'Kunde inte testa Gemini API.')
     } finally {
       setTestingApi(false)
     }
-  }
-
-  const testCurrentProvider = () => {
-    const provider = settings.aiImageProvider || 'openai'
-    testAIProvider(provider)
   }
 
   const tabs = [
@@ -357,95 +352,42 @@ export default function SettingsPage() {
                               AI Bildgenerering
                             </h3>
                             <div className="mt-2 text-sm text-blue-700">
-                              <p>Konfigurera AI-tjänster för automatisk bildgenerering när du skapar nyheter. Du kan välja mellan OpenAI DALL-E 3 eller Google Gemini.</p>
+                              <p>Konfigurera Google Gemini för automatisk bildgenerering när du skapar nyheter.</p>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* AI Provider Selection */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          AI-leverantör
-                        </label>
-                        <select
-                          value={settings.aiImageProvider || 'openai'}
-                          onChange={(e) => setSettings({...settings, aiImageProvider: e.target.value as 'openai' | 'gemini'})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-vgbf-blue focus:border-vgbf-blue"
-                        >
-                          <option value="openai">OpenAI DALL-E 3</option>
-                          <option value="gemini">Google Gemini</option>
-                        </select>
-                        <p className="mt-2 text-sm text-gray-500">
-                          Välj vilken AI-tjänst som ska användas för bildgenerering.
-                        </p>
-                      </div>
-
-                      {/* OpenAI Configuration */}
-                      {settings.aiImageProvider === 'openai' && (
-                        <div className="border border-gray-200 rounded-lg p-4">
-                          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                            <span className="mr-2">🔵</span>
-                            OpenAI DALL-E 3
-                          </h3>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              OpenAI API Nyckel
-                            </label>
-                            <input
-                              type="password"
-                              value={settings.openaiApiKey || ''}
-                              onChange={(e) => setSettings({...settings, openaiApiKey: e.target.value})}
-                              placeholder="sk-..."
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-vgbf-blue focus:border-vgbf-blue"
-                            />
-                            <p className="mt-2 text-sm text-gray-500">
-                              Din OpenAI API-nyckel används för att generera bilder med DALL-E 3. 
-                              <a 
-                                href="https://platform.openai.com/api-keys" 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-vgbf-blue hover:underline ml-1"
-                              >
-                                Skaffa en API-nyckel här →
-                              </a>
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
                       {/* Gemini Configuration */}
-                      {settings.aiImageProvider === 'gemini' && (
-                        <div className="border border-gray-200 rounded-lg p-4">
-                          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                            <span className="mr-2">🔶</span>
-                            Google Gemini
-                          </h3>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Gemini API Nyckel
-                            </label>
-                            <input
-                              type="password"
-                              value={settings.geminiApiKey || ''}
-                              onChange={(e) => setSettings({...settings, geminiApiKey: e.target.value})}
-                              placeholder="AIza..."
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-vgbf-blue focus:border-vgbf-blue"
-                            />
-                            <p className="mt-2 text-sm text-gray-500">
-                              Din Google Gemini API-nyckel används för att generera bilder. 
-                              <a 
-                                href="https://aistudio.google.com/app/apikey" 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-vgbf-blue hover:underline ml-1"
-                              >
-                                Skaffa en API-nyckel här →
-                              </a>
-                            </p>
-                          </div>
+                      <div className="border border-gray-200 rounded-lg p-4">
+                        <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                          <span className="mr-2">🔶</span>
+                          Google Gemini
+                        </h3>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Gemini API Nyckel
+                          </label>
+                          <input
+                            type="password"
+                            value={settings.geminiApiKey || ''}
+                            onChange={(e) => setSettings({...settings, geminiApiKey: e.target.value})}
+                            placeholder="AIza..."
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-vgbf-blue focus:border-vgbf-blue"
+                          />
+                          <p className="mt-2 text-sm text-gray-500">
+                            Din Google Gemini API-nyckel används för att generera bilder. 
+                            <a 
+                              href="https://aistudio.google.com/app/apikey" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-vgbf-blue hover:underline ml-1"
+                            >
+                              Skaffa en API-nyckel här →
+                            </a>
+                          </p>
                         </div>
-                      )}
+                      </div>
 
                       {/* API Testing Section */}
                       <div className="border-t pt-6">
@@ -470,7 +412,7 @@ export default function SettingsPage() {
                           {/* Test Button */}
                           <div className="flex items-center gap-4">
                             <button
-                              onClick={testCurrentProvider}
+                              onClick={testGeminiAPI}
                               disabled={testingApi || !((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || (settings.aiImageProvider === 'gemini' && settings.geminiApiKey))}
                               className="bg-vgbf-blue text-white px-6 py-2 rounded-lg font-medium hover:bg-vgbf-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
@@ -510,7 +452,7 @@ export default function SettingsPage() {
                                   <div className="flex items-center justify-between">
                                     <div>
                                       <span className="text-sm font-medium capitalize">
-                                        {provider === 'openai' ? '🔵 OpenAI DALL-E 3' : '🔶 Google Gemini'}
+                                        🔶 Google Gemini
                                       </span>
                                       <p className="text-sm mt-1">{result.message}</p>
                                     </div>
@@ -529,22 +471,12 @@ export default function SettingsPage() {
 
                       <div className="border-t pt-6">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">API Status</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="bg-gray-50 rounded-lg p-4">
                             <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-700">Aktiv leverantör</span>
+                              <span className="text-sm font-medium text-gray-700">AI Leverantör</span>
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {settings.aiImageProvider === 'openai' ? '🔵 OpenAI' : '🔶 Gemini'}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium text-gray-700">OpenAI Status</span>
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                settings.openaiApiKey ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                              }`}>
-                                {settings.openaiApiKey ? '✓ Konfigurerad' : '✗ Ej konfigurerad'}
+                                 Gemini
                               </span>
                             </div>
                           </div>
@@ -561,8 +493,7 @@ export default function SettingsPage() {
                         </div>
                       </div>
 
-                      {((settings.aiImageProvider === 'openai' && settings.openaiApiKey) || 
-                        (settings.aiImageProvider === 'gemini' && settings.geminiApiKey)) && (
+                      {settings.geminiApiKey && (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                           <div className="flex items-start">
                             <div className="flex-shrink-0">

@@ -10,9 +10,7 @@ export interface AdminSettings {
   enableNotifications: boolean
   backupFrequency: string
   maintenanceMode: boolean
-  openaiApiKey?: string
   geminiApiKey?: string
-  aiImageProvider?: 'openai' | 'gemini'
 }
 
 export interface SettingsResult {
@@ -72,9 +70,7 @@ export async function getSettings(): Promise<SettingsResult> {
         enableNotifications: true,
         backupFrequency: 'weekly',
         maintenanceMode: false,
-        openaiApiKey: '',
-        geminiApiKey: '',
-        aiImageProvider: 'openai'
+        geminiApiKey: ''
       }
       
       // Insert default settings
@@ -283,16 +279,7 @@ export async function validateSettings(settings: AdminSettings): Promise<{ isVal
     errors.push('Valid backup frequency is required')
   }
   
-  // Validate AI provider settings (optional fields)
-  if (settings.aiImageProvider && !['openai', 'gemini'].includes(settings.aiImageProvider)) {
-    errors.push('AI image provider must be either "openai" or "gemini"')
-  }
-  
   // Validate API key formats if provided
-  if (settings.openaiApiKey && settings.openaiApiKey.trim() && !settings.openaiApiKey.startsWith('sk-')) {
-    errors.push('OpenAI API key must start with "sk-"')
-  }
-  
   if (settings.geminiApiKey && settings.geminiApiKey.trim() && !settings.geminiApiKey.startsWith('AIza')) {
     errors.push('Gemini API key must start with "AIza"')
   }
