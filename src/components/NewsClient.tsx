@@ -48,7 +48,7 @@ export default function NewsClient() {
 
   // Get unique authors for filter dropdown
   const authors = useMemo(() => {
-    const uniqueAuthors = [...new Set(news.map(article => article.author))]
+    const uniqueAuthors = Array.from(new Set(news.map(article => article.author).filter(Boolean)))
     return uniqueAuthors.sort()
   }, [news])
 
