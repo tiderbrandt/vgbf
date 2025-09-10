@@ -188,6 +188,8 @@ export default function NewNewsPage() {
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
+                  newsTitle={formData.title}
+                  newsExcerpt={formData.excerpt}
                 />
               </div>
 

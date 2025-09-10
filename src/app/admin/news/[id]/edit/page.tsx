@@ -31,26 +31,7 @@ export default function EditNewsPage({ params }: Props) {
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [originalNews, setOriginalNews] = useState<NewsArticle | null>(null)
 
-  // Load news article
-  useEffect(() => {
-    loadNews()
-  }, [params.id])
-
-  // Autosave functionality
-  useEffect(() => {
-    if (!originalNews) return
-
-    const interval = setInterval(() => {
-      if (formData.title || formData.content) {
-        localStorage.setItem(`news-edit-${params.id}`, JSON.stringify(formData))
-        setLastSaved(new Date())
-      }
-    }, 30000)
-
-    return () => clearInterval(interval)
-  }, [formData, params.id, originalNews])
-
-  const loadNews = async () => {
+  const loadNews = useCallback(async () => {
     try {
       const response = await fetch('/api/news')
       const data = await response.json()
@@ -91,7 +72,26 @@ export default function EditNewsPage({ params }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id, error, router])
+
+  // Load news article
+  useEffect(() => {
+    loadNews()
+  }, [loadNews])
+
+  // Autosave functionality
+  useEffect(() => {
+    if (!originalNews) return
+
+    const interval = setInterval(() => {
+      if (formData.title || formData.content) {
+        localStorage.setItem(`news-edit-${params.id}`, JSON.stringify(formData))
+        setLastSaved(new Date())
+      }
+    }, 30000)
+
+    return () => clearInterval(interval)
+  }, [formData, params.id, originalNews])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -263,6 +263,8 @@ export default function EditNewsPage({ params }: Props) {
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
+                  newsTitle={formData.title}
+                  newsExcerpt={formData.excerpt}
                 />
               </div>
 
