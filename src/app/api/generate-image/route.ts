@@ -100,10 +100,20 @@ export async function POST(request: NextRequest) {
     // Enhanced prompt for archery/sports context
     const enhancedPrompt = `${prompt}. Professional high-quality image suitable for a Swedish archery federation website. Clean, bright, and engaging style. No text overlays.`
 
+    console.log(`Using AI provider: ${provider}`)
+    
     if (provider === 'openai') {
+      console.log('Calling OpenAI DALL-E 3')
       return await generateWithOpenAI(openaiApiKey!, enhancedPrompt, size, style)
-    } else {
+    } else if (provider === 'gemini') {
+      console.log('Calling Google Gemini')
       return await generateWithGemini(geminiApiKey!, enhancedPrompt)
+    } else {
+      console.error('Unknown provider:', provider)
+      return NextResponse.json(
+        { success: false, error: `Okänd AI-leverantör: ${provider}`, debug: `Invalid provider: ${provider}` },
+        { status: 400 }
+      )
     }
   } catch (error) {
     console.error('Error generating image:', error)
