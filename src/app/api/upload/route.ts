@@ -4,15 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
 // runs in the Node runtime instead of the Edge runtime to avoid runtime
 // errors like "Buffer is not defined" or native module issues.
 export const runtime = 'nodejs'
-import { verifyAdminToken } from '@/lib/auth';
+import { verifyAdminToken, verifyAdminAuth } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   console.log('Upload API called')
   
-  // Check authentication
-  const authHeader = request.headers.get('authorization')
-  if (!verifyAdminToken(authHeader)) {
+  // Check authentication - try header first, then cookies
+  if (!verifyAdminAuth(request)) {
     console.log('Upload authentication failed')
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 })
   }

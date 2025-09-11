@@ -1,11 +1,21 @@
 import { v2 as cloudinary } from 'cloudinary'
 
 // Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+try {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  })
+  // Small debug log to make missing env problems visible in server logs
+  console.log('Cloudinary configured:', {
+    cloudName: !!process.env.CLOUDINARY_CLOUD_NAME,
+    hasKey: !!process.env.CLOUDINARY_API_KEY,
+    hasSecret: !!process.env.CLOUDINARY_API_SECRET,
+  })
+} catch (err) {
+  console.error('Failed to configure Cloudinary at module load:', err)
+}
 
 export default cloudinary
 
