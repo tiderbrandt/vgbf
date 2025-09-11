@@ -743,17 +743,21 @@ Följande information skall vara med i mailet: Namn, Klass, Resultat, Arrangör 
 
 Från och med 2025 är inte längre rekord från U16 med, då denna klass ersätts av U15 och U18.`
       
-      // Insert default content
+      // Insert default content as JSON
       await sql`
         INSERT INTO admin_settings (key, value, description)
-        VALUES ('distriktsrekord_info', ${defaultContent}, 'Information text for distriktsrekord page')
+        VALUES ('distriktsrekord_info', ${JSON.stringify({ content: defaultContent })}, 'Information text for distriktsrekord page')
         ON CONFLICT (key) DO NOTHING
       `
       
       return { success: true, data: defaultContent }
     }
     
-    return { success: true, data: result[0].value }
+    // Parse JSON value and extract content
+    const jsonValue = result[0].value
+    const content = typeof jsonValue === 'string' ? JSON.parse(jsonValue).content : jsonValue.content
+    
+    return { success: true, data: content }
   } catch (error) {
     console.error('Error getting distriktsrekord info:', error)
     return { success: false, error: 'Failed to retrieve distriktsrekord information' }
@@ -765,9 +769,9 @@ export async function updateDistriktsrekordInfo(content: string): Promise<{ succ
   try {
     const result = await sql`
       INSERT INTO admin_settings (key, value, description, updated_at)
-      VALUES ('distriktsrekord_info', ${content}, 'Information text for distriktsrekord page', CURRENT_TIMESTAMP)
+      VALUES ('distriktsrekord_info', ${JSON.stringify({ content })}, 'Information text for distriktsrekord page', CURRENT_TIMESTAMP)
       ON CONFLICT (key) DO UPDATE SET
-        value = ${content},
+        value = ${JSON.stringify({ content })},
         updated_at = CURRENT_TIMESTAMP
       RETURNING value
     `
