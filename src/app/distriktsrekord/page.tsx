@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { getAllRecords as getDistrictRecords } from '@/lib/records-storage-postgres'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import PageHero from '@/components/PageHero'
 
 export default async function DistriktsrekordPage() {
   const records = await getDistrictRecords()
@@ -20,21 +21,11 @@ export default async function DistriktsrekordPage() {
     <main className="min-h-screen bg-white">
       <Header />
       
-      {/* Hero section with gradient - matching front page */}
-      <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-green text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-            Distriktsrekord
-          </h1>
-          <p className="text-lg md:text-xl mb-8 max-w-3xl mx-auto opacity-95">
-            Västra Götalands Bågskytteförbund officiella distriktsrekord
-          </p>
-          
-          <div className="mt-10 max-w-3xl mx-auto text-sm text-white/90">
-            <p>Här hittar du alla aktuella distriktsrekord för Västra Götaland i bågskytesporten.</p>
-          </div>
-        </div>
-      </section>
+      <PageHero 
+        title="Distriktsrekord"
+        description="Västra Götalands Bågskytteförbund officiella distriktsrekord"
+        subtitle="Här hittar du alla aktuella distriktsrekord för Västra Götaland i bågskytesporten."
+      />
 
       
       {/* Content section with consistent styling */}
