@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+
+// This API uses Node-only libraries (cloudinary, Buffer). Ensure the route
+// runs in the Node runtime instead of the Edge runtime to avoid runtime
+// errors like "Buffer is not defined" or native module issues.
+export const runtime = 'nodejs'
 import { verifyAdminToken } from '@/lib/auth';
 import { uploadToCloudinary } from '@/lib/cloudinary';
 
