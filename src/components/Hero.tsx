@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-red text-white py-20">
+  <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-gold text-white py-20">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
           Västra Götalands
@@ -21,7 +21,7 @@ export default function Hero() {
 
           <a
             href="/tavlingar/kommande"
-            className="inline-block bg-vgbf-red text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+            className="inline-block bg-vgbf-gold text-vgbf-blue px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
             aria-label="Kommande tävlingar"
           >
             Kommande tävlingar
