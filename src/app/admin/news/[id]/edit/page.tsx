@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
@@ -338,13 +339,12 @@ export default function EditNewsPage({ params }: Props) {
                 >
                   {saving ? 'Uppdaterar...' : 'Uppdatera nyhet'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => router.push('/admin')}
+                <Link
+                  href="/admin"
                   className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
                 >
                   Avbryt
-                </button>
+                </Link>
               </div>
             </form>
           </div>
