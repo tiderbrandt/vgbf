@@ -18,7 +18,7 @@ export default function ClubDetailPage({ params }: Props) {
 
   useEffect(() => {
     loadClub()
-  }, [params.id])
+  }, [params.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadClub = async () => {
     try {
