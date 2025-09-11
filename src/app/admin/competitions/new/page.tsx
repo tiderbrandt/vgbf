@@ -39,13 +39,15 @@ export default function NewCompetitionPage() {
 
   // Autosave functionality
   useEffect(() => {
-    const savedDraft = localStorage.getItem('competition-draft')
-    if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft)
-        reset(draft)
-      } catch (error) {
-        console.error('Error loading draft:', error)
+    if (typeof window !== 'undefined') {
+      const savedDraft = localStorage.getItem('competition-draft')
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft)
+          reset(draft)
+        } catch (error) {
+          console.error('Error loading draft:', error)
+        }
       }
     }
   }, [reset])
@@ -53,7 +55,7 @@ export default function NewCompetitionPage() {
   // Save draft every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      if (formData.title || formData.description) {
+      if (typeof window !== 'undefined' && (formData.title || formData.description)) {
         localStorage.setItem('competition-draft', JSON.stringify(formData))
         setLastSaved(new Date())
       }
@@ -84,7 +86,9 @@ export default function NewCompetitionPage() {
       const data = await response.json()
       if (data.success) {
         // Clear draft
-        localStorage.removeItem('competition-draft')
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('competition-draft')
+        }
         success('Tävling skapad!', 'Tävlingen har skapats framgångsrikt.')
         router.push('/admin')
       } else {
@@ -99,13 +103,17 @@ export default function NewCompetitionPage() {
   }
 
   const saveDraft = () => {
-    localStorage.setItem('competition-draft', JSON.stringify(formData))
-    setLastSaved(new Date())
-    success('Utkast sparat!', 'Utkastet har sparats lokalt.')
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('competition-draft', JSON.stringify(formData))
+      setLastSaved(new Date())
+      success('Utkast sparat!', 'Utkastet har sparats lokalt.')
+    }
   }
 
   const clearDraft = () => {
-    localStorage.removeItem('competition-draft')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('competition-draft')
+    }
     reset()
     success('Utkast raderat!', 'Utkastet har raderats och formuläret har återställts.')
   }

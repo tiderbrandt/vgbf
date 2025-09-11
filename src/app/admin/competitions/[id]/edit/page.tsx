@@ -68,13 +68,15 @@ export default function EditCompetitionPage({ params }: Props) {
           })
 
           // Check for saved draft
-          const savedDraft = localStorage.getItem(`competition-edit-${params.id}`)
-          if (savedDraft) {
-            try {
-              const draft = JSON.parse(savedDraft)
-              setFormData(draft)
-            } catch (error) {
-              console.error('Error loading draft:', error)
+          if (typeof window !== 'undefined') {
+            const savedDraft = localStorage.getItem(`competition-edit-${params.id}`)
+            if (savedDraft) {
+              try {
+                const draft = JSON.parse(savedDraft)
+                setFormData(draft)
+              } catch (error) {
+                console.error('Error loading draft:', error)
+              }
             }
           }
         } else {
@@ -127,7 +129,9 @@ export default function EditCompetitionPage({ params }: Props) {
       const data = await response.json()
       if (data.success) {
         // Clear draft
-        localStorage.removeItem(`competition-edit-${params.id}`)
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(`competition-edit-${params.id}`)
+        }
         alert('Tävling uppdaterad!')
         router.push('/admin')
       } else {
@@ -142,9 +146,11 @@ export default function EditCompetitionPage({ params }: Props) {
   }
 
   const saveDraft = () => {
-    localStorage.setItem(`competition-edit-${params.id}`, JSON.stringify(formData))
-    setLastSaved(new Date())
-    alert('Utkast sparat!')
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`competition-edit-${params.id}`, JSON.stringify(formData))
+      setLastSaved(new Date())
+      alert('Utkast sparat!')
+    }
   }
 
   const resetToOriginal = () => {
@@ -168,7 +174,9 @@ export default function EditCompetitionPage({ params }: Props) {
         imageUrl: originalCompetition.imageUrl || '',
         imageAlt: originalCompetition.imageAlt || '',
       })
-      localStorage.removeItem(`competition-edit-${params.id}`)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(`competition-edit-${params.id}`)
+      }
       alert('Återställt till original!')
     }
   }
