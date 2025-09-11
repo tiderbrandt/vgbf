@@ -30,6 +30,12 @@ export default function NewNewsPage() {
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const draftLoadedRef = useRef(false)
+  const formDataRef = useRef(formData)
+
+  // Update ref whenever formData changes
+  useEffect(() => {
+    formDataRef.current = formData
+  }, [formData])
 
   // Autosave functionality - load draft only once on mount
   useEffect(() => {
@@ -39,6 +45,7 @@ export default function NewNewsPage() {
       if (savedDraft) {
         try {
           const draft = JSON.parse(savedDraft)
+          console.log('Loading saved draft:', draft)
           reset(draft)
         } catch (error) {
           console.error('Error loading draft:', error)
@@ -51,13 +58,19 @@ export default function NewNewsPage() {
   // Save draft every 30 seconds with debouncing
   useEffect(() => {
     const interval = setInterval(() => {
-      // Only access localStorage on the client side
-      if (typeof window !== 'undefined' && (formData.title || formData.content)) {
-        // Add a small delay to ensure all state updates are complete
-        setTimeout(() => {
-          localStorage.setItem('news-draft', JSON.stringify(formData))
-          setLastSaved(new Date())
-        }, 100)
+      // Only access localStorage on the client side and ensure we have meaningful content
+      if (typeof window !== 'undefined' && (formData.title || formData.content || formData.excerpt)) {
+        // Verify that we're not saving empty data due to a race condition
+        const hasActualContent = formData.title.trim() || formData.content.trim() || formData.excerpt.trim()
+        
+        if (hasActualContent) {
+          // Add a small delay to ensure all state updates are complete
+          setTimeout(() => {
+            console.log('Autosaving form data:', formData)
+            localStorage.setItem('news-draft', JSON.stringify(formData))
+            setLastSaved(new Date())
+          }, 100)
+        }
       }
     }, 30000)
 
@@ -198,11 +211,21 @@ export default function NewNewsPage() {
                 </label>
                 <ImageUpload
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
-                    // Use setTimeout to ensure the updates happen after any other state changes
+                    // Preserve current form data and only update image-related fields
                     setTimeout(() => {
-                      updateField('imageUrl', imageUrl);
-                      updateField('imageAlt', imageAlt);
-                    }, 0);
+                      const currentData = formDataRef.current
+                      console.log('Image upload callback - current form data:', currentData)
+                      
+                      // Only update image fields, preserve all other data
+                      updateField('imageUrl', imageUrl)
+                      updateField('imageAlt', imageAlt)
+                      
+                      console.log('Image upload callback - after updates:', {
+                        ...currentData,
+                        imageUrl,
+                        imageAlt
+                      })
+                    }, 0)
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
