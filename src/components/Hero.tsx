@@ -1,8 +1,10 @@
 export default function Hero() {
   // radial archery-target styling using project color hex values
   const heroStyle: React.CSSProperties = {
-    background: `linear-gradient(rgba(0,0,0,0.24), rgba(0,0,0,0.06)), radial-gradient(circle at center, #FFD700 0% 18%, #B91C1C 18% 36%, #003366 36% 54%, #000000 54% 72%, #ffffff 72% 100%)`,
+    // softer, blended concentric rings using intermediate stops
+    background: `linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.04)), radial-gradient(circle at center, #FFD700 0% 18%, #FFCF33 20% 22%, #E03C31 30% 38%, #B91C1C 40% 44%, #003366 48% 56%, #002a4a 58% 64%, rgba(0,0,0,0.9) 70% 84%, rgba(255,255,255,0.04) 86% 100%)`,
     backgroundSize: 'cover',
+    backgroundRepeat: 'no-repeat',
   }
 
   return (
