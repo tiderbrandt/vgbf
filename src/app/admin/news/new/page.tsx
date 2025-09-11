@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -29,11 +29,12 @@ export default function NewNewsPage() {
   
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const draftLoadedRef = useRef(false)
 
-  // Autosave functionality
+  // Autosave functionality - load draft only once on mount
   useEffect(() => {
-    // Only access localStorage on the client side
-    if (typeof window !== 'undefined') {
+    // Only access localStorage on the client side and only load once
+    if (typeof window !== 'undefined' && !draftLoadedRef.current) {
       const savedDraft = localStorage.getItem('news-draft')
       if (savedDraft) {
         try {
@@ -43,16 +44,20 @@ export default function NewNewsPage() {
           console.error('Error loading draft:', error)
         }
       }
+      draftLoadedRef.current = true
     }
-  }, [reset])
+  }, []) // Remove reset dependency to prevent re-running
 
-  // Save draft every 30 seconds
+  // Save draft every 30 seconds with debouncing
   useEffect(() => {
     const interval = setInterval(() => {
       // Only access localStorage on the client side
       if (typeof window !== 'undefined' && (formData.title || formData.content)) {
-        localStorage.setItem('news-draft', JSON.stringify(formData))
-        setLastSaved(new Date())
+        // Add a small delay to ensure all state updates are complete
+        setTimeout(() => {
+          localStorage.setItem('news-draft', JSON.stringify(formData))
+          setLastSaved(new Date())
+        }, 100)
       }
     }, 30000)
 
@@ -193,8 +198,11 @@ export default function NewNewsPage() {
                 </label>
                 <ImageUpload
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
-                    updateField('imageUrl', imageUrl);
-                    updateField('imageAlt', imageAlt);
+                    // Use setTimeout to ensure the updates happen after any other state changes
+                    setTimeout(() => {
+                      updateField('imageUrl', imageUrl);
+                      updateField('imageAlt', imageAlt);
+                    }, 0);
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
