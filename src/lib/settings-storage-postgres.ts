@@ -746,7 +746,7 @@ Från och med 2025 är inte längre rekord från U16 med, då denna klass ersät
       // Insert default content as JSON
       await sql`
         INSERT INTO admin_settings (key, value, description)
-        VALUES ('distriktsrekord_info', ${JSON.stringify({ content: defaultContent })}, 'Information text for distriktsrekord page')
+        VALUES ('distriktsrekord_info', ${JSON.stringify(defaultContent)}, 'Information text for distriktsrekord page')
         ON CONFLICT (key) DO NOTHING
       `
       
@@ -755,7 +755,23 @@ Från och med 2025 är inte längre rekord från U16 med, då denna klass ersät
     
     // Parse JSON value and extract content
     const jsonValue = result[0].value
-    const content = typeof jsonValue === 'string' ? JSON.parse(jsonValue).content : jsonValue.content
+    let content
+    
+    if (typeof jsonValue === 'string') {
+      try {
+        const parsed = JSON.parse(jsonValue)
+        // If it's a string in JSON, return the string
+        content = typeof parsed === 'string' ? parsed : (parsed.content || parsed)
+      } catch {
+        // If JSON parsing fails, it's a plain string
+        content = jsonValue
+      }
+    } else if (jsonValue && typeof jsonValue === 'object') {
+      // If it's already an object, check if it has content property
+      content = jsonValue.content || JSON.stringify(jsonValue)
+    } else {
+      content = jsonValue
+    }
     
     return { success: true, data: content }
   } catch (error) {
@@ -769,9 +785,9 @@ export async function updateDistriktsrekordInfo(content: string): Promise<{ succ
   try {
     const result = await sql`
       INSERT INTO admin_settings (key, value, description, updated_at)
-      VALUES ('distriktsrekord_info', ${JSON.stringify({ content })}, 'Information text for distriktsrekord page', CURRENT_TIMESTAMP)
+      VALUES ('distriktsrekord_info', ${JSON.stringify(content)}, 'Information text for distriktsrekord page', CURRENT_TIMESTAMP)
       ON CONFLICT (key) DO UPDATE SET
-        value = ${JSON.stringify({ content })},
+        value = ${JSON.stringify(content)},
         updated_at = CURRENT_TIMESTAMP
       RETURNING value
     `
