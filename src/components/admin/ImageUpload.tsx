@@ -34,12 +34,9 @@ export default function ImageUpload({
   const [aiStyle, setAiStyle] = useState<'photographic' | 'digital-art' | 'cinematic'>('photographic')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Use useCallback to prevent unnecessary re-renders that could affect focus
+  // Use useCallback to prevent unnecessary re-renders
   const handleImageUploaded = useCallback((imageUrl: string, imageAlt: string) => {
-    // Use requestAnimationFrame to ensure DOM updates are complete before state change
-    requestAnimationFrame(() => {
-      onImageUploaded(imageUrl, imageAlt)
-    })
+    onImageUploaded(imageUrl, imageAlt)
   }, [onImageUploaded])
 
   const handleFileSelect = async (file: File) => {
