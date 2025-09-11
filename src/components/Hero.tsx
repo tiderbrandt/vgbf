@@ -1,6 +1,12 @@
 export default function Hero() {
+  // radial archery-target styling using project color hex values
+  const heroStyle: React.CSSProperties = {
+    background: `linear-gradient(rgba(0,0,0,0.24), rgba(0,0,0,0.06)), radial-gradient(circle at center, #FFD700 0% 18%, #B91C1C 18% 36%, #003366 36% 54%, #000000 54% 72%, #ffffff 72% 100%)`,
+    backgroundSize: 'cover',
+  }
+
   return (
-  <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-gold text-white py-20">
+    <section style={heroStyle} className="text-white py-20">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
           Västra Götalands
@@ -21,7 +27,7 @@ export default function Hero() {
 
           <a
             href="/tavlingar/kommande"
-            className="inline-block bg-vgbf-gold text-vgbf-blue px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
+            className="inline-block bg-vgbf-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#002d55] transition-colors"
             aria-label="Kommande tävlingar"
           >
             Kommande tävlingar

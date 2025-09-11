@@ -5,8 +5,13 @@ interface PageHeroProps {
 }
 
 export default function PageHero({ title, description, subtitle }: PageHeroProps) {
+  const heroStyle: React.CSSProperties = {
+    background: `linear-gradient(rgba(0,0,0,0.22), rgba(0,0,0,0.04)), radial-gradient(circle at center, #FFD700 0% 18%, #B91C1C 18% 36%, #003366 36% 54%, #000000 54% 72%, #ffffff 72% 100%)`,
+    backgroundSize: 'cover',
+  }
+
   return (
-  <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-gold text-white py-20">
+    <section style={heroStyle} className="text-white py-20">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
           {title}
