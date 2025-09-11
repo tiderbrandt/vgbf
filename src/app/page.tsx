@@ -4,7 +4,7 @@ import SimpleNewsSection from '@/components/SimpleNewsSection'
 import CompetitionsSection from '@/components/CompetitionsSection'
 import RecordsHighlight from '@/components/RecordsHighlight'
 import SponsorsSection from '@/components/SponsorsSection'
-import NextEvent from '@/components/NextEvent'
+import UpcomingEvents from '@/components/UpcomingEvents'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -25,7 +25,7 @@ export default function Home() {
 
           <div className="md:col-span-1">
             <div className="md:sticky md:top-24">
-              <NextEvent />
+              <UpcomingEvents />
             </div>
           </div>
         </div>
