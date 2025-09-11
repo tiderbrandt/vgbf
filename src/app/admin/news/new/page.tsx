@@ -45,7 +45,6 @@ export default function NewNewsPage() {
       if (savedDraft) {
         try {
           const draft = JSON.parse(savedDraft)
-          console.log('Loading saved draft:', draft)
           reset(draft)
         } catch (error) {
           console.error('Error loading draft:', error)
@@ -66,7 +65,6 @@ export default function NewNewsPage() {
         if (hasActualContent) {
           // Add a small delay to ensure all state updates are complete
           setTimeout(() => {
-            console.log('Autosaving form data:', formData)
             localStorage.setItem('news-draft', JSON.stringify(formData))
             setLastSaved(new Date())
           }, 100)
@@ -213,18 +211,9 @@ export default function NewNewsPage() {
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
                     // Preserve current form data and only update image-related fields
                     setTimeout(() => {
-                      const currentData = formDataRef.current
-                      console.log('Image upload callback - current form data:', currentData)
-                      
                       // Only update image fields, preserve all other data
                       updateField('imageUrl', imageUrl)
                       updateField('imageAlt', imageAlt)
-                      
-                      console.log('Image upload callback - after updates:', {
-                        ...currentData,
-                        imageUrl,
-                        imageAlt
-                      })
                     }, 0)
                   }}
                   currentImageUrl={formData.imageUrl}
