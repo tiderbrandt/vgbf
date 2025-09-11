@@ -32,13 +32,16 @@ export default function NewNewsPage() {
 
   // Autosave functionality
   useEffect(() => {
-    const savedDraft = localStorage.getItem('news-draft')
-    if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft)
-        reset(draft)
-      } catch (error) {
-        console.error('Error loading draft:', error)
+    // Only access localStorage on the client side
+    if (typeof window !== 'undefined') {
+      const savedDraft = localStorage.getItem('news-draft')
+      if (savedDraft) {
+        try {
+          const draft = JSON.parse(savedDraft)
+          reset(draft)
+        } catch (error) {
+          console.error('Error loading draft:', error)
+        }
       }
     }
   }, [reset])
@@ -46,7 +49,8 @@ export default function NewNewsPage() {
   // Save draft every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      if (formData.title || formData.content) {
+      // Only access localStorage on the client side
+      if (typeof window !== 'undefined' && (formData.title || formData.content)) {
         localStorage.setItem('news-draft', JSON.stringify(formData))
         setLastSaved(new Date())
       }
@@ -80,7 +84,9 @@ export default function NewNewsPage() {
       const data = await response.json()
       if (data.success) {
         // Clear draft
-        localStorage.removeItem('news-draft')
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('news-draft')
+        }
         success('Nyhet publicerad!', 'Nyheten har publicerats framgångsrikt.')
         router.push('/admin')
       } else {
@@ -95,13 +101,17 @@ export default function NewNewsPage() {
   }
 
   const saveDraft = () => {
-    localStorage.setItem('news-draft', JSON.stringify(formData))
-    setLastSaved(new Date())
-    success('Utkast sparat!', 'Utkastet har sparats lokalt.')
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('news-draft', JSON.stringify(formData))
+      setLastSaved(new Date())
+      success('Utkast sparat!', 'Utkastet har sparats lokalt.')
+    }
   }
 
   const clearDraft = () => {
-    localStorage.removeItem('news-draft')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('news-draft')
+    }
     reset()
     success('Utkast raderat!', 'Utkastet har raderats och formuläret har återställts.')
   }

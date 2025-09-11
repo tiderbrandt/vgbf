@@ -52,13 +52,15 @@ export default function EditNewsPage({ params }: Props) {
           })
 
           // Check for saved draft
-          const savedDraft = localStorage.getItem(`news-edit-${params.id}`)
-          if (savedDraft) {
-            try {
-              const draft = JSON.parse(savedDraft)
-              setFormData(draft)
-            } catch (error) {
-              console.error('Error loading draft:', error)
+          if (typeof window !== 'undefined') {
+            const savedDraft = localStorage.getItem(`news-edit-${params.id}`)
+            if (savedDraft) {
+              try {
+                const draft = JSON.parse(savedDraft)
+                setFormData(draft)
+              } catch (error) {
+                console.error('Error loading draft:', error)
+              }
             }
           }
         } else {
