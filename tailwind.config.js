@@ -12,6 +12,7 @@ module.exports = {
                     blue: '#003366',
                     gold: '#FFD700',
                     green: '#006633',
+                    red: '#DC2626', // Archery target red
                 },
             },
             animation: {
