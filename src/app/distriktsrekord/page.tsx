@@ -1,11 +1,44 @@
 import Link from 'next/link'
 import { getAllRecords as getDistrictRecords } from '@/lib/records-storage-postgres'
+import { getDistriktsrekordInfo } from '@/lib/settings-storage-postgres'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import PageHero from '@/components/PageHero'
 
+// Function to format text with email links
+function formatTextWithEmailLinks(text: string) {
+  const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g
+  const parts = text.split(emailRegex)
+  
+  return parts.map((part, index) => {
+    if (emailRegex.test(part)) {
+      return (
+        <a 
+          key={index} 
+          href={`mailto:${part}`} 
+          className="text-vgbf-blue hover:underline"
+        >
+          {part}
+        </a>
+      )
+    }
+    return part
+  })
+}
+
 export default async function DistriktsrekordPage() {
   const records = await getDistrictRecords()
+  
+  // Get the distriktsrekord information from database
+  let distriktsrekordInfo = ''
+  try {
+    const infoResult = await getDistriktsrekordInfo()
+    if (infoResult.success && infoResult.data) {
+      distriktsrekordInfo = infoResult.data
+    }
+  } catch (error) {
+    console.error('Error loading distriktsrekord info:', error)
+  }
 
   // Group records by category
   const groupedRecords = records.reduce((acc: any, record: any) => {
@@ -38,21 +71,20 @@ export default async function DistriktsrekordPage() {
         {/* Information section */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
           <div className="prose max-w-none text-gray-600">
-            <p className="mb-4">
-              Anmälan om distriktsrekord skall vara VGBF tillhanda senast 3 veckor efter 
-              tävlingen på mail till{' '}
-              <a href="mailto:VastraGotalandsBF@bagskytte.se" className="text-vgbf-blue hover:underline">
-                VastraGotalandsBF@bagskytte.se
-              </a>
-            </p>
-            <p className="mb-4">
-              Följande information skall vara med i mailet: Namn, Klass, Resultat, Arrangör 
-              och Länk till tävlingen från resultat.bagskytte.se. Vid lagrekord skall alla 
-              skyttar i laget vara med i mailet till VGBF.
-            </p>
-            <p className="text-sm text-gray-500">
-              Från och med 2025 är inte längre rekord från U16 med, då denna klass ersätts av U15 och U18.
-            </p>
+            {distriktsrekordInfo ? (
+              distriktsrekordInfo.split('\n').map((paragraph, index) => {
+                if (paragraph.trim() === '') return <br key={index} />
+                return (
+                  <p key={index} className="mb-4">
+                    {formatTextWithEmailLinks(paragraph)}
+                  </p>
+                )
+              })
+            ) : (
+              <p className="text-gray-500 italic">
+                Ingen information tillgänglig. Kontakta administratör för att uppdatera innehållet.
+              </p>
+            )}
           </div>
         </div>
 

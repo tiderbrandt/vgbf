@@ -11,6 +11,7 @@ export interface AdminSettings {
   backupFrequency: string
   maintenanceMode: boolean
   huggingfaceApiKey?: string
+  distriktsrekordInfo?: string // New field for distriktsrekord page information
 }
 
 export interface SettingsResult {
@@ -724,5 +725,60 @@ export async function logSettingsChange(key: string, oldValue: any, newValue: an
   } catch (error) {
     console.error('Error logging settings change:', error)
     return { success: false, error: 'Failed to log settings change' }
+  }
+}
+
+// Get distriktsrekord information
+export async function getDistriktsrekordInfo(): Promise<{ success: boolean; data?: string; error?: string }> {
+  try {
+    const result = await sql`
+      SELECT value FROM admin_settings WHERE key = 'distriktsrekord_info'
+    `
+    
+    if (result.length === 0) {
+      // Return default content if none exists
+      const defaultContent = `Anmälan om distriktsrekord skall vara VGBF tillhanda senast 3 veckor efter tävlingen på mail till VastraGotalandsBF@bagskytte.se
+
+Följande information skall vara med i mailet: Namn, Klass, Resultat, Arrangör och Länk till tävlingen från resultat.bagskytte.se. Vid lagrekord skall alla skyttar i laget vara med i mailet till VGBF.
+
+Från och med 2025 är inte längre rekord från U16 med, då denna klass ersätts av U15 och U18.`
+      
+      // Insert default content
+      await sql`
+        INSERT INTO admin_settings (key, value, description)
+        VALUES ('distriktsrekord_info', ${defaultContent}, 'Information text for distriktsrekord page')
+        ON CONFLICT (key) DO NOTHING
+      `
+      
+      return { success: true, data: defaultContent }
+    }
+    
+    return { success: true, data: result[0].value }
+  } catch (error) {
+    console.error('Error getting distriktsrekord info:', error)
+    return { success: false, error: 'Failed to retrieve distriktsrekord information' }
+  }
+}
+
+// Update distriktsrekord information
+export async function updateDistriktsrekordInfo(content: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const result = await sql`
+      INSERT INTO admin_settings (key, value, description, updated_at)
+      VALUES ('distriktsrekord_info', ${content}, 'Information text for distriktsrekord page', CURRENT_TIMESTAMP)
+      ON CONFLICT (key) DO UPDATE SET
+        value = ${content},
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING value
+    `
+    
+    if (result.length === 0) {
+      return { success: false, error: 'Failed to update distriktsrekord information' }
+    }
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating distriktsrekord info:', error)
+    return { success: false, error: 'Failed to update distriktsrekord information' }
   }
 }
