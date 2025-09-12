@@ -14,7 +14,7 @@ export default function Header() {
   const isAdminPage = pathname?.startsWith('/admin')
 
   return (
-    <header className="bg-vgbf-blue text-white shadow-lg">
+    <header className="bg-vgbf-blue text-white shadow-lg header-with-logo-bg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Logo and Title */}
