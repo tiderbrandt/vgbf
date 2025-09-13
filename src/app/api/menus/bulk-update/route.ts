@@ -32,17 +32,17 @@ export async function PUT(request: NextRequest) {
 
       // Build the update query dynamically
       const fields = []
-      const values = []
+      const values = [id] // Start with id as first parameter
 
       if (sort_order !== undefined) {
-        fields.push('sort_order')
+        fields.push('sort_order = $' + (values.length + 1))
         values.push(sort_order)
       }
 
       // Add other fields if provided
       Object.entries(otherFields).forEach(([key, value]) => {
         if (value !== undefined && key !== 'id') {
-          fields.push(key)
+          fields.push(`${key} = $${values.length + 1}`)
           values.push(value)
         }
       })
@@ -51,15 +51,14 @@ export async function PUT(request: NextRequest) {
         continue // Skip if no fields to update
       }
 
-      // Create parameterized query
-      const setClause = fields.map((field, index) => `${field} = $${index + 2}`).join(', ')
-      
-      const result = await sql.unsafe(`
+      const query = `
         UPDATE menu_items 
-        SET ${setClause}, updated_at = CURRENT_TIMESTAMP
+        SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP
         WHERE id = $1
         RETURNING *
-      `, [id, ...values])
+      `
+      
+      const result = await sql.unsafe(query, values)
 
       if (result.length > 0) {
         results.push(result[0])
