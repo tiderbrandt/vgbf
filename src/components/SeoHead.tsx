@@ -117,8 +117,6 @@ export default function SeoHead({
         // Script already exists, just track page view
         trackPageView(canonicalUrl, fullTitle);
       }
-        });
-      }
     } else {
       console.warn('Umami Analytics not configured. Missing environment variables:', {
         websiteId: !!process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
