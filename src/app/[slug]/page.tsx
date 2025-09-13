@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Page } from '@/app/api/pages/route';
+import { sql } from '@/lib/database';
 
 interface PageDisplayProps {
   params: {
@@ -9,21 +10,25 @@ interface PageDisplayProps {
 
 async function getPage(slug: string): Promise<Page | null> {
   try {
-    // Use absolute URL for server-side rendering in production
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000';
+    // For dynamic pages, fetch directly from database instead of API
+    const result = await sql.query(`
+      SELECT * FROM pages 
+      WHERE (slug = $1 OR id::text = $1) 
+      AND status = 'published' 
+      ORDER BY created_at DESC 
+      LIMIT 1
+    `, [slug]);
     
-    const response = await fetch(`${baseUrl}/api/pages/${slug}`, {
-      next: { revalidate: 0 } // Don't cache in development, revalidate immediately
-    });
-    
-    if (!response.ok) {
-      console.error(`Failed to fetch page ${slug}: ${response.status}`);
+    if (!result || result.rows.length === 0) {
       return null;
     }
     
-    return response.json();
+    const page = result.rows[0];
+    
+    // Update view count
+    await sql.query('UPDATE pages SET view_count = view_count + 1 WHERE id = $1', [page.id]);
+    
+    return page;
   } catch (error) {
     console.error('Error fetching page:', error);
     return null;
