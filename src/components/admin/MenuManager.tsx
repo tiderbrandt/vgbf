@@ -37,11 +37,11 @@ export default function MenuManager() {
   const loadMenus = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/menus?type=${selectedMenu}`)
+      const response = await fetch(`/api/menus?menu_type=${selectedMenu}`)
       if (!response.ok) throw new Error('Failed to load menus')
       
       const data = await response.json()
-      setMenus(data.menus || [])
+      setMenus(data.menuItems || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load menus')
     } finally {
