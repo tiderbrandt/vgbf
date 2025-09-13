@@ -13,8 +13,22 @@ interface NavigationPage {
   navigation_order: number;
 }
 
+interface MenuItem {
+  id: string
+  title: string
+  url: string | null
+  target: '_self' | '_blank' | null
+  link_type: 'internal' | 'external' | 'page' | 'category'
+  is_visible: boolean
+  is_published: boolean
+  show_on_mobile: boolean
+  show_on_desktop: boolean
+  children?: MenuItem[]
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   const [navigationPages, setNavigationPages] = useState<NavigationPage[]>([])
   const pathname = usePathname()
   const { isAuthenticated, logout } = useAuth()
@@ -22,7 +36,20 @@ export default function Header() {
   const isAdminPage = pathname?.startsWith('/admin')
 
   useEffect(() => {
-    // Load pages that should show in navigation
+    // Load menu items from database
+    const loadMenuItems = async () => {
+      try {
+        const response = await fetch('/api/menus?type=main')
+        if (response.ok) {
+          const data = await response.json()
+          setMenuItems(data.menus || [])
+        }
+      } catch (error) {
+        console.error('Error loading menu items:', error)
+      }
+    }
+
+    // Load pages that should show in navigation (fallback for older content)
     const loadNavigationPages = async () => {
       try {
         const response = await fetch('/api/pages?navigation=true&status=published')
@@ -38,8 +65,33 @@ export default function Header() {
       }
     }
     
+    loadMenuItems()
     loadNavigationPages()
   }, [])
+
+  // Helper function to render menu item
+  const renderMenuItem = (item: MenuItem, isMobile: boolean = false) => {
+    // Don't render if not visible or published
+    if (!item.is_visible || !item.is_published) return null
+    
+    // Check device visibility
+    if (isMobile && !item.show_on_mobile) return null
+    if (!isMobile && !item.show_on_desktop) return null
+
+    const href = item.url || '#'
+    const target = item.target || '_self'
+    
+    return (
+      <Link 
+        key={item.id}
+        href={href}
+        target={target}
+        className="hover:text-vgbf-gold transition-colors"
+      >
+        {item.title}
+      </Link>
+    )
+  }
 
   return (
     <header className="bg-vgbf-blue text-white shadow-lg header-with-logo-bg">
@@ -65,29 +117,11 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6 items-center">
-            <Link href="/" className="hover:text-vgbf-gold transition-colors">
-              Hem
-            </Link>
-            <Link href="/nyheter" className="hover:text-vgbf-gold transition-colors">
-              Nyheter
-            </Link>
-            <Link href="/tavlingar" className="hover:text-vgbf-gold transition-colors">
-              Tävlingar
-            </Link>
-            <Link href="/klubbar" className="hover:text-vgbf-gold transition-colors">
-              Klubbar
-            </Link>
-            <Link href="/kalender" className="hover:text-vgbf-gold transition-colors">
-              Kalender
-            </Link>
-            <Link href="/distriktsrekord" className="hover:text-vgbf-gold transition-colors">
-              Distriktsrekord
-            </Link>
-            <Link href="/styrelsen" className="hover:text-vgbf-gold transition-colors">
-              Styrelsen
-            </Link>
-            {/* Dynamic navigation pages */}
-            {navigationPages.map((page) => (
+            {/* Dynamic menu items from database */}
+            {menuItems.map((item) => renderMenuItem(item, false))}
+            
+            {/* Fallback: Dynamic navigation pages from legacy system */}
+            {menuItems.length === 0 && navigationPages.map((page) => (
               <Link 
                 key={page.id} 
                 href={`/${page.slug}`} 
@@ -96,9 +130,7 @@ export default function Header() {
                 {page.title}
               </Link>
             ))}
-            <Link href="/kontakt" className="hover:text-vgbf-gold transition-colors">
-              Kontakt
-            </Link>
+            
             {isAdminPage && isAuthenticated && (
               <button
                 onClick={logout}
@@ -124,29 +156,11 @@ export default function Header() {
         {isMenuOpen && (
           <nav className="md:hidden pb-4">
             <div className="flex flex-col space-y-2">
-              <Link href="/" className="hover:text-vgbf-gold transition-colors">
-                Hem
-              </Link>
-              <Link href="/nyheter" className="hover:text-vgbf-gold transition-colors">
-                Nyheter
-              </Link>
-              <Link href="/tavlingar" className="hover:text-vgbf-gold transition-colors">
-                Tävlingar
-              </Link>
-              <Link href="/klubbar" className="hover:text-vgbf-gold transition-colors">
-                Klubbar
-              </Link>
-              <Link href="/kalender" className="hover:text-vgbf-gold transition-colors">
-                Kalender
-              </Link>
-              <Link href="/distriktsrekord" className="hover:text-vgbf-gold transition-colors">
-                Distriktsrekord
-              </Link>
-              <Link href="/styrelsen" className="hover:text-vgbf-gold transition-colors">
-                Styrelsen
-              </Link>
-              {/* Dynamic navigation pages */}
-              {navigationPages.map((page) => (
+              {/* Dynamic menu items from database */}
+              {menuItems.map((item) => renderMenuItem(item, true))}
+              
+              {/* Fallback: Dynamic navigation pages from legacy system */}
+              {menuItems.length === 0 && navigationPages.map((page) => (
                 <Link 
                   key={page.id} 
                   href={`/${page.slug}`} 
@@ -155,9 +169,7 @@ export default function Header() {
                   {page.title}
                 </Link>
               ))}
-              <Link href="/kontakt" className="hover:text-vgbf-gold transition-colors">
-                Kontakt
-              </Link>
+              
               {isAdminPage && isAuthenticated && (
                 <button
                   onClick={logout}

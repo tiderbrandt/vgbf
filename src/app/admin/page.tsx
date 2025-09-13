@@ -120,6 +120,11 @@ const Icons = {
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
+  ),
+  Menu: () => (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+    </svg>
   )
 }
 
@@ -716,7 +721,26 @@ export default function AdminDashboard() {
             </div>
 
             {/* Additional Management Cards */}
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-4 gap-6">
+              {/* Menu Management */}
+              <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-6 border border-gray-200">
+                <div className="flex items-center mb-4">
+                  <div className="flex-shrink-0 p-3 bg-purple-100 rounded-xl">
+                    <Icons.Menu />
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-bold text-gray-900">Menyer</h3>
+                    <p className="text-sm text-gray-600">Hantera navigation</p>
+                  </div>
+                </div>
+                <Link
+                  href="/admin/menus"
+                  className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm text-center block"
+                >
+                  Hantera menyer
+                </Link>
+              </div>
+
               {/* Calendar Management */}
               <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-6 border border-gray-200">
                 <div className="flex items-center mb-4">
