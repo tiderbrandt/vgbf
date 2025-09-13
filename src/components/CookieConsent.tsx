@@ -26,6 +26,12 @@ export default function CookieConsent({ onAccept, onDecline }: CookieConsentProp
   const handleAccept = () => {
     localStorage.setItem('vgbf_cookie_consent', 'accepted');
     localStorage.setItem('vgbf_analytics_enabled', 'true');
+    
+    // Enable Umami tracking if available
+    if (typeof window !== 'undefined' && (window as any).umami) {
+      (window as any).umami.enable();
+    }
+    
     setIsVisible(false);
     setTimeout(() => setShowBanner(false), 300);
     onAccept?.();
@@ -34,6 +40,12 @@ export default function CookieConsent({ onAccept, onDecline }: CookieConsentProp
   const handleDecline = () => {
     localStorage.setItem('vgbf_cookie_consent', 'declined');
     localStorage.setItem('vgbf_analytics_enabled', 'false');
+    
+    // Disable Umami tracking if available
+    if (typeof window !== 'undefined' && (window as any).umami) {
+      (window as any).umami.disable();
+    }
+    
     setIsVisible(false);
     setTimeout(() => setShowBanner(false), 300);
     onDecline?.();
@@ -59,9 +71,9 @@ export default function CookieConsent({ onAccept, onDecline }: CookieConsentProp
               🍪 Cookies och integritet
             </h3>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Vi använder cookies för att förbättra din upplevelse på vår webbplats. 
+              Vi använder cookies och privacy-första analytik (Umami) för att förbättra din upplevelse på vår webbplats. 
               Vi samlar grundläggande besöksstatistik för att förstå hur sajten används. 
-              All data sparas lokalt i din webbläsare och delas inte med tredje part.
+              All data är anonymiserad och delas inte med tredje part.
             </p>
             <p className="text-xs text-gray-500 mt-1">
               <a 

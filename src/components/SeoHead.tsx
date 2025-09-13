@@ -3,6 +3,7 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import { trackPageView } from '@/lib/analytics';
 
 // Google Analytics type declaration
 declare global {
@@ -33,11 +34,19 @@ interface SeoHeadProps {
 }
 
 // Simple visitor analytics without external dependencies
-const trackPageView = (url: string, title: string) => {
+const trackPageViewLocal = (url: string, title: string) => {
   if (typeof window === 'undefined') return;
   
   // Only track in production
   if (process.env.NODE_ENV !== 'production') return;
+  
+  // Track with Umami if available
+  if (typeof window !== 'undefined' && (window as any).umami) {
+    (window as any).umami.track(title, {
+      url: url,
+      referrer: document.referrer,
+    });
+  }
   
   // Track with Google Analytics if GA_MEASUREMENT_ID is available
   if (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) {
@@ -99,7 +108,9 @@ export default function SeoHead({
   const imageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
   
   useEffect(() => {
+    // Use both the new analytics utility and local tracking
     trackPageView(canonicalUrl, fullTitle);
+    trackPageViewLocal(canonicalUrl, fullTitle);
   }, [canonicalUrl, fullTitle]);
 
   return (
@@ -181,6 +192,19 @@ export default function SeoHead({
             }}
           />
         </>
+      )}
+
+      {/* Umami Analytics */}
+      {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && process.env.NEXT_PUBLIC_UMAMI_URL && (
+        <script
+          async
+          src={process.env.NEXT_PUBLIC_UMAMI_URL}
+          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          data-domains={process.env.NEXT_PUBLIC_SITE_URL?.replace(/https?:\/\//, '') || 'vgbf.se'}
+          data-auto-track="true"
+          data-do-not-track="true"
+          data-cache="true"
+        />
       )}
       
       {/* Structured Data for Organization */}

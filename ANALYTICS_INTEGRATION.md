@@ -58,7 +58,14 @@ Copy `.env.example` to `.env.local` and configure:
 
 ```bash
 NEXT_PUBLIC_SITE_URL=https://vgbf.se
-NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX  # Optional
+
+# Umami Analytics (recommended - privacy-focused)
+NEXT_PUBLIC_UMAMI_URL=https://analytics.umami.is/script.js
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+# Google Analytics (optional)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+
 NEXT_PUBLIC_COOKIES_CONSENT_REQUIRED=true
 ```
 
@@ -97,6 +104,13 @@ export default function NewsPage() {
 ```
 
 ## Analytics Features
+
+### Umami Analytics (Recommended)
+- Privacy-first, GDPR-compliant analytics
+- Open source and self-hostable
+- No personal data collection
+- Respects Do Not Track headers
+- Lightweight and fast
 
 ### Local Analytics (Privacy-First)
 - Tracks page views without external services
@@ -168,11 +182,35 @@ function MyComponent() {
 
 ### Custom Analytics Events
 ```tsx
-import { getVisitorStats } from '../components/SeoHead';
+import { 
+  trackButtonClick, 
+  trackFormSubmit, 
+  trackCompetition,
+  trackNewsArticle,
+  trackExternalLink 
+} from '@/lib/analytics';
 
-// Get current statistics
-const stats = getVisitorStats();
-console.log('Total views:', stats?.totalViews);
+// Track button clicks
+const handleButtonClick = () => {
+  trackButtonClick('Join Competition', 'competitions-page');
+};
+
+// Track form submissions
+const handleFormSubmit = (formData: any) => {
+  trackFormSubmit('contact-form', { 
+    category: formData.category 
+  });
+};
+
+// Track competition interactions
+const handleCompetitionView = (name: string) => {
+  trackCompetition('view', name);
+};
+
+// Track news article views
+const handleNewsView = (title: string) => {
+  trackNewsArticle('view', title);
+};
 ```
 
 ### Styling the Dashboard
@@ -192,7 +230,30 @@ console.log('Total views:', stats?.totalViews);
 - Test with social media preview tools
 - Validate structured data with Google's Rich Results Test
 
-## Deployment Checklist
+## Umami Setup Guide
+
+### 1. Create Umami Account
+- Visit [Umami Cloud](https://cloud.umami.is/) or self-host
+- Create a new website for your domain
+- Get your Website ID from the settings
+
+### 2. Configure Environment Variables
+```bash
+# Add to .env.local
+NEXT_PUBLIC_UMAMI_URL=https://analytics.umami.is/script.js
+NEXT_PUBLIC_UMAMI_WEBSITE_ID=your-website-id-here
+```
+
+### 3. Test Setup
+- Deploy your site with Umami configured
+- Visit your pages and check the Umami dashboard
+- Events should appear within a few minutes
+
+### 4. Custom Domain (Optional)
+If using a custom Umami instance:
+```bash
+NEXT_PUBLIC_UMAMI_URL=https://your-analytics-domain.com/script.js
+```
 
 1. ✅ Set production environment variables
 2. ✅ Configure Google Analytics (if used)
