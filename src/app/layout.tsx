@@ -5,6 +5,8 @@ import { ToastProvider } from '@/contexts/ToastContext'
 import { AuthProvider } from '@/contexts/AuthContext'
 import ToastContainer from '@/components/ui/ToastContainer'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
+import AnalyticsDashboard from '@/components/AnalyticsDashboard'
+import CookieConsent from '@/components/CookieConsent'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -37,6 +39,8 @@ export default function RootLayout({
             <AuthProvider>
               {children}
               <ToastContainer />
+              <AnalyticsDashboard />
+              <CookieConsent />
             </AuthProvider>
           </ToastProvider>
         </ErrorBoundary>
