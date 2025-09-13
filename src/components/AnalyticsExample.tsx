@@ -89,7 +89,7 @@ export default function AnalyticsExampleComponent() {
       <div className="mt-4 p-3 bg-blue-50 rounded text-sm text-blue-800">
         <strong>💡 Tips för utvecklare:</strong>
         <ul className="mt-2 list-disc list-inside space-y-1">
-          <li>Använd beskrivande händelsenamn (t.ex. 'join_competition' istället för 'click')</li>
+          <li>Använd beskrivande händelsenamn (t.ex. &apos;join_competition&apos; istället för &apos;click&apos;)</li>
           <li>Inkludera relevant kontext i händelsedata</li>
           <li>Tracking fungerar bara i produktion - testa med <code>npm run build && npm start</code></li>
           <li>Kontrollera Umami-dashboarden för att se händelserna</li>

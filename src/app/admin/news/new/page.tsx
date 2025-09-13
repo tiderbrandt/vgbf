@@ -52,7 +52,7 @@ export default function NewNewsPage() {
       }
       draftLoadedRef.current = true
     }
-  }, []) // Remove reset dependency to prevent re-running
+  }, [reset]) // Include reset dependency to satisfy ESLint
 
   // Save draft every 30 seconds with debouncing
   useEffect(() => {

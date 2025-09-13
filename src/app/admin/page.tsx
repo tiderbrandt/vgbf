@@ -140,25 +140,25 @@ export default function AdminDashboard() {
 
   // Load data
   useEffect(() => {
-    loadAllData()
-  }, [])
-
-  const loadAllData = async () => {
-    setLoading(true)
-    try {
-      await Promise.all([
-        loadNews(),
-        loadCompetitions(),
-        loadClubs(),
-        loadSponsors(),
-        loadBoardMembers()
-      ])
-    } catch (error) {
-      console.error('Error loading data:', error)
-    } finally {
-      setLoading(false)
+    const initializeData = async () => {
+      setLoading(true)
+      try {
+        await Promise.all([
+          loadNews(),
+          loadCompetitions(),
+          loadClubs(),
+          loadSponsors(),
+          loadBoardMembers()
+        ])
+      } catch (error) {
+        console.error('Error loading data:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+    
+    initializeData()
+  }, [])
 
   const loadNews = async () => {
     try {
