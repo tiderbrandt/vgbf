@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation';
 import { Page } from '@/app/api/pages/route';
 import { sql } from '@/lib/database';
+import Header from '@/components/Header';
+import PageHero from '@/components/PageHero';
+import Footer from '@/components/Footer';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -94,24 +97,19 @@ export default async function PageDisplay({ params }: PageDisplayProps) {
   }
   
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-            {page.title}
-          </h1>
-          
-          {page.excerpt && (
-            <div className="bg-gray-50 border-l-4 border-vgbf-blue p-6 mb-6 rounded-r-lg">
-              <p className="text-xl text-gray-700 leading-relaxed font-medium">
-                {page.excerpt}
-              </p>
-            </div>
-          )}
-          
+    <main className="min-h-screen bg-white">
+      <Header />
+      <PageHero 
+        title={page.title}
+        description={page.excerpt}
+        featuredImage={page.featured_image}
+        featuredImageAlt={page.featured_image_alt}
+      />
+      
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
           {/* Meta Information */}
-          <div className="flex flex-wrap items-center text-sm text-gray-500 space-x-4 mb-6 pb-4 border-b border-gray-200">
+          <div className="flex flex-wrap items-center text-sm text-gray-500 space-x-4 mb-8 pb-4 border-b border-gray-200">
             {page.author && (
               <div className="flex items-center">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -160,9 +158,8 @@ export default async function PageDisplay({ params }: PageDisplayProps) {
               )}
             </div>
           )}
-        </header>
-        
-        {/* Content */}
+          
+          {/* Content */}
         <article className="prose prose-lg prose-blue max-w-none">
           <div 
             dangerouslySetInnerHTML={{ __html: page.content }}
@@ -171,39 +168,43 @@ export default async function PageDisplay({ params }: PageDisplayProps) {
         </article>
         
         {/* Footer */}
-        <footer className="mt-12 pt-8 border-t border-gray-200">
-          <div className="flex flex-wrap items-center justify-between">
-            <div className="w-full md:w-auto mb-4 md:mb-0">
-              {page.meta_keywords && (
-                <div className="mb-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Relaterade ämnen:</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {page.meta_keywords.split(',').map((keyword, index) => (
-                      <span key={index} className="inline-block bg-vgbf-blue/10 text-vgbf-blue rounded-full px-3 py-1 text-xs font-medium">
-                        {keyword.trim()}
-                      </span>
-                    ))}
+          {/* Page Navigation */}
+          <footer className="mt-12 pt-8 border-t border-gray-200">
+            <div className="flex flex-wrap items-center justify-between">
+              <div className="w-full md:w-auto mb-4 md:mb-0">
+                {page.meta_keywords && (
+                  <div className="mb-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Relaterade ämnen:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {page.meta_keywords.split(',').map((keyword, index) => (
+                        <span key={index} className="inline-block bg-vgbf-blue/10 text-vgbf-blue rounded-full px-3 py-1 text-xs font-medium">
+                          {keyword.trim()}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
+              <div className="flex items-center space-x-4">
+                <a 
+                  href="/pages" 
+                  className="text-vgbf-blue hover:text-vgbf-green font-medium transition-colors"
+                >
+                  ← Alla sidor
+                </a>
+                <a 
+                  href="/" 
+                  className="text-vgbf-blue hover:text-vgbf-green font-medium transition-colors"
+                >
+                  ← Hem
+                </a>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <a 
-                href="/pages" 
-                className="text-vgbf-blue hover:text-vgbf-green font-medium transition-colors"
-              >
-                ← Alla sidor
-              </a>
-              <a 
-                href="/" 
-                className="text-vgbf-blue hover:text-vgbf-green font-medium transition-colors"
-              >
-                ← Hem
-              </a>
-            </div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
-    </div>
+      
+      <Footer />
+    </main>
   );
 }
