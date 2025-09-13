@@ -22,14 +22,18 @@ export interface UmamiEventData {
  * @param eventData - Optional data to track with the event
  */
 export const trackEvent = (eventName: string, eventData?: UmamiEventData) => {
-  // Only track in production and if user has consented
-  if (process.env.NODE_ENV !== 'production') return;
+  // Skip tracking if not in browser
+  if (typeof window === 'undefined') return;
   
-  const consent = typeof window !== 'undefined' 
-    ? localStorage.getItem('vgbf_cookie_consent') 
-    : null;
-    
-  if (consent !== 'accepted') return;
+  // Check if analytics is enabled
+  const analyticsEnabled = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === 'true';
+  if (!analyticsEnabled) return;
+  
+  const consent = localStorage.getItem('vgbf_cookie_consent');
+  
+  // If consent is required and not accepted, don't track
+  const consentRequired = process.env.NEXT_PUBLIC_COOKIES_CONSENT_REQUIRED === 'true';
+  if (consentRequired && consent !== 'accepted') return;
 
   // Track with Umami if available
   if (typeof window !== 'undefined' && window.umami) {

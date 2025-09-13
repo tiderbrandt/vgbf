@@ -89,15 +89,34 @@ export default function SeoHead({
         script.src = process.env.NEXT_PUBLIC_UMAMI_URL;
         script.setAttribute('data-website-id', process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID);
         script.setAttribute('data-domains', process.env.NEXT_PUBLIC_SITE_URL?.replace(/https?:\/\//, '') || 'vgbf.se');
-        script.setAttribute('data-auto-track', 'true');
+        script.setAttribute('data-auto-track', 'false'); // Disable auto-tracking to use manual tracking
         script.setAttribute('data-do-not-track', 'true');
         script.setAttribute('data-cache', 'true');
+        
+        // Track page view after script loads
+        script.onload = () => {
+          console.log('Umami script loaded successfully');
+          // Wait a bit for the umami object to be available
+          setTimeout(() => {
+            trackPageView(canonicalUrl, fullTitle);
+          }, 100);
+        };
+        
+        script.onerror = () => {
+          console.error('Failed to load Umami script');
+        };
+        
         document.head.appendChild(script);
         
-        console.log('Umami script loaded:', {
+        console.log('Umami script added to page:', {
           url: process.env.NEXT_PUBLIC_UMAMI_URL,
           websiteId: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
           domain: process.env.NEXT_PUBLIC_SITE_URL?.replace(/https?:\/\//, '') || 'vgbf.se'
+        });
+      } else {
+        // Script already exists, just track page view
+        trackPageView(canonicalUrl, fullTitle);
+      }
         });
       }
     } else {
