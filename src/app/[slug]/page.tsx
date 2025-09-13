@@ -9,12 +9,17 @@ interface PageDisplayProps {
 
 async function getPage(slug: string): Promise<Page | null> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    // Use absolute URL for server-side rendering in production
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}`
+      : 'http://localhost:3000';
+    
     const response = await fetch(`${baseUrl}/api/pages/${slug}`, {
-      cache: 'no-store'
+      next: { revalidate: 0 } // Don't cache in development, revalidate immediately
     });
     
     if (!response.ok) {
+      console.error(`Failed to fetch page ${slug}: ${response.status}`);
       return null;
     }
     
