@@ -74,43 +74,42 @@ export async function GET(request: NextRequest) {
     const tree = searchParams.get('tree') === 'true'
     const published = searchParams.get('published')
 
-    let query = sql`
-      SELECT * FROM menu_items 
-      WHERE menu_type = ${menuType}
-    `
-
-    // Add published filter if specified
-    if (published === 'true') {
-      query = sql`
+    // Check if table exists first
+    try {
+      const menuItems = await sql`
         SELECT * FROM menu_items 
-        WHERE menu_type = ${menuType} AND is_published = true AND is_visible = true
+        WHERE menu_type = ${menuType}
+        ${published === 'true' ? sql`AND is_published = true AND is_visible = true` : sql``}
+        ORDER BY 
+          COALESCE(parent_id, id), 
+          sort_order, 
+          created_at
       `
-    }
 
-    // Add order by clause
-    const menuItems = await sql`
-      SELECT * FROM menu_items 
-      WHERE menu_type = ${menuType}
-      ${published === 'true' ? sql`AND is_published = true AND is_visible = true` : sql``}
-      ORDER BY 
-        COALESCE(parent_id, id), 
-        sort_order, 
-        created_at
-    `
-
-    if (tree) {
-      // Return hierarchical structure
-      const treeStructure = buildMenuTree(menuItems as MenuItem[])
-      return NextResponse.json({ menuItems: treeStructure })
-    } else {
-      // Return flat structure
-      return NextResponse.json({ menuItems })
+      if (tree) {
+        // Return hierarchical structure
+        const treeStructure = buildMenuTree(menuItems as MenuItem[])
+        return NextResponse.json({ menuItems: treeStructure })
+      } else {
+        // Return flat structure
+        return NextResponse.json({ menuItems })
+      }
+    } catch (tableError: any) {
+      // If table doesn't exist, return empty array with a message
+      if (tableError.message?.includes('does not exist') || tableError.message?.includes('relation') || tableError.code === '42P01') {
+        console.log('Menu table does not exist yet. Run migration to create it.')
+        return NextResponse.json({ 
+          menuItems: [],
+          message: 'Menu system not initialized. Run migration to create menu tables.'
+        })
+      }
+      throw tableError
     }
 
   } catch (error) {
     console.error('Error fetching menu items:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch menu items' },
+      { error: 'Failed to fetch menu items', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

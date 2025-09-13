@@ -39,14 +39,20 @@ export default function Header() {
     // Load menu items from database
     const loadMenuItems = async () => {
       try {
-        const response = await fetch('/api/menus?type=main')
+        const response = await fetch('/api/menus?menu_type=main&published=true&tree=true')
         if (response.ok) {
           const data = await response.json()
-          setMenuItems(data.menus || [])
+          if (data.menuItems && data.menuItems.length > 0) {
+            setMenuItems(data.menuItems)
+            return // Use database menu items
+          }
         }
       } catch (error) {
         console.error('Error loading menu items:', error)
       }
+      
+      // Fallback to loading navigation pages if menu system isn't available
+      loadNavigationPages()
     }
 
     // Load pages that should show in navigation (fallback for older content)
