@@ -33,54 +33,6 @@ interface SeoHeadProps {
   noindex?: boolean;
 }
 
-// Simple visitor analytics without external dependencies
-const trackPageViewLocal = (url: string, title: string) => {
-  if (typeof window === 'undefined') return;
-  
-  // Only track in production
-  if (process.env.NODE_ENV !== 'production') return;
-  
-  // Track with Umami if available
-  if (typeof window !== 'undefined' && (window as any).umami) {
-    (window as any).umami.track(title, {
-      url: url,
-      referrer: document.referrer,
-    });
-  }
-  
-  // Track with Google Analytics if GA_MEASUREMENT_ID is available
-  if (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) {
-    gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, {
-      page_title: title,
-      page_location: url,
-    });
-  }
-  
-  // Simple local analytics tracking
-  try {
-    const visits = JSON.parse(localStorage.getItem('vgbf_visits') || '{}');
-    const today = new Date().toISOString().split('T')[0];
-    const pageKey = url.split('?')[0]; // Remove query params
-    
-    visits[today] = visits[today] || {};
-    visits[today][pageKey] = (visits[today][pageKey] || 0) + 1;
-    visits[today]['_total'] = (visits[today]['_total'] || 0) + 1;
-    
-    // Keep only last 30 days
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    const cutoff = thirtyDaysAgo.toISOString().split('T')[0];
-    
-    Object.keys(visits).forEach(date => {
-      if (date < cutoff) delete visits[date];
-    });
-    
-    localStorage.setItem('vgbf_visits', JSON.stringify(visits));
-  } catch (error) {
-    console.warn('Analytics tracking failed:', error);
-  }
-};
-
 export default function SeoHead({
   title,
   description = 'Västra Götalands Bågskytteförbund - Information om bågskytte, tävlingar, klubbar och rekord i Västra Götaland.',
@@ -108,9 +60,8 @@ export default function SeoHead({
   const imageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
   
   useEffect(() => {
-    // Use both the new analytics utility and local tracking
+    // Use the new analytics utility for tracking
     trackPageView(canonicalUrl, fullTitle);
-    trackPageViewLocal(canonicalUrl, fullTitle);
   }, [canonicalUrl, fullTitle]);
 
   return (
@@ -234,43 +185,3 @@ export default function SeoHead({
   );
 }
 
-// Export analytics utility functions
-export const getVisitorStats = () => {
-  if (typeof window === 'undefined') return null;
-  
-  try {
-    const visits = JSON.parse(localStorage.getItem('vgbf_visits') || '{}');
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Calculate totals
-    let totalViews = 0;
-    let todayViews = visits[today]?._total || 0;
-    const popularPages: { [key: string]: number } = {};
-    
-    Object.entries(visits).forEach(([date, dayData]: [string, any]) => {
-      Object.entries(dayData).forEach(([page, count]: [string, any]) => {
-        if (page !== '_total') {
-          popularPages[page] = (popularPages[page] || 0) + count;
-        }
-        if (page === '_total') {
-          totalViews += count;
-        }
-      });
-    });
-    
-    // Sort popular pages
-    const sortedPages = Object.entries(popularPages)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10);
-    
-    return {
-      totalViews,
-      todayViews,
-      popularPages: sortedPages,
-      lastUpdated: new Date().toISOString(),
-    };
-  } catch (error) {
-    console.warn('Failed to get visitor stats:', error);
-    return null;
-  }
-};
