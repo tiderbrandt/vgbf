@@ -63,7 +63,7 @@ export default function TestAnalyticsPage() {
                   <p>Run these in the browser console:</p>
                   <div className="bg-yellow-100 p-2 rounded font-mono text-xs">
                     <p>window.umami</p>
-                    <p>document.querySelector('[data-website-id]')</p>
+                    <p>document.querySelector(&apos;[data-website-id]&apos;)</p>
                   </div>
                 </div>
               </div>
