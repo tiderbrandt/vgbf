@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import { Page } from '@/app/api/pages/route';
 import { sql } from '@/lib/database';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 interface PageDisplayProps {
   params: {
     slug: string;
