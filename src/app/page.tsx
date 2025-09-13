@@ -5,6 +5,7 @@ import CompetitionsSection from '@/components/CompetitionsSection'
 import RecordsHighlight from '@/components/RecordsHighlight'
 import SponsorsSection from '@/components/SponsorsSection'
 import UpcomingEvents from '@/components/UpcomingEvents'
+import PageList from '@/components/PageList'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -31,6 +32,23 @@ export default function Home() {
         </div>
       </section>
       <CompetitionsSection />
+      
+      {/* Featured Pages Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Viktiga sidor</h2>
+            <p className="text-lg text-gray-600">
+              Läs mer om våra utvalda artiklar och information
+            </p>
+          </div>
+          <PageList 
+            showFeaturedOnly={true} 
+            limit={3}
+            className="max-w-4xl mx-auto"
+          />
+        </div>
+      </section>
       
       {/* Records and Sponsors side by side */}
       <section className="py-16 bg-white">

@@ -2,16 +2,44 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 
+interface NavigationPage {
+  id: string;
+  title: string;
+  slug: string;
+  navigation_order: number;
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [navigationPages, setNavigationPages] = useState<NavigationPage[]>([])
   const pathname = usePathname()
   const { isAuthenticated, logout } = useAuth()
   
   const isAdminPage = pathname?.startsWith('/admin')
+
+  useEffect(() => {
+    // Load pages that should show in navigation
+    const loadNavigationPages = async () => {
+      try {
+        const response = await fetch('/api/pages?navigation=true&status=published')
+        if (response.ok) {
+          const data = await response.json()
+          const pages = (data.pages || []).sort((a: NavigationPage, b: NavigationPage) => 
+            a.navigation_order - b.navigation_order
+          )
+          setNavigationPages(pages)
+        }
+      } catch (error) {
+        console.error('Error loading navigation pages:', error)
+      }
+    }
+    
+    loadNavigationPages()
+  }, [])
 
   return (
     <header className="bg-vgbf-blue text-white shadow-lg header-with-logo-bg">
@@ -58,6 +86,16 @@ export default function Header() {
             <Link href="/styrelsen" className="hover:text-vgbf-gold transition-colors">
               Styrelsen
             </Link>
+            {/* Dynamic navigation pages */}
+            {navigationPages.map((page) => (
+              <Link 
+                key={page.id} 
+                href={`/${page.slug}`} 
+                className="hover:text-vgbf-gold transition-colors"
+              >
+                {page.title}
+              </Link>
+            ))}
             <Link href="/kontakt" className="hover:text-vgbf-gold transition-colors">
               Kontakt
             </Link>
@@ -107,6 +145,16 @@ export default function Header() {
               <Link href="/styrelsen" className="hover:text-vgbf-gold transition-colors">
                 Styrelsen
               </Link>
+              {/* Dynamic navigation pages */}
+              {navigationPages.map((page) => (
+                <Link 
+                  key={page.id} 
+                  href={`/${page.slug}`} 
+                  className="hover:text-vgbf-gold transition-colors"
+                >
+                  {page.title}
+                </Link>
+              ))}
               <Link href="/kontakt" className="hover:text-vgbf-gold transition-colors">
                 Kontakt
               </Link>
