@@ -1,7 +1,6 @@
 'use client';
 
-import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { trackPageView } from '@/lib/analytics';
 
@@ -46,7 +45,7 @@ export default function SeoHead({
   locale = 'sv_SE',
   noindex = false,
 }: SeoHeadProps) {
-  const router = useRouter();
+  const pathname = usePathname();
   
   // Build full title
   const siteTitle = 'Västra Götalands Bågskytteförbund';
@@ -54,134 +53,88 @@ export default function SeoHead({
   
   // Build canonical URL
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://vgbf.se';
-  const canonicalUrl = canonical || `${baseUrl}${router.asPath.split('?')[0]}`;
+  const canonicalUrl = canonical || `${baseUrl}${pathname}`;
   
   // Build image URL
   const imageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
   
   useEffect(() => {
-    // Use the new analytics utility for tracking
+    // Update document title
+    document.title = fullTitle;
+    
+    // Update meta description
+    let metaDescription = document.querySelector('meta[name="description"]');
+    if (!metaDescription) {
+      metaDescription = document.createElement('meta');
+      metaDescription.setAttribute('name', 'description');
+      document.head.appendChild(metaDescription);
+    }
+    metaDescription.setAttribute('content', description);
+    
+    // Update canonical URL
+    let canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+    canonicalLink.setAttribute('href', canonicalUrl);
+    
+    // Load Umami Analytics
+    if (process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && process.env.NEXT_PUBLIC_UMAMI_URL) {
+      const existingScript = document.querySelector('script[data-website-id]');
+      if (!existingScript) {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = process.env.NEXT_PUBLIC_UMAMI_URL;
+        script.setAttribute('data-website-id', process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID);
+        script.setAttribute('data-domains', process.env.NEXT_PUBLIC_SITE_URL?.replace(/https?:\/\//, '') || 'vgbf.se');
+        script.setAttribute('data-auto-track', 'true');
+        script.setAttribute('data-do-not-track', 'true');
+        script.setAttribute('data-cache', 'true');
+        document.head.appendChild(script);
+        
+        console.log('Umami script loaded:', {
+          url: process.env.NEXT_PUBLIC_UMAMI_URL,
+          websiteId: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+          domain: process.env.NEXT_PUBLIC_SITE_URL?.replace(/https?:\/\//, '') || 'vgbf.se'
+        });
+      }
+    } else {
+      console.warn('Umami Analytics not configured. Missing environment variables:', {
+        websiteId: !!process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+        url: !!process.env.NEXT_PUBLIC_UMAMI_URL
+      });
+    }
+    
+    // Load Google Analytics
+    if (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID) {
+      const existingGtag = document.querySelector('script[src*="googletagmanager"]');
+      if (!existingGtag) {
+        const gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`;
+        document.head.appendChild(gtagScript);
+        
+        const gtagConfig = document.createElement('script');
+        gtagConfig.innerHTML = `
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+            page_title: document.title,
+            page_location: window.location.href,
+          });
+        `;
+        document.head.appendChild(gtagConfig);
+      }
+    }
+    
+    // Track page view
     trackPageView(canonicalUrl, fullTitle);
-  }, [canonicalUrl, fullTitle]);
+  }, [canonicalUrl, fullTitle, description]);
 
-  return (
-    <Head>
-      {/* Basic Meta Tags */}
-      <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      <meta name="keywords" content={keywords} />
-      <meta name="author" content={author || siteTitle} />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta name="theme-color" content="#1f2937" />
-      
-      {/* Canonical URL */}
-      <link rel="canonical" href={canonicalUrl} />
-      
-      {/* Language and Locale */}
-      <meta httpEquiv="content-language" content="sv" />
-      <meta property="og:locale" content={locale} />
-      
-      {/* Robots */}
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
-      
-      {/* Open Graph */}
-      <meta property="og:type" content={type} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={imageUrl} />
-      <meta property="og:url" content={canonicalUrl} />
-      <meta property="og:site_name" content={siteTitle} />
-      
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={imageUrl} />
-      
-      {/* Article specific tags */}
-      {type === 'article' && (
-        <>
-          {publishedTime && <meta property="article:published_time" content={publishedTime} />}
-          {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
-          {author && <meta property="article:author" content={author} />}
-        </>
-      )}
-      
-      {/* Event specific tags */}
-      {type === 'event' && (
-        <>
-          <meta property="og:type" content="event" />
-          {publishedTime && <meta property="event:start_time" content={publishedTime} />}
-        </>
-      )}
-      
-      {/* Favicon */}
-      <link rel="icon" href="/favicon.ico" />
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-      <link rel="manifest" href="/site.webmanifest" />
-      
-      {/* Google Analytics */}
-      {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-        <>
-          <script
-            async
-            src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-          />
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
-                  page_title: document.title,
-                  page_location: window.location.href,
-                });
-              `,
-            }}
-          />
-        </>
-      )}
-
-      {/* Umami Analytics */}
-      {process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && process.env.NEXT_PUBLIC_UMAMI_URL && (
-        <script
-          async
-          src={process.env.NEXT_PUBLIC_UMAMI_URL}
-          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-          data-domains={process.env.NEXT_PUBLIC_SITE_URL?.replace(/https?:\/\//, '') || 'vgbf.se'}
-          data-auto-track="true"
-          data-do-not-track="true"
-          data-cache="true"
-        />
-      )}
-      
-      {/* Structured Data for Organization */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'SportsOrganization',
-            name: siteTitle,
-            url: baseUrl,
-            logo: imageUrl,
-            description: description,
-            sport: 'Archery',
-            address: {
-              '@type': 'PostalAddress',
-              addressCountry: 'SE',
-              addressRegion: 'Västra Götaland',
-            },
-            sameAs: [
-              // Add social media URLs when available
-            ],
-          }),
-        }}
-      />
-    </Head>
-  );
+  // This component doesn't render anything visible
+  return null;
 }
 
