@@ -4,6 +4,13 @@ import { sql } from '@/lib/database';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+
+// Don't generate any static params - make it fully dynamic
+export async function generateStaticParams() {
+  // Return empty array to force dynamic rendering
+  return [];
+}
 
 interface PageDisplayProps {
   params: {
@@ -13,23 +20,26 @@ interface PageDisplayProps {
 
 async function getPage(slug: string): Promise<Page | null> {
   try {
-    // For dynamic pages, fetch directly from database instead of API
-    const result = await sql.query(`
+    // For dynamic pages, fetch directly from database - use template literal syntax
+    const result = await sql`
       SELECT * FROM pages 
-      WHERE (slug = $1 OR id::text = $1) 
+      WHERE (slug = ${slug} OR id::text = ${slug}) 
       AND status = 'published' 
       ORDER BY created_at DESC 
       LIMIT 1
-    `, [slug]);
+    `;
     
-    if (!result || result.rows.length === 0) {
+    // Handle both pg Pool result (result.rows) and Neon direct array result
+    const rows = Array.isArray(result) ? result : (result.rows || []);
+    
+    if (rows.length === 0) {
       return null;
     }
     
-    const page = result.rows[0];
+    const page = rows[0];
     
     // Update view count
-    await sql.query('UPDATE pages SET view_count = view_count + 1 WHERE id = $1', [page.id]);
+    await sql`UPDATE pages SET view_count = view_count + 1 WHERE id = ${page.id}`;
     
     return page;
   } catch (error) {
