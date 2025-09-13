@@ -76,15 +76,29 @@ export async function GET(request: NextRequest) {
 
     // Check if table exists first
     try {
-      const menuItems = await sql`
-        SELECT * FROM menu_items 
-        WHERE menu_type = ${menuType}
-        ${published === 'true' ? sql`AND is_published = true AND is_visible = true` : sql``}
-        ORDER BY 
-          COALESCE(parent_id, id), 
-          sort_order, 
-          created_at
-      `
+      let menuItems;
+      
+      if (published === 'true') {
+        menuItems = await sql`
+          SELECT * FROM menu_items 
+          WHERE menu_type = ${menuType} 
+            AND is_published = true 
+            AND is_visible = true
+          ORDER BY 
+            COALESCE(parent_id, id), 
+            sort_order, 
+            created_at
+        `
+      } else {
+        menuItems = await sql`
+          SELECT * FROM menu_items 
+          WHERE menu_type = ${menuType}
+          ORDER BY 
+            COALESCE(parent_id, id), 
+            sort_order, 
+            created_at
+        `
+      }
 
       if (tree) {
         // Return hierarchical structure
