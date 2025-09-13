@@ -39,7 +39,7 @@ export default function Header() {
     // Load menu items from database
     const loadMenuItems = async () => {
       try {
-        const response = await fetch('/api/menus?menu_type=main&published=true&tree=true')
+        const response = await fetch('/api/menus?menu_type=main&tree=true')
         if (response.ok) {
           const data = await response.json()
           if (data.menuItems && data.menuItems.length > 0) {
