@@ -16,7 +16,7 @@ export const fetchCache = 'force-no-store'
 
 export default async function NewsPage() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white page-with-logo-bg">
       <Header />
       
       <PageHero 

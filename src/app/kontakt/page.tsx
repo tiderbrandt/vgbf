@@ -53,7 +53,7 @@ export default function KontaktPage() {
     )
   }
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white page-with-logo-bg">
       <Header />
       
       <PageHero 
