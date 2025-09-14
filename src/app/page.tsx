@@ -15,7 +15,7 @@ export default function Home() {
       {/* Om Västra Götalands Bågskytteförbund - Overview Section */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-6xl mx-auto text-center">
             <h2 className="text-3xl font-bold text-vgbf-blue mb-6">Om Västra Götalands Bågskytteförbund</h2>
             <p className="text-lg text-gray-700 mb-8 leading-relaxed">
               Västra Götalands Bågskytteförbund (VGBF) är det regionala förbundet som samlar bågskyttar 
@@ -40,68 +40,6 @@ export default function Home() {
         </div>
       </section>
       
-      {/* About VGBF Information Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-8 text-center">
-              <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Om Västra Götalands Bågskytteförbund</h2>
-              <p className="text-lg text-gray-600">
-                Vi samlar bågskyttar i Västra Götaland och arbetar för att utveckla och främja bågskyttesporten
-              </p>
-            </div>
-            
-            <div className="grid gap-8 md:grid-cols-2">
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-xl font-bold text-vgbf-blue mb-4">Vad vi gör</h3>
-                <p className="text-gray-600 mb-4">
-                  VGBF ansvarar för bågskyttesporten i Västra Götalands län och arbetar för att:
-                </p>
-                <ul className="text-gray-600 space-y-2">
-                  <li>• Koordinera tävlingar och utbildningar</li>
-                  <li>• Stödja klubbarna i deras verksamhet</li>
-                  <li>• Hantera distriktsrekord och ranking</li>
-                  <li>• Främja säker och rolig bågskyttesport</li>
-                </ul>
-              </div>
-
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-xl font-bold text-vgbf-blue mb-4">Kom igång med bågskytte</h3>
-                <p className="text-gray-600 mb-4">
-                  Intresserad av att börja med bågskytte? Här är vad du behöver veta:
-                </p>
-                <ul className="text-gray-600 space-y-2">
-                  <li>• Kontakta en lokal klubb för nybörjarkurs</li>
-                  <li>• Ingen egen utrustning behövs till att börja</li>
-                  <li>• Bågskytte passar alla åldrar och förmågor</li>
-                  <li>• Säker och social sport för hela familjen</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-xl font-bold text-vgbf-blue mb-4">Kontakta oss</h3>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Allmänna frågor</h4>
-                  <p className="text-gray-600">För frågor om förbundet, tävlingar eller verksamhet</p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Hitta en klubb</h4>
-                  <p className="text-gray-600">
-                    Se vår <a href="/klubbar" className="text-vgbf-blue hover:underline">klubblista</a> för att hitta närmaste klubb
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-2">Tävlingar</h4>
-                  <p className="text-gray-600">Information om kommande tävlingar och anmälan</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Membership and Activities Information */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
