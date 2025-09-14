@@ -17,7 +17,7 @@
 .page-with-logo-bg::before {
   content: '';
   position: fixed;
-  top: 0;
+  top: 6rem;
   right: 2rem;
   width: 400px;
   height: 400px;
