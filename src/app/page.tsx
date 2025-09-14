@@ -113,7 +113,7 @@ export default function Home() {
       {/* News and Events Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-vgbf-blue mb-6">
                 Aktuella nyheter & evenemang
@@ -145,7 +145,7 @@ export default function Home() {
       {/* Sponsors Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-green-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-2xl p-12 border border-gray-100 shadow-lg">
               <SponsorsSection />
             </div>
