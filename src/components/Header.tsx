@@ -29,9 +29,21 @@ const staticNavigation: MenuItem[] = [
     target: '_self'
   },
   {
+    id: 'competitions',
+    title: 'Tävlingar',
+    url: '/tavlingar',
+    target: '_self'
+  },
+  {
     id: 'clubs',
     title: 'Klubbar',
     url: '/klubbar',
+    target: '_self'
+  },
+  {
+    id: 'calendar',
+    title: 'Kalender',
+    url: '/kalender',
     target: '_self'
   },
   {
@@ -44,6 +56,12 @@ const staticNavigation: MenuItem[] = [
     id: 'board',
     title: 'Styrelsen',
     url: '/styrelsen',
+    target: '_self'
+  },
+  {
+    id: 'contact',
+    title: 'Kontakt',
+    url: '/kontakt',
     target: '_self'
   }
 ]
