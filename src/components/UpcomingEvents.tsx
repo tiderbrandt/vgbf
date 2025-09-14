@@ -94,7 +94,7 @@ export default async function UpcomingEvents() {
 
     return (
       <div>
-        <div className="grid gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {upcomingEvents.map((event) => (
             <EventCard key={event.id} event={event} />
           ))}
@@ -129,70 +129,69 @@ function EventCard({ event }: { event: CalendarEvent }) {
   return (
     <article className="group bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-2 transform transition-all duration-300">
       <div className="p-6">
-        <div className="flex gap-4">
-          {/* Date Display */}
-          <div className="flex-shrink-0">
-            <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-lg px-3 py-2 min-w-[60px] shadow-md">
-              <div className="text-lg font-bold">{eventDate.toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
-              <div className="text-xs font-medium opacity-90">{eventDate.toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
-            </div>
+        {/* Date Display */}
+        <div className="flex items-center justify-center mb-4">
+          <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-lg px-4 py-3 shadow-md">
+            <div className="text-xl font-bold">{eventDate.toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
+            <div className="text-sm font-medium opacity-90">{eventDate.toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
           </div>
+        </div>
 
-          {/* Event Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between mb-3">
-              <h4 className="text-xl font-bold text-vgbf-blue mb-3 group-hover:text-vgbf-green transition-colors duration-200 leading-tight">{event.title}</h4>
-              <span className={getTypeBadgeClass(event.type)} aria-hidden>
-                {capitalize(event.type || 'evenemang')}
-              </span>
+        {/* Event Info */}
+        <div className="text-center">
+          <div className="flex items-center justify-center mb-3">
+            <h4 className="text-xl font-bold text-vgbf-blue group-hover:text-vgbf-green transition-colors duration-200 leading-tight">{event.title}</h4>
+          </div>
+          
+          <div className="flex items-center justify-center mb-2">
+            <span className={getTypeBadgeClass(event.type)}>
+              {capitalize(event.type || 'evenemang')}
+            </span>
+          </div>
+          
+          <div className="text-sm text-gray-600 mb-3 space-y-1">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-vgbf-green rounded-full"></div>
+              <span className="font-medium">{formatDateRange(event)} {event.time && `• ${event.time}`}</span>
             </div>
-            
-            <div className="text-sm text-gray-600 mb-3">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 bg-vgbf-green rounded-full"></div>
-                <span className="font-medium">{formatDateRange(event)} {event.time && `• ${event.time}`}</span>
-              </div>
-              {event.location && (
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span className="font-medium">{event.location}</span>
-                </div>
-              )}
-            </div>
-            
-            {event.description && (
-              <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">{event.description}</p>
-            )}
-            
-            {/* Registration info */}
-            {typeof event.currentParticipants === 'number' && typeof event.maxParticipants === 'number' && (
-              <div className="text-sm text-gray-600 mb-3 font-medium">
-                Anmälda: {event.currentParticipants}/{event.maxParticipants}
+            {event.location && (
+              <div className="flex items-center justify-center gap-2">
+                <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="font-medium">{event.location}</span>
               </div>
             )}
-            
-            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-              <div></div>
-              {/* Action button */}
-              {event.registrationRequired && event.registrationUrl ? (
-                <a 
-                  href={event.registrationUrl} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  className="inline-flex items-center gap-1 text-vgbf-blue font-semibold hover:text-vgbf-green transition-colors duration-200 group/link"
-                >
-                  Anmäl dig
-                  <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-              ) : (
-                <span className="text-sm text-gray-500">Ingen anmälan krävs</span>
-              )}
+          </div>
+          
+          {event.description && (
+            <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed text-sm">{event.description}</p>
+          )}
+          
+          {/* Registration info */}
+          {typeof event.currentParticipants === 'number' && typeof event.maxParticipants === 'number' && (
+            <div className="text-sm text-gray-600 mb-3 font-medium">
+              Anmälda: {event.currentParticipants}/{event.maxParticipants}
             </div>
+          )}
+          
+          <div className="flex items-center justify-center pt-2 border-t border-gray-100">
+            {event.registrationRequired && event.registrationUrl ? (
+              <a 
+                href={event.registrationUrl} 
+                target="_blank" 
+                rel="noreferrer" 
+                className="inline-flex items-center gap-1 text-vgbf-blue font-semibold hover:text-vgbf-green transition-colors duration-200 group/link"
+              >
+                Anmäl dig
+                <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            ) : (
+              <span className="text-sm text-gray-500">Ingen anmälan krävs</span>
+            )}
           </div>
         </div>
       </div>
