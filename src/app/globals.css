@@ -4,8 +4,32 @@
 
 @layer utilities {
   .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
+    display: -webkit-box;.header-with-logo-bg > .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Page-wide background logo */
+.page-with-logo-bg {
+  position: relative;
+  overflow: visible;
+}
+.page-with-logo-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 2rem;
+  width: 400px;
+  height: 400px;
+  background-image: url('/vgbf-logo.png');
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  opacity: 0.03;
+  pointer-events: none;
+  filter: saturate(0) brightness(1.2);
+  z-index: 0;
+} -webkit-line-clamp: 3;
     line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
