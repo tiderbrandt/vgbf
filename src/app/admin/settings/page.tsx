@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import { useToast } from '@/contexts/ToastContext'
 import { authenticatedApiCall } from '@/lib/api'
 
@@ -205,6 +206,7 @@ export default function SettingsPage() {
               <p className="text-gray-600">Hantera systemkonfiguration och preferenser</p>
             </div>
             <div className="flex gap-3">
+              <AdminBackButton />
               <button
                 onClick={handleReset}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"

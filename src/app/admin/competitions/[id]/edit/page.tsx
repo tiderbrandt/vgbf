@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import { Competition } from '@/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
@@ -225,13 +226,7 @@ export default function EditCompetitionPage({ params }: Props) {
                 >
                   Återställ
                 </button>
-                <button
-                  type="button"
-                  onClick={() => router.push('/admin')}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Tillbaka
-                </button>
+                <AdminBackButton />
               </div>
             </div>
 

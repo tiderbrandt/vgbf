@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { Sponsor } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
@@ -129,12 +130,7 @@ export default function EditSponsorPage() {
               <h1 className="text-3xl font-bold text-vgbf-blue">Redigera sponsor</h1>
               <p className="text-gray-600 mt-2">Uppdatera information för &ldquo;{formData.name}&rdquo;</p>
             </div>
-            <Link
-              href="/admin/sponsors"
-              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
-            >
-              Tillbaka
-            </Link>
+            <AdminBackButton href="/admin/sponsors">Tillbaka till sponsorer</AdminBackButton>
           </div>
 
           {/* Form */}

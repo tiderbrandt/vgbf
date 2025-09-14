@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { Club } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
@@ -141,12 +142,7 @@ export default function NewClubPage() {
               <h1 className="text-3xl font-bold text-vgbf-blue">Ny klubb</h1>
               <p className="text-gray-600 mt-2">Lägg till en ny klubb eller förening</p>
             </div>
-            <Link
-              href="/admin/clubs"
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-            >
-              ← Tillbaka till klubbar
-            </Link>
+            <AdminBackButton href="/admin/clubs">Tillbaka till klubbar</AdminBackButton>
           </div>
 
           <div className="bg-white rounded-lg shadow-md p-8">

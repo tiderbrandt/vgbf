@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Cookies from 'js-cookie'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { Club } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
@@ -204,9 +205,7 @@ export default function EditClubPage() {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center">
             <p>Klubb hittades inte</p>
-            <Link href="/admin/clubs" className="text-vgbf-blue hover:text-vgbf-green">
-              Tillbaka till klubbar
-            </Link>
+            <AdminBackButton href="/admin/clubs">Tillbaka till klubbar</AdminBackButton>
           </div>
         </div>
         <Footer />
@@ -232,12 +231,7 @@ export default function EditClubPage() {
               >
                 Förhandsgranska
               </button>
-              <Link
-                href="/admin/clubs"
-                className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                ← Tillbaka till klubbar
-              </Link>
+              <AdminBackButton href="/admin/clubs">Tillbaka till klubbar</AdminBackButton>
             </div>
           </div>
 

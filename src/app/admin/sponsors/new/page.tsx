@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
 import { useFormState } from '@/hooks/useFormState'
@@ -69,12 +70,7 @@ export default function NewSponsorPage() {
               <h1 className="text-3xl font-bold text-vgbf-blue">Lägg till ny sponsor</h1>
               <p className="text-gray-600 mt-2">Fyll i informationen nedan för att lägga till en ny sponsor</p>
             </div>
-            <Link
-              href="/admin/sponsors"
-              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
-            >
-              Tillbaka
-            </Link>
+            <AdminBackButton href="/admin/sponsors">Tillbaka till sponsorer</AdminBackButton>
           </div>
 
           {/* Form */}

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import AdminBackButton from '@/components/AdminBackButton'
 import { useToast } from '@/contexts/ToastContext'
 import { useFormState } from '@/hooks/useFormState'
 
@@ -93,12 +94,7 @@ export default function NewRecordPage() {
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-vgbf-blue">Lägg till nytt distriktsrekord</h1>
-            <Link 
-              href="/admin/records"
-              className="text-vgbf-blue hover:text-blue-700"
-            >
-              ← Tillbaka
-            </Link>
+            <AdminBackButton href="/admin/records">Tillbaka till rekord</AdminBackButton>
           </div>
 
           <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
