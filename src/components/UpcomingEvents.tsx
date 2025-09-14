@@ -83,61 +83,52 @@ export default async function UpcomingEvents() {
 
     if (upcomingEvents.length === 0) {
       return (
-        <section className="py-8">
+        <div className="py-8">
           <div className="container mx-auto px-4">
-            <div className="bg-white rounded-lg p-6 border shadow-sm">
-              <h3 className="text-xl font-semibold text-vgbf-blue mb-4">Kommande evenemang</h3>
-              <p className="text-gray-600 mb-4">Inga publika evenemang planerade för tillfället.</p>
-              <Link href="/kalender" className="inline-block text-sm text-vgbf-blue hover:underline">
-                Se kalender →
-              </Link>
-            </div>
+            <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Kommande evenemang</h3>
+            <p className="text-gray-700 mb-4 text-lg">Inga publika evenemang planerade för tillfället.</p>
+            <Link href="/kalender" className="inline-block text-vgbf-blue hover:text-blue-700 font-medium transition-colors">
+              Se kalender →
+            </Link>
           </div>
-        </section>
+        </div>
       )
     }
 
     return (
-      <section className="py-8">
+      <div className="py-8">
         <div className="container mx-auto px-4">
-          <div className="bg-white rounded-lg border shadow-sm">
-            <div className="p-6 border-b border-gray-100">
-              <h3 className="text-xl font-semibold text-vgbf-blue">Kommande evenemang</h3>
-              <p className="text-gray-600 text-sm mt-1">Nästa publika evenemang</p>
-            </div>
-            
-            <div className="divide-y divide-gray-100">
-              {upcomingEvents.map((event) => (
-                <EventCard key={event.id} event={event} />
-              ))}
-            </div>
-            
-            <div className="p-4 bg-gray-50 border-t border-gray-100">
-              <Link 
-                href="/kalender" 
-                className="inline-flex items-center gap-2 text-sm text-vgbf-blue hover:text-blue-700 font-medium"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
-                </svg>
-                Se alla evenemang
-              </Link>
-            </div>
+          <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Kommande evenemang</h3>
+          
+          <div className="grid gap-4">
+            {upcomingEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+          
+          <div className="mt-6 pt-4">
+            <Link 
+              href="/kalender" 
+              className="inline-flex items-center gap-2 text-vgbf-blue hover:text-blue-700 font-medium transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+              </svg>
+              Se alla evenemang
+            </Link>
           </div>
         </div>
-      </section>
+      </div>
     )
   } catch (error) {
     console.error('UpcomingEvents: Error loading events:', error)
     return (
-      <section className="py-8">
+      <div className="py-8">
         <div className="container mx-auto px-4">
-          <div className="bg-white rounded-lg p-6 border shadow-sm">
-            <h3 className="text-xl font-semibold text-vgbf-blue">Kommande evenemang</h3>
-            <p className="text-red-600 mt-2">Fel vid laddning av evenemang.</p>
-          </div>
+          <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Kommande evenemang</h3>
+          <p className="text-red-600 text-lg">Fel vid laddning av evenemang.</p>
         </div>
-      </section>
+      </div>
     )
   }
 }
@@ -146,11 +137,11 @@ function EventCard({ event }: { event: CalendarEvent }) {
   const eventDate = parseDate(event.date)
   
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors">
+    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:bg-white/90">
       <div className="flex gap-4">
         {/* Date Display */}
         <div className="flex-shrink-0">
-          <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-lg px-3 py-2 min-w-[60px]">
+          <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-lg px-3 py-2 min-w-[60px] shadow-md">
             <div className="text-lg font-bold">{eventDate.toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
             <div className="text-xs font-medium opacity-90">{eventDate.toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
           </div>
@@ -158,38 +149,38 @@ function EventCard({ event }: { event: CalendarEvent }) {
 
         {/* Event Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-2">
-            <h4 className="font-semibold text-gray-900 text-sm leading-tight">{event.title}</h4>
+          <div className="flex items-start justify-between mb-3">
+            <h4 className="font-bold text-gray-900 text-lg leading-tight">{event.title}</h4>
             <span className={getTypeBadgeClass(event.type)} aria-hidden>
               {capitalize(event.type || 'evenemang')}
             </span>
           </div>
           
-          <div className="text-xs text-gray-600 mb-2">
-            <div className="flex items-center gap-1 mb-1">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-sm text-gray-600 mb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
               </svg>
-              <span>{formatDateRange(event)} {event.time && `• ${event.time}`}</span>
+              <span className="font-medium">{formatDateRange(event)} {event.time && `• ${event.time}`}</span>
             </div>
             {event.location && (
-              <div className="flex items-center gap-1">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span>{event.location}</span>
+                <span className="font-medium">{event.location}</span>
               </div>
             )}
           </div>
           
           {event.description && (
-            <p className="text-xs text-gray-700 line-clamp-2 mb-2">{event.description}</p>
+            <p className="text-sm text-gray-700 line-clamp-2 mb-3 leading-relaxed">{event.description}</p>
           )}
           
           {/* Registration info */}
           {typeof event.currentParticipants === 'number' && typeof event.maxParticipants === 'number' && (
-            <div className="text-xs text-gray-600 mb-2">
+            <div className="text-sm text-gray-600 mb-3 font-medium">
               Anmälda: {event.currentParticipants}/{event.maxParticipants}
             </div>
           )}
@@ -200,9 +191,9 @@ function EventCard({ event }: { event: CalendarEvent }) {
               href={event.registrationUrl} 
               target="_blank" 
               rel="noreferrer" 
-              className="inline-flex items-center gap-1 text-xs bg-vgbf-green text-white px-3 py-1 rounded hover:bg-green-700 transition-colors"
+              className="inline-flex items-center gap-2 text-sm bg-gradient-to-r from-vgbf-green to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Anmäl dig
