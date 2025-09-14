@@ -1,6 +1,6 @@
  'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
@@ -21,9 +21,11 @@ export default function AdminDashboard() {
   const [boardMembers, setBoardMembers] = useState<BoardMember[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [dataError, setDataError] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   // Enhanced stats with more insights
-  const stats = {
+  const stats = useMemo(() => ({
     totalNews: news.length,
     featuredNews: news.filter(n => n.featured).length,
     recentNews: news.filter(n => new Date(n.date) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length,
@@ -36,10 +38,17 @@ export default function AdminDashboard() {
     totalClubs: clubs.length,
     totalSponsors: sponsors.length,
     totalBoardMembers: boardMembers.length
-  }
+  }), [news, competitions, clubs, sponsors, boardMembers])
+  
+  // Debug logging for stats
+  useEffect(() => {
+    if (!loading) {
+      console.log('📈 Performance stats calculated:', stats)
+    }
+  }, [loading, stats])
 
   // Recent activity (last 5 items)
-  const recentActivity = [
+  const recentActivity = useMemo(() => [
     ...news.slice(0, 3).map(item => ({
       type: 'news',
       title: item.title,
@@ -52,12 +61,14 @@ export default function AdminDashboard() {
       date: item.date,
       status: item.status
     }))
-  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
+  ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5), [news, competitions])
 
   // Load data
   useEffect(() => {
     const initializeData = async () => {
       setLoading(true)
+      setDataError(null)
+      console.log('🔍 Starting data initialization...')
       try {
         await Promise.all([
           loadNews(),
@@ -66,37 +77,55 @@ export default function AdminDashboard() {
           loadSponsors(),
           loadBoardMembers()
         ])
+        console.log('📊 Data loaded successfully:', {
+          news: news.length,
+          competitions: competitions.length,
+          clubs: clubs.length,
+          sponsors: sponsors.length,
+          boardMembers: boardMembers.length
+        })
+        setRetryCount(0)
       } catch (error) {
-        console.error('Error loading data:', error)
+        console.error('❌ Error loading data:', error)
+        setDataError('Fel vid laddning av data. Försöker igen...')
+        if (retryCount < 3) {
+          setTimeout(() => {
+            setRetryCount(prev => prev + 1)
+          }, 2000)
+        }
       } finally {
         setLoading(false)
       }
     }
     
     initializeData()
-  }, [])
+  }, [retryCount])
 
   const loadNews = async () => {
     try {
+      console.log('📰 Loading news...')
       const response = await fetch('/api/news')
       const data = await response.json()
+      console.log('📰 News API response:', { success: data.success, count: data.data?.length })
       if (data.success) {
         setNews(data.data)
       }
     } catch (error) {
-      console.error('Error loading news:', error)
+      console.error('❌ Error loading news:', error)
     }
   }
 
   const loadCompetitions = async () => {
     try {
+      console.log('🏆 Loading competitions...')
       const response = await fetch('/api/competitions')
       const data = await response.json()
+      console.log('🏆 Competitions API response:', { success: data.success, count: data.data?.length })
       if (data.success) {
         setCompetitions(data.data)
       }
     } catch (error) {
-      console.error('Error loading competitions:', error)
+      console.error('❌ Error loading competitions:', error)
     }
   }
 
@@ -764,50 +793,134 @@ export default function AdminDashboard() {
                 <p className="text-slate-300 text-sm mt-1">Senaste månadens statistik</p>
               </div>
               <div className="p-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-slate-600 rounded-lg mr-3">
-                        <Icons.News />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Totalt innehåll</p>
-                        <p className="text-xs text-slate-300">Alla typer av innehåll</p>
-                      </div>
-                    </div>
-                    <span className="text-xl font-bold">
-                      {stats.totalNews + stats.totalCompetitions + stats.totalClubs}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-slate-600 rounded-lg mr-3">
-                        <Icons.TrendingUp />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Aktivt innehåll</p>
-                        <p className="text-xs text-slate-300">Publicerat och synligt</p>
+                {loading ? (
+                  <div className="space-y-4">
+                    <div className="animate-pulse">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-slate-600 rounded-lg mr-3"></div>
+                          <div>
+                            <div className="h-4 bg-slate-600 rounded w-24 mb-1"></div>
+                            <div className="h-3 bg-slate-600 rounded w-32"></div>
+                          </div>
+                        </div>
+                        <div className="h-6 bg-slate-600 rounded w-8"></div>
                       </div>
                     </div>
-                    <span className="text-xl font-bold">
-                      {stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-slate-600 rounded-lg mr-3">
-                        <Icons.Board />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">Organisation</p>
-                        <p className="text-xs text-slate-300">Partners & styrelse</p>
+                    <div className="animate-pulse">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-slate-600 rounded-lg mr-3"></div>
+                          <div>
+                            <div className="h-4 bg-slate-600 rounded w-24 mb-1"></div>
+                            <div className="h-3 bg-slate-600 rounded w-32"></div>
+                          </div>
+                        </div>
+                        <div className="h-6 bg-slate-600 rounded w-8"></div>
                       </div>
                     </div>
-                    <span className="text-xl font-bold">
-                      {stats.totalSponsors + stats.totalBoardMembers}
-                    </span>
+                    <div className="animate-pulse">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-slate-600 rounded-lg mr-3"></div>
+                          <div>
+                            <div className="h-4 bg-slate-600 rounded w-24 mb-1"></div>
+                            <div className="h-3 bg-slate-600 rounded w-32"></div>
+                          </div>
+                        </div>
+                        <div className="h-6 bg-slate-600 rounded w-8"></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-slate-600 rounded-lg mr-3">
+                          <Icons.News />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Totalt innehåll</p>
+                          <p className="text-xs text-slate-300">Alla typer av innehåll</p>
+                        </div>
+                      </div>
+                      <span className="text-xl font-bold">
+                        {stats.totalNews + stats.totalCompetitions + stats.totalClubs}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-slate-600 rounded-lg mr-3">
+                          <Icons.TrendingUp />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Aktivt innehåll</p>
+                          <p className="text-xs text-slate-300">Publicerat och synligt</p>
+                        </div>
+                      </div>
+                      <span className="text-xl font-bold">
+                        {stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-slate-600 rounded-lg mr-3">
+                          <Icons.Board />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Organisation</p>
+                          <p className="text-xs text-slate-300">Partners & styrelse</p>
+                        </div>
+                      </div>
+                      <span className="text-xl font-bold">
+                        {stats.totalSponsors + stats.totalBoardMembers}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="p-2 bg-slate-600 rounded-lg mr-3">
+                          <Icons.Clock />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Senaste veckan</p>
+                          <p className="text-xs text-slate-300">Nya nyheter</p>
+                        </div>
+                      </div>
+                      <span className="text-xl font-bold">
+                        {stats.recentNews}
+                      </span>
+                    </div>
+                    
+                    {/* Activity Progress Bar */}
+                    <div className="pt-4 border-t border-slate-600">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">Innehållsaktivitet</p>
+                        <p className="text-xs text-slate-300">
+                          {Math.round(((stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs) / 
+                            Math.max(stats.totalNews + stats.totalCompetitions + stats.totalClubs, 1)) * 100)}%
+                        </p>
+                      </div>
+                      <div className="w-full bg-slate-600 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-blue-400 to-green-400 h-2 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.round(((stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs) / 
+                              Math.max(stats.totalNews + stats.totalCompetitions + stats.totalClubs, 1)) * 100)}%`
+                          }}
+                        ></div>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1">
+                        {stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs > 0 
+                          ? `${stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs} av ${stats.totalNews + stats.totalCompetitions + stats.totalClubs} innehållselement är aktiva`
+                          : stats.totalNews + stats.totalCompetitions + stats.totalClubs > 0
+                            ? 'Inget innehåll är markerat som aktivt'
+                            : 'Ingen data har laddats än'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
