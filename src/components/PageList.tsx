@@ -46,11 +46,14 @@ export default function PageList({
       }
       
       const response = await fetch(`/api/pages?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch pages');
+      console.log(`PageList fetch: /api/pages?${params}`, response.status);
+      if (!response.ok) throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
       
       const data = await response.json();
+      console.log('PageList received data:', data);
       setPages(data.pages || []);
     } catch (err) {
+      console.error('PageList fetch error:', err);
       setError('Failed to load pages');
       console.error(err);
     } finally {
@@ -74,6 +77,7 @@ export default function PageList({
     return (
       <div className={`text-red-600 ${className}`}>
         <p>{error}</p>
+        <p className="text-sm mt-2">Debug: showFeaturedOnly={showFeaturedOnly ? 'true' : 'false'}, limit={limit}</p>
       </div>
     );
   }
