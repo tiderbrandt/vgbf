@@ -137,71 +137,76 @@ function EventCard({ event }: { event: CalendarEvent }) {
   const eventDate = parseDate(event.date)
   
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-white/20 hover:bg-white/90">
-      <div className="flex gap-4">
-        {/* Date Display */}
-        <div className="flex-shrink-0">
-          <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-lg px-3 py-2 min-w-[60px] shadow-md">
-            <div className="text-lg font-bold">{eventDate.toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
-            <div className="text-xs font-medium opacity-90">{eventDate.toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
-          </div>
-        </div>
-
-        {/* Event Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-3">
-            <h4 className="font-bold text-gray-900 text-lg leading-tight">{event.title}</h4>
-            <span className={getTypeBadgeClass(event.type)} aria-hidden>
-              {capitalize(event.type || 'evenemang')}
-            </span>
-          </div>
-          
-          <div className="text-sm text-gray-600 mb-3">
-            <div className="flex items-center gap-2 mb-2">
-              <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
-              </svg>
-              <span className="font-medium">{formatDateRange(event)} {event.time && `• ${event.time}`}</span>
+    <article className="group bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-2 transform transition-all duration-300">
+      <div className="p-6">
+        <div className="flex gap-4">
+          {/* Date Display */}
+          <div className="flex-shrink-0">
+            <div className="text-center bg-gradient-to-br from-vgbf-blue to-vgbf-green text-white rounded-lg px-3 py-2 min-w-[60px] shadow-md">
+              <div className="text-lg font-bold">{eventDate.toLocaleDateString('sv-SE', { day: 'numeric' })}</div>
+              <div className="text-xs font-medium opacity-90">{eventDate.toLocaleDateString('sv-SE', { month: 'short' }).toUpperCase()}</div>
             </div>
-            {event.location && (
-              <div className="flex items-center gap-2">
-                <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="font-medium">{event.location}</span>
+          </div>
+
+          {/* Event Info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between mb-3">
+              <h4 className="text-xl font-bold text-vgbf-blue mb-3 group-hover:text-vgbf-green transition-colors duration-200 leading-tight">{event.title}</h4>
+              <span className={getTypeBadgeClass(event.type)} aria-hidden>
+                {capitalize(event.type || 'evenemang')}
+              </span>
+            </div>
+            
+            <div className="text-sm text-gray-600 mb-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-2 h-2 bg-vgbf-green rounded-full"></div>
+                <span className="font-medium">{formatDateRange(event)} {event.time && `• ${event.time}`}</span>
+              </div>
+              {event.location && (
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-vgbf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="font-medium">{event.location}</span>
+                </div>
+              )}
+            </div>
+            
+            {event.description && (
+              <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">{event.description}</p>
+            )}
+            
+            {/* Registration info */}
+            {typeof event.currentParticipants === 'number' && typeof event.maxParticipants === 'number' && (
+              <div className="text-sm text-gray-600 mb-3 font-medium">
+                Anmälda: {event.currentParticipants}/{event.maxParticipants}
               </div>
             )}
-          </div>
-          
-          {event.description && (
-            <p className="text-sm text-gray-700 line-clamp-2 mb-3 leading-relaxed">{event.description}</p>
-          )}
-          
-          {/* Registration info */}
-          {typeof event.currentParticipants === 'number' && typeof event.maxParticipants === 'number' && (
-            <div className="text-sm text-gray-600 mb-3 font-medium">
-              Anmälda: {event.currentParticipants}/{event.maxParticipants}
+            
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <div></div>
+              {/* Action button */}
+              {event.registrationRequired && event.registrationUrl ? (
+                <a 
+                  href={event.registrationUrl} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="inline-flex items-center gap-1 text-vgbf-blue font-semibold hover:text-vgbf-green transition-colors duration-200 group/link"
+                >
+                  Anmäl dig
+                  <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              ) : (
+                <span className="text-sm text-gray-500">Ingen anmälan krävs</span>
+              )}
             </div>
-          )}
-          
-          {/* Action button */}
-          {event.registrationRequired && event.registrationUrl && (
-            <a 
-              href={event.registrationUrl} 
-              target="_blank" 
-              rel="noreferrer" 
-              className="inline-flex items-center gap-2 text-sm bg-gradient-to-r from-vgbf-green to-green-600 text-white px-4 py-2 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium shadow-md hover:shadow-lg"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Anmäl dig
-            </a>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
 
