@@ -29,21 +29,21 @@ export default function Home() {
             <div className="grid gap-8 md:grid-cols-3">
               <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-vgbf-blue mb-3">25+</div>
+                  <div className="text-5xl font-bold text-vgbf-blue mb-3">12</div>
                   <div className="text-lg font-semibold text-gray-800 mb-2">Aktiva klubbar</div>
                   <div className="text-gray-600">Spridda över hela Västra Götaland</div>
                 </div>
               </div>
               <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-vgbf-green mb-3">1000+</div>
+                  <div className="text-5xl font-bold text-vgbf-green mb-3">300+</div>
                   <div className="text-lg font-semibold text-gray-800 mb-2">Aktiva medlemmar</div>
                   <div className="text-gray-600">Från nybörjare till elitskyttar</div>
                 </div>
               </div>
               <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
                 <div className="text-center">
-                  <div className="text-5xl font-bold text-orange-500 mb-3">50+</div>
+                  <div className="text-5xl font-bold text-orange-500 mb-3">12+</div>
                   <div className="text-lg font-semibold text-gray-800 mb-2">Tävlingar per år</div>
                   <div className="text-gray-600">För alla åldrar och nivåer</div>
                 </div>
