@@ -22,12 +22,14 @@ export default function PageList({
   const [error, setError] = useState('');
 
   useEffect(() => {
+    console.log('PageList: Component mounted/props changed, starting fetch...');
     fetchPages();
   }, [showFeaturedOnly, showInNavigation, limit]);
 
   const fetchPages = async () => {
     try {
       setLoading(true);
+      console.log('PageList: Starting fetch with props:', { showFeaturedOnly, showInNavigation, limit });
       
       const params = new URLSearchParams({
         status: 'published'
@@ -44,20 +46,33 @@ export default function PageList({
       if (limit) {
         params.append('limit', limit.toString());
       }
+
+      const url = `/api/pages?${params}`;
+      console.log('PageList: Fetching URL:', url);
       
-      const response = await fetch(`/api/pages?${params}`);
-      console.log(`PageList fetch: /api/pages?${params}`, response.status);
-      if (!response.ok) throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
+      const response = await fetch(url);
+      console.log('PageList: Response received:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
+      }
       
       const data = await response.json();
-      console.log('PageList received data:', data);
-      setPages(data.pages || []);
+      console.log('PageList: Data received:', data);
+      
+      if (data && data.pages) {
+        setPages(data.pages);
+        console.log('PageList: Set pages:', data.pages.length, 'items');
+      } else {
+        console.error('PageList: Invalid data structure:', data);
+        setError('Invalid data received');
+      }
     } catch (err) {
-      console.error('PageList fetch error:', err);
-      setError('Failed to load pages');
-      console.error(err);
+      console.error('PageList: Fetch error:', err);
+      setError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
+      console.log('PageList: Fetch completed, loading=false');
     }
   };
 
