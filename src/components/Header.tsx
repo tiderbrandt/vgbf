@@ -2,97 +2,80 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-
-interface NavigationPage {
-  id: string;
-  title: string;
-  slug: string;
-  navigation_order: number;
-}
 
 interface MenuItem {
   id: string
   title: string
-  url: string | null
-  target: '_self' | '_blank' | null
-  link_type: 'internal' | 'external' | 'page' | 'category'
-  is_visible: boolean
-  is_published: boolean
-  show_on_mobile: boolean
-  show_on_desktop: boolean
+  url: string
+  target: '_self' | '_blank'
   children?: MenuItem[]
 }
 
+// Static navigation structure
+const staticNavigation: MenuItem[] = [
+  {
+    id: 'home',
+    title: 'Hem',
+    url: '/',
+    target: '_self'
+  },
+  {
+    id: 'news',
+    title: 'Nyheter',
+    url: '/nyheter',
+    target: '_self'
+  },
+  {
+    id: 'clubs',
+    title: 'Klubbar',
+    url: '/klubbar',
+    target: '_self'
+  },
+  {
+    id: 'competitions',
+    title: 'Tävlingar',
+    url: '/tavlingar',
+    target: '_self'
+  },
+  {
+    id: 'records',
+    title: 'Distriktsrekord',
+    url: '/distriktsrekord',
+    target: '_self'
+  },
+  {
+    id: 'board',
+    title: 'Styrelsen',
+    url: '/styrelsen',
+    target: '_self'
+  }
+]
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
-  const [navigationPages, setNavigationPages] = useState<NavigationPage[]>([])
   const pathname = usePathname()
   const { isAuthenticated, logout } = useAuth()
   
   const isAdminPage = pathname?.startsWith('/admin')
 
-  useEffect(() => {
-    // Load menu items from database
-    const loadMenuItems = async () => {
-      try {
-        const response = await fetch('/api/menus?menu_type=main&tree=true')
-        if (response.ok) {
-          const data = await response.json()
-          if (data.menuItems && data.menuItems.length > 0) {
-            setMenuItems(data.menuItems)
-            return // Use database menu items
-          }
-        }
-      } catch (error) {
-        console.error('Error loading menu items:', error)
-      }
-      
-      // Fallback to loading navigation pages if menu system isn't available
-      loadNavigationPages()
-    }
-
-    // Load pages that should show in navigation (fallback for older content)
-    const loadNavigationPages = async () => {
-      try {
-        const response = await fetch('/api/pages?navigation=true&status=published')
-        if (response.ok) {
-          const data = await response.json()
-          const pages = (data.pages || []).sort((a: NavigationPage, b: NavigationPage) => 
-            a.navigation_order - b.navigation_order
-          )
-          setNavigationPages(pages)
-        }
-      } catch (error) {
-        console.error('Error loading navigation pages:', error)
-      }
-    }
-    
-    loadMenuItems()
-    loadNavigationPages()
-  }, [])
-
   // Helper function to render menu item
   const renderMenuItem = (item: MenuItem, isMobile: boolean = false) => {
-    // Don't render if not visible or published
-    if (!item.is_visible || !item.is_published) return null
-    
-    // Check device visibility
-    if (isMobile && !item.show_on_mobile) return null
-    if (!isMobile && !item.show_on_desktop) return null
-
-    const href = item.url || '#'
-    const target = item.target || '_self'
+    const isActive = pathname === item.url
     
     return (
-      <Link 
+      <Link
         key={item.id}
-        href={href}
-        target={target}
-        className="hover:text-vgbf-gold transition-colors"
+        href={item.url}
+        target={item.target}
+        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+          isActive
+            ? 'text-vgbf-blue bg-blue-50'
+            : 'text-gray-700 hover:text-vgbf-blue hover:bg-gray-50'
+        }`}
+        onClick={() => isMobile && setIsMenuOpen(false)}
       >
         {item.title}
       </Link>
@@ -123,19 +106,8 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-6 items-center">
-            {/* Dynamic menu items from database */}
-            {menuItems.map((item) => renderMenuItem(item, false))}
-            
-            {/* Fallback: Dynamic navigation pages from legacy system */}
-            {menuItems.length === 0 && navigationPages.map((page) => (
-              <Link 
-                key={page.id} 
-                href={`/${page.slug}`} 
-                className="hover:text-vgbf-gold transition-colors"
-              >
-                {page.title}
-              </Link>
-            ))}
+            {/* Static navigation items */}
+            {staticNavigation.map((item) => renderMenuItem(item, false))}
             
             {isAdminPage && isAuthenticated && (
               <button
@@ -162,19 +134,8 @@ export default function Header() {
         {isMenuOpen && (
           <nav className="md:hidden pb-4">
             <div className="flex flex-col space-y-2">
-              {/* Dynamic menu items from database */}
-              {menuItems.map((item) => renderMenuItem(item, true))}
-              
-              {/* Fallback: Dynamic navigation pages from legacy system */}
-              {menuItems.length === 0 && navigationPages.map((page) => (
-                <Link 
-                  key={page.id} 
-                  href={`/${page.slug}`} 
-                  className="hover:text-vgbf-gold transition-colors"
-                >
-                  {page.title}
-                </Link>
-              ))}
+              {/* Static navigation items */}
+              {staticNavigation.map((item) => renderMenuItem(item, true))}
               
               {isAdminPage && isAuthenticated && (
                 <button
