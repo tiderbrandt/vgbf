@@ -9,28 +9,7 @@ import { NewsArticle, Competition, Club, Sponsor, BoardMember } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
 import { authenticatedApiCall } from '@/lib/api'
 
-// Import Page type for our new pages functionality
-interface Page {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt?: string;
-  author?: string;
-  status: 'draft' | 'published' | 'private';
-  featured_image?: string;
-  featured_image_alt?: string;
-  meta_title?: string;
-  meta_description?: string;
-  meta_keywords?: string;
-  template?: string;
-  show_in_navigation: boolean;
-  navigation_order: number;
-  featured: boolean;
-  view_count: number;
-  created_at: string;
-  updated_at: string;
-}
+
 
 // Modern Icons
 const Icons = {
@@ -116,11 +95,6 @@ const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
     </svg>
   ),
-  Pages: () => (
-    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  ),
   Menu: () => (
     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
@@ -136,7 +110,6 @@ export default function AdminDashboard() {
   const [clubs, setClubs] = useState<Club[]>([])
   const [sponsors, setSponsors] = useState<Sponsor[]>([])
   const [boardMembers, setBoardMembers] = useState<BoardMember[]>([])
-  const [pages, setPages] = useState<Page[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -153,12 +126,7 @@ export default function AdminDashboard() {
     activeClubs: clubs.filter(c => c.welcomesNewMembers).length,
     totalClubs: clubs.length,
     totalSponsors: sponsors.length,
-    totalBoardMembers: boardMembers.length,
-    totalPages: pages.length,
-    publishedPages: pages.filter(p => p.status === 'published').length,
-    featuredPages: pages.filter(p => p.featured).length,
-    draftPages: pages.filter(p => p.status === 'draft').length,
-    navigationPages: pages.filter(p => p.show_in_navigation).length
+    totalBoardMembers: boardMembers.length
   }
 
   // Recent activity (last 5 items)
@@ -187,8 +155,7 @@ export default function AdminDashboard() {
           loadCompetitions(),
           loadClubs(),
           loadSponsors(),
-          loadBoardMembers(),
-          loadPages()
+          loadBoardMembers()
         ])
       } catch (error) {
         console.error('Error loading data:', error)
@@ -260,17 +227,7 @@ export default function AdminDashboard() {
     }
   }
 
-  const loadPages = async () => {
-    try {
-      const response = await fetch('/api/pages')
-      if (response.ok) {
-        const data = await response.json()
-        setPages(data.pages || [])
-      }
-    } catch (error) {
-      console.error('Error loading pages:', error)
-    }
-  }
+
 
   if (loading) {
     return (
@@ -391,23 +348,6 @@ export default function AdminDashboard() {
                 <p className="text-2xl font-bold text-gray-900">19</p>
                 <p className="text-xs text-gray-500">
                   Distriktsrekord
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="p-3 bg-teal-100 rounded-lg">
-                  <Icons.Pages />
-                </div>
-              </div>
-              <div className="ml-4 flex-1">
-                <p className="text-sm font-medium text-gray-600">Sidor</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalPages}</p>
-                <p className="text-xs text-gray-500">
-                  {stats.publishedPages} publicerade
                 </p>
               </div>
             </div>
@@ -663,84 +603,10 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-
-              {/* Enhanced Pages Card */}
-              <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border border-gray-200">
-                <div className="bg-gradient-to-r from-teal-500 to-teal-600 p-1">
-                  <div className="bg-white rounded-lg">
-                    <div className="p-6">
-                      <div className="flex items-center mb-4">
-                        <div className="flex-shrink-0 p-3 bg-teal-100 rounded-xl">
-                          <Icons.Pages />
-                        </div>
-                        <div className="ml-4">
-                          <h3 className="text-xl font-bold text-gray-900">Sidor</h3>
-                          <p className="text-sm text-gray-600">Hantera custom sidor & artiklar</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-3 mb-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-teal-600">{stats.totalPages}</div>
-                          <div className="text-xs text-gray-500">Totalt</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">{stats.publishedPages}</div>
-                          <div className="text-xs text-gray-500">Publicerade</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-orange-600">{stats.draftPages}</div>
-                          <div className="text-xs text-gray-500">Utkast</div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <Link
-                          href="/admin/pages/new"
-                          className="w-full bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-3 rounded-lg hover:from-teal-600 hover:to-teal-700 transition-all duration-200 font-semibold text-sm text-center block"
-                        >
-                          <div className="flex items-center justify-center">
-                            <Icons.Plus />
-                            <span className="ml-2">Skapa ny sida</span>
-                          </div>
-                        </Link>
-                        <Link
-                          href="/admin/pages"
-                          className="w-full bg-gray-100 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-200 transition-all duration-200 font-semibold text-sm text-center block"
-                        >
-                          <div className="flex items-center justify-center">
-                            <Icons.Eye />
-                            <span className="ml-2">Hantera alla ({stats.totalPages})</span>
-                          </div>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Additional Management Cards */}
             <div className="grid md:grid-cols-4 gap-6">
-              {/* Menu Management */}
-              <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-6 border border-gray-200">
-                <div className="flex items-center mb-4">
-                  <div className="flex-shrink-0 p-3 bg-purple-100 rounded-xl">
-                    <Icons.Menu />
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-bold text-gray-900">Menyer</h3>
-                    <p className="text-sm text-gray-600">Hantera navigation</p>
-                  </div>
-                </div>
-                <Link
-                  href="/admin/menus"
-                  className="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-semibold text-sm text-center block"
-                >
-                  Hantera menyer
-                </Link>
-              </div>
-
               {/* Calendar Management */}
               <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 p-6 border border-gray-200">
                 <div className="flex items-center mb-4">
@@ -888,13 +754,13 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm opacity-90">Totalt innehåll</span>
                   <span className="text-lg font-bold">
-                    {stats.totalNews + stats.totalCompetitions + stats.totalClubs + stats.totalPages}
+                    {stats.totalNews + stats.totalCompetitions + stats.totalClubs}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm opacity-90">Aktivt innehåll</span>
                   <span className="text-lg font-bold">
-                    {stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs + stats.publishedPages}
+                    {stats.featuredNews + stats.upcomingCompetitions + stats.activeClubs}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
