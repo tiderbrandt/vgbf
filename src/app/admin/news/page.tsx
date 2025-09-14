@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import { NewsArticle } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
 
@@ -90,12 +91,7 @@ export default function NewsAdminPage() {
                 >
                   Ny nyhet
                 </Link>
-                <Link
-                  href="/admin"
-                  className="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
-                >
-                  Tillbaka till admin
-                </Link>
+                <AdminBackButton />
               </div>
             </div>
 

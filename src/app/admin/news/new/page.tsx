@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import { NewsArticle } from '@/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
@@ -161,12 +162,7 @@ export default function NewNewsPage() {
                 >
                   Rensa
                 </button>
-                <Link
-                  href="/admin"
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Tillbaka
-                </Link>
+                <AdminBackButton />
               </div>
             </div>
 

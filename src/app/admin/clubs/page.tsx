@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import { Club } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
 
@@ -97,12 +98,7 @@ export default function AdminClubsPage() {
               <p className="text-gray-600 mt-2">Administrera klubbar och föreningar</p>
             </div>
             <div className="flex gap-4">
-              <Link
-                href="/admin"
-                className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                ← Tillbaka till admin
-              </Link>
+              <AdminBackButton />
               <Link
                 href="/admin/clubs/new"
                 className="bg-vgbf-gold text-vgbf-blue px-6 py-2 rounded-lg hover:bg-yellow-300 transition-colors font-semibold"

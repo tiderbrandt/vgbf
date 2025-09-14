@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 import { Sponsor } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
 
@@ -117,12 +118,7 @@ export default function SponsorsAdminPage() {
               >
                 Lägg till ny sponsor
               </Link>
-              <Link
-                href="/admin"
-                className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
-              >
-                Tillbaka till admin
-              </Link>
+              <AdminBackButton />
             </div>
           </div>
 

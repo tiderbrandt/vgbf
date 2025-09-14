@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AdminBackButton from '@/components/AdminBackButton'
 
 export default function EditDistriktsrekordInfoPage() {
   const [content, setContent] = useState('')
@@ -87,12 +88,7 @@ export default function EditDistriktsrekordInfoPage() {
           
           {/* Header */}
           <div className="mb-8">
-            <Link href="/admin" className="text-vgbf-blue hover:text-blue-700 mb-4 inline-flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Tillbaka till admin
-            </Link>
+            <AdminBackButton className="mb-4" />
             <h1 className="text-3xl font-bold text-gray-900">Redigera distriktsrekord-information</h1>
             <p className="text-gray-600 mt-2">
               Ändra informationstexten som visas på distriktsrekord-sidan
