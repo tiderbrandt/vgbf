@@ -83,32 +83,6 @@ export default function Footer() {
                 </li>
               </ul>
             </nav>
-
-            <section aria-labelledby="contact-heading" className="mt-8">
-              <h3 id="contact-heading" className="font-semibold mb-4">Kontakt</h3>
-              <div className="text-sm text-gray-200 space-y-3">
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-100">Postadress:</div>
-                  <div className="pl-1">
-                    Bengt Idéhn<br />
-                    Änghagsliden 114<br />
-                    423 49 Torslanda
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-100">Telefon:</div>
-                  <div className="pl-1">
-                    <a href="tel:0705463466" className="text-gray-200 hover:text-vgbf-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vgbf-gold rounded transition-colors">0705 46 34 66</a>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-100">E-post:</div>
-                  <div className="pl-1">
-                    <a href="mailto:VastraGotalandsBF@bagskytte.se" className="text-gray-200 hover:text-vgbf-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vgbf-gold rounded transition-colors break-all">VastraGotalandsBF@bagskytte.se</a>
-                  </div>
-                </div>
-              </div>
-            </section>
           </div>
 
           <div>
