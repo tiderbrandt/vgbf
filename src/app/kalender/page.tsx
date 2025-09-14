@@ -208,7 +208,12 @@ export default function CalendarPage() {
     <main className="min-h-screen bg-white">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Kalender"
+        subtitle="Kommande evenemang och aktiviteter inom VGBF"
+        description="Håll koll på alla viktiga datum för tävlingar, kurser, möten och andra aktiviteter."
+        showButtons={false}
+      />
       
       <div className="bg-gray-50">
         <div className="container mx-auto px-4 py-8">

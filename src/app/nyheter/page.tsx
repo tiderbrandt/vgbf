@@ -19,7 +19,12 @@ export default async function NewsPage() {
     <main className="min-h-screen bg-white">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Nyheter"
+        subtitle="Håll dig uppdaterad med de senaste nyheterna från Västra Götalands Bågskytteförbund"
+        description="Upptäck aktuella händelser, tävlingsresultat och viktiga meddelanden från distriktet."
+        showButtons={false}
+      />
 
       {/* Content section with consistent styling */}
       <section className="container mx-auto px-4 py-8">

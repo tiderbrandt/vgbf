@@ -131,7 +131,12 @@ export default function CompetitionsPage() {
     <main className="min-h-screen bg-gray-50">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Tävlingar"
+        subtitle="Upptäck kommande tävlingar, följ pågående evenemang och se resultat från avslutade tävlingar"
+        description="Här hittar du alla tävlingar inom distriktet samt externa tävlingar som kan vara av intresse."
+        showButtons={false}
+      />
       
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">

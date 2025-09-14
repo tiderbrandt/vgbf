@@ -56,7 +56,12 @@ export default function KontaktPage() {
     <main className="min-h-screen bg-white">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Kontakt"
+        subtitle="Ta kontakt med Västra Götalands Bågskytteförbund"
+        description="Här hittar du kontaktuppgifter till förbundet och våra funktionärer."
+        showButtons={false}
+      />
       
       <div className="bg-gray-50">
         <div className="container mx-auto px-4 py-8">

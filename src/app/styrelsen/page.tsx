@@ -57,7 +57,12 @@ export default function StylesenPage() {
     <main className="min-h-screen bg-white">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Styrelsen"
+        subtitle="Västra Götalands Bågskytteförbund styrelse sammansatt efter årsmötet 30/3 2025"
+        description="Styrelsen arbetar för att främja bågskyttet i regionen och stödja våra medlemsklubbar."
+        showButtons={false}
+      />
       
       <div className="bg-gray-50">
         <div className="container mx-auto px-4 py-8">

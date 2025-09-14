@@ -54,7 +54,12 @@ export default async function DistriktsrekordPage() {
     <main className="min-h-screen bg-gray-50">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Distriktsrekord"
+        subtitle="Västra Götalands Bågskytteförbund officiella distriktsrekord"
+        description="Här hittar du alla aktuella distriktsrekord för Västra Götaland i bågskytesporten."
+        showButtons={false}
+      />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">

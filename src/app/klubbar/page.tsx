@@ -74,7 +74,12 @@ export default function ClubsPage() {
     <main className="min-h-screen bg-gray-50">
       <Header />
       
-      <Hero />
+      <Hero 
+        title="Klubbar i Västra Götaland"
+        subtitle="Upptäck bågskytteklubbar i vårt distrikt och hitta den som passar dig bäst"
+        description="Använd sökfunktionen och filtren nedan för att hitta klubbar i ditt område."
+        showButtons={false}
+      />
       
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">
