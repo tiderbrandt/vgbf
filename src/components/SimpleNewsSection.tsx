@@ -67,16 +67,8 @@ export default async function SimpleNewsSection() {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-vgbf-blue mb-4">Nyheter</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Håll dig uppdaterad med de senaste nyheterna från Västra Götalands Bågskytteförbund och svensk idrott
-          </p>
-        </div>
-
-        {/* Local VGBF News */}
+    <div>
+      {/* Local VGBF News */}
         {local.length > 0 && (
           <div className="mb-8">
             <h3 className="text-2xl font-bold text-vgbf-blue mb-6">VGBF Nyheter</h3>
@@ -195,7 +187,6 @@ export default async function SimpleNewsSection() {
             Se alla VGBF nyheter
           </Link>
         </div>
-      </div>
-    </section>
+    </div>
   )
 }
