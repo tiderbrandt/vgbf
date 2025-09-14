@@ -143,17 +143,23 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Records and Sponsors */}
+      {/* Records Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="grid gap-16 lg:grid-cols-2">
-              <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 border border-gray-100">
-                <RecordsHighlight />
-              </div>
-              <div className="bg-gradient-to-br from-gray-50 to-green-50 rounded-2xl p-8 border border-gray-100">
-                <SponsorsSection />
-              </div>
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 border border-gray-100">
+              <RecordsHighlight />
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Sponsors Section */}
+      <section className="py-20 bg-gradient-to-br from-gray-50 to-green-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-white rounded-2xl p-12 border border-gray-100 shadow-lg">
+              <SponsorsSection />
             </div>
           </div>
         </div>
