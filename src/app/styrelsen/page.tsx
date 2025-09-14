@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 import { BoardData } from '@/types'
 
 export default function StylesenPage() {
@@ -54,14 +54,10 @@ export default function StylesenPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white page-with-logo-bg">
+    <main className="min-h-screen bg-white">
       <Header />
       
-      <PageHero 
-        title="Styrelsen"
-        description="Västra Götalands Bågskytteförbund styrelse sammansatt efter årsmötet 30/3 2025"
-        subtitle="Styrelsen arbetar för att främja bågskyttet i regionen och stödja våra medlemsklubbar."
-      />
+      <Hero />
       
       <div className="bg-gray-50">
         <div className="container mx-auto px-4 py-8">

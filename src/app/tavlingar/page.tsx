@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 import CompetitionsMap from '@/components/CompetitionsMap'
 import { Competition } from '@/types'
 
@@ -128,14 +128,10 @@ export default function CompetitionsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 page-with-logo-bg">
+    <main className="min-h-screen bg-gray-50">
       <Header />
       
-      <PageHero 
-        title="Tävlingar"
-        description="Upptäck kommande tävlingar, följ pågående evenemang och se resultat från avslutade tävlingar"
-        subtitle="Här hittar du alla tävlingar inom distriktet samt externa tävlingar som kan vara av intresse."
-      />
+      <Hero />
       
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 import { ContactData } from '@/types'
 
 export default function KontaktPage() {
@@ -53,14 +53,10 @@ export default function KontaktPage() {
     )
   }
   return (
-    <main className="min-h-screen bg-white page-with-logo-bg">
+    <main className="min-h-screen bg-white">
       <Header />
       
-      <PageHero 
-        title="Kontakt"
-        description="Ta kontakt med Västra Götalands Bågskytteförbund"
-        subtitle="Här hittar du kontaktuppgifter till förbundet och våra funktionärer."
-      />
+      <Hero />
       
       <div className="bg-gray-50">
         <div className="container mx-auto px-4 py-8">

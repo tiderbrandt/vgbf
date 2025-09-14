@@ -3,7 +3,7 @@ import { getAllRecords as getDistrictRecords } from '@/lib/records-storage-postg
 import { getDistriktsrekordInfo } from '@/lib/settings-storage-postgres'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 
 // Function to format text with email links
 function formatTextWithEmailLinks(text: string) {
@@ -51,14 +51,10 @@ export default async function DistriktsrekordPage() {
   }, {})
 
   return (
-    <main className="min-h-screen bg-gray-50 page-with-logo-bg">
+    <main className="min-h-screen bg-gray-50">
       <Header />
       
-      <PageHero 
-        title="Distriktsrekord"
-        description="Västra Götalands Bågskytteförbund officiella distriktsrekord"
-        subtitle="Här hittar du alla aktuella distriktsrekord för Västra Götaland i bågskytesporten."
-      />
+      <Hero />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 import { CalendarEvent } from '@/types'
 
 // Type for external competitions from ICS feed
@@ -205,14 +205,10 @@ export default function CalendarPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white page-with-logo-bg">
+    <main className="min-h-screen bg-white">
       <Header />
       
-      <PageHero 
-        title="Kalender"
-        description="Kommande evenemang och aktiviteter inom VGBF"
-        subtitle="Håll koll på alla viktiga datum för tävlingar, kurser, möten och andra aktiviteter."
-      />
+      <Hero />
       
       <div className="bg-gray-50">
         <div className="container mx-auto px-4 py-8">

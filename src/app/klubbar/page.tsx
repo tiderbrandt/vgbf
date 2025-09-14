@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 import ClubsMap from '@/components/ClubsMap'
 import { Club } from '@/types'
 
@@ -71,14 +71,10 @@ export default function ClubsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 page-with-logo-bg">
+    <main className="min-h-screen bg-gray-50">
       <Header />
       
-      <PageHero 
-        title="Klubbar i Västra Götaland"
-        description="Upptäck bågskytteklubbar i vårt distrikt och hitta den som passar dig bäst"
-        subtitle="Använd sökfunktionen och filtren nedan för att hitta klubbar i ditt område."
-      />
+      <Hero />
       
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-6xl mx-auto">

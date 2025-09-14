@@ -1,6 +1,6 @@
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import PageHero from '@/components/PageHero'
+import Hero from '@/components/Hero'
 import NewsClient from '@/components/NewsClient'
 import { Metadata } from 'next'
 
@@ -16,14 +16,10 @@ export const fetchCache = 'force-no-store'
 
 export default async function NewsPage() {
   return (
-    <main className="min-h-screen bg-white page-with-logo-bg">
+    <main className="min-h-screen bg-white">
       <Header />
       
-      <PageHero 
-        title="Nyheter"
-        description="Håll dig uppdaterad med de senaste nyheterna från Västra Götalands Bågskytteförbund"
-        subtitle="Upptäck aktuella händelser, tävlingsresultat och viktiga meddelanden från distriktet."
-      />
+      <Hero />
 
       {/* Content section with consistent styling */}
       <section className="container mx-auto px-4 py-8">
