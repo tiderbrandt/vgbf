@@ -110,33 +110,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* News and Events Section */}
+      {/* News Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-vgbf-blue mb-6">
-                Aktuella nyheter & evenemang
+                Aktuella nyheter
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Håll dig uppdaterad med senaste nytt, viktiga meddelanden och kommande publika evenemang
+                Håll dig uppdaterad med senaste nytt och viktiga meddelanden från VGBF
               </p>
             </div>
 
-            <div className="grid gap-12 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                  <SimpleNewsSection />
-                </div>
-              </div>
+            <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <SimpleNewsSection />
+            </div>
+          </div>
+        </div>
+      </section>
 
-              <div className="lg:col-span-1">
-                <div className="lg:sticky lg:top-24">
-                  <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-                    <UpcomingEvents />
-                  </div>
-                </div>
-              </div>
+      {/* Events Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold text-vgbf-blue mb-6">
+                Kommande evenemang
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                Kommande publika evenemang och aktiviteter inom förbundet
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl shadow-lg p-8 border border-gray-100">
+              <UpcomingEvents />
             </div>
           </div>
         </div>
