@@ -29,6 +29,7 @@ export default function PageList({
   const fetchPages = async () => {
     try {
       setLoading(true);
+      setError(''); // Clear previous error
       console.log('PageList: Starting fetch with props:', { showFeaturedOnly, showInNavigation, limit });
       
       const params = new URLSearchParams({
@@ -50,11 +51,23 @@ export default function PageList({
       const url = `/api/pages?${params}`;
       console.log('PageList: Fetching URL:', url);
       
-      const response = await fetch(url);
+      // Add timeout to fetch
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(url, { 
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+      clearTimeout(timeoutId);
+      
       console.log('PageList: Response received:', response.status, response.statusText);
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch pages: ${response.status} ${response.statusText}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
       const data = await response.json();
@@ -65,11 +78,19 @@ export default function PageList({
         console.log('PageList: Set pages:', data.pages.length, 'items');
       } else {
         console.error('PageList: Invalid data structure:', data);
-        setError('Invalid data received');
+        setError('Invalid data received from server');
       }
     } catch (err) {
       console.error('PageList: Fetch error:', err);
-      setError(`Error: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          setError('Request timed out after 10 seconds');
+        } else {
+          setError(`Error: ${err.message}`);
+        }
+      } else {
+        setError('Unknown error occurred');
+      }
     } finally {
       setLoading(false);
       console.log('PageList: Fetch completed, loading=false');
@@ -78,11 +99,16 @@ export default function PageList({
 
   if (loading) {
     return (
-      <div className={`animate-pulse ${className}`}>
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-24 bg-gray-200 rounded"></div>
-          ))}
+      <div className={`${className}`}>
+        <div className="text-center py-8">
+          <div className="animate-pulse mb-4">
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+          <p className="text-sm text-gray-500">Loading viktiga sidor...</p>
         </div>
       </div>
     );
@@ -91,8 +117,17 @@ export default function PageList({
   if (error) {
     return (
       <div className={`text-red-600 ${className}`}>
-        <p>{error}</p>
-        <p className="text-sm mt-2">Debug: showFeaturedOnly={showFeaturedOnly ? 'true' : 'false'}, limit={limit}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="font-semibold mb-2">Debug Information</h3>
+          <p className="text-sm mb-2">{error}</p>
+          <p className="text-xs text-gray-600">Props: showFeaturedOnly={showFeaturedOnly ? 'true' : 'false'}, limit={limit}</p>
+          <button 
+            onClick={fetchPages}
+            className="mt-2 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
