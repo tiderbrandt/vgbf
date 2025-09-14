@@ -141,9 +141,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl shadow-lg p-8 border border-gray-100">
-              <UpcomingEvents />
-            </div>
+            <UpcomingEvents />
           </div>
         </div>
       </section>
@@ -152,9 +150,7 @@ export default function Home() {
       <section className="py-20 bg-gradient-to-br from-gray-50 to-green-50">
         <div className="container mx-auto px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-2xl p-12 border border-gray-100 shadow-lg">
-              <SponsorsSection />
-            </div>
+            <SponsorsSection />
           </div>
         </div>
       </section>

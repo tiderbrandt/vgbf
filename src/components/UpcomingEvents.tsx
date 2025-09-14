@@ -83,51 +83,41 @@ export default async function UpcomingEvents() {
 
     if (upcomingEvents.length === 0) {
       return (
-        <div className="py-8">
-          <div className="container mx-auto px-4">
-            <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Kommande evenemang</h3>
-            <p className="text-gray-700 mb-4 text-lg">Inga publika evenemang planerade för tillfället.</p>
-            <Link href="/kalender" className="inline-block text-vgbf-blue hover:text-blue-700 font-medium transition-colors">
-              Se kalender →
-            </Link>
-          </div>
+        <div className="text-center">
+          <p className="text-gray-700 mb-4 text-lg">Inga publika evenemang planerade för tillfället.</p>
+          <Link href="/kalender" className="inline-block text-vgbf-blue hover:text-blue-700 font-medium transition-colors">
+            Se kalender →
+          </Link>
         </div>
       )
     }
 
     return (
-      <div className="py-8">
-        <div className="container mx-auto px-4">
-          <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Kommande evenemang</h3>
-          
-          <div className="grid gap-4">
-            {upcomingEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-          
-          <div className="mt-6 pt-4">
-            <Link 
-              href="/kalender" 
-              className="inline-flex items-center gap-2 text-vgbf-blue hover:text-blue-700 font-medium transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
-              </svg>
-              Se alla evenemang
-            </Link>
-          </div>
+      <div>
+        <div className="grid gap-4">
+          {upcomingEvents.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
+        
+        <div className="mt-6 pt-4 text-center">
+          <Link 
+            href="/kalender" 
+            className="inline-flex items-center gap-2 text-vgbf-blue hover:text-blue-700 font-medium transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
+            </svg>
+            Se alla evenemang
+          </Link>
         </div>
       </div>
     )
   } catch (error) {
     console.error('UpcomingEvents: Error loading events:', error)
     return (
-      <div className="py-8">
-        <div className="container mx-auto px-4">
-          <h3 className="text-2xl font-bold text-vgbf-blue mb-6">Kommande evenemang</h3>
-          <p className="text-red-600 text-lg">Fel vid laddning av evenemang.</p>
-        </div>
+      <div className="text-center">
+        <p className="text-red-600 text-lg">Fel vid laddning av evenemang.</p>
       </div>
     )
   }
