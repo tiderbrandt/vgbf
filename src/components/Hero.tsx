@@ -1,6 +1,6 @@
 export default function Hero() {
   return (
-    <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-red text-white py-20">
+    <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-red text-white py-20 hero-with-logo-bg">
       <div className="container mx-auto px-4 text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
           Västra Götalands

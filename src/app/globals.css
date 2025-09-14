@@ -9,25 +9,28 @@
   z-index: 1;
 }
 
-/* Page-wide background logo */
-.page-with-logo-bg {
+/* Remove the broken page-wide logo for now */
+
+/* Hero logo background for PageHero components */
+.hero-with-logo-bg {
   position: relative;
   overflow: visible;
 }
-.page-with-logo-bg::before {
+.hero-with-logo-bg::after {
   content: '';
   position: absolute;
-  top: 8rem;
+  top: 50%;
   right: 2rem;
-  width: 300px;
-  height: 300px;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 200px;
   background-image: url('/vgbf-logo.png');
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
-  opacity: 0.04;
+  opacity: 0.06;
   pointer-events: none;
-  filter: saturate(0) brightness(1.2);
+  filter: saturate(0) brightness(1.1);
   z-index: 1;
 } -webkit-line-clamp: 3;
     line-clamp: 3;

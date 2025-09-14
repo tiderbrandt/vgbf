@@ -14,7 +14,7 @@ export default function PageHero({
   featuredImageAlt 
 }: PageHeroProps) {
   return (
-    <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-red text-white py-16 relative overflow-hidden">
+    <section className="bg-gradient-to-b from-vgbf-blue to-vgbf-red text-white py-16 relative overflow-hidden hero-with-logo-bg">
       {/* Background image if provided */}
       {featuredImage && (
         <div className="absolute inset-0 z-0">
