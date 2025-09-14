@@ -1,7 +1,6 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import SimpleNewsSection from '@/components/SimpleNewsSection'
-import RecordsHighlight from '@/components/RecordsHighlight'
 import SponsorsSection from '@/components/SponsorsSection'
 import UpcomingEvents from '@/components/UpcomingEvents'
 import Footer from '@/components/Footer'
@@ -138,17 +137,6 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      
-      {/* Records Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 border border-gray-100">
-              <RecordsHighlight />
             </div>
           </div>
         </div>
