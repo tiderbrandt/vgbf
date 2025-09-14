@@ -102,26 +102,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* News and Events Section */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="mb-6 text-center md:text-left">
-          <h2 className="text-2xl font-bold text-vgbf-blue">Aktuella nyheter & evenemang</h2>
-          <p className="text-gray-600 mt-2">Senaste nytt, viktiga meddelanden och kommande publika evenemang.</p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <SimpleNewsSection />
-          </div>
-
-          <div className="md:col-span-1">
-            <div className="md:sticky md:top-24">
-              <UpcomingEvents />
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Membership and Activities Information */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
@@ -169,6 +149,26 @@ export default function Home() {
                   Få tillgång till kurser, instruktörer och kontinuerlig utveckling av din teknik
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* News and Events Section */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="mb-6 text-center md:text-left">
+          <h2 className="text-2xl font-bold text-vgbf-blue">Aktuella nyheter & evenemang</h2>
+          <p className="text-gray-600 mt-2">Senaste nytt, viktiga meddelanden och kommande publika evenemang.</p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="md:col-span-2">
+            <SimpleNewsSection />
+          </div>
+
+          <div className="md:col-span-1">
+            <div className="md:sticky md:top-24">
+              <UpcomingEvents />
             </div>
           </div>
         </div>
