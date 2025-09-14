@@ -1,7 +1,6 @@
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import SimpleNewsSection from '@/components/SimpleNewsSection'
-import CompetitionsSection from '@/components/CompetitionsSection'
 import RecordsHighlight from '@/components/RecordsHighlight'
 import SponsorsSection from '@/components/SponsorsSection'
 import UpcomingEvents from '@/components/UpcomingEvents'
@@ -12,6 +11,35 @@ export default function Home() {
     <main className="min-h-screen bg-white">
       <Header />
       <Hero />
+      
+      {/* Om Västra Götalands Bågskytteförbund - Overview Section */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold text-vgbf-blue mb-6">Om Västra Götalands Bågskytteförbund</h2>
+            <p className="text-lg text-gray-700 mb-8 leading-relaxed">
+              Västra Götalands Bågskytteförbund (VGBF) är det regionala förbundet som samlar bågskyttar 
+              i Västra Götalands län. Vi arbetar för att utveckla och främja bågskyttesporten genom att 
+              koordinera tävlingar, utbildningar och stödja våra medlemsklubbar i deras verksamhet.
+            </p>
+            <div className="grid gap-6 md:grid-cols-3 text-center">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="text-3xl font-bold text-vgbf-blue mb-2">25+</div>
+                <div className="text-gray-600">Aktiva klubbar</div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="text-3xl font-bold text-vgbf-green mb-2">1000+</div>
+                <div className="text-gray-600">Aktiva medlemmar</div>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <div className="text-3xl font-bold text-orange-500 mb-2">50+</div>
+                <div className="text-gray-600">Tävlingar per år</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
       <section className="container mx-auto px-4 py-8">
         <div className="mb-6 text-center md:text-left">
           <h2 className="text-2xl font-bold text-vgbf-blue">Aktuella nyheter & evenemang</h2>
@@ -30,7 +58,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <CompetitionsSection />
       
       {/* About VGBF Information Section */}
       <section className="py-16 bg-gray-50">

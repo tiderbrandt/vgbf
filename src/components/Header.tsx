@@ -35,12 +35,6 @@ const staticNavigation: MenuItem[] = [
     target: '_self'
   },
   {
-    id: 'competitions',
-    title: 'Tävlingar',
-    url: '/tavlingar',
-    target: '_self'
-  },
-  {
     id: 'records',
     title: 'Distriktsrekord',
     url: '/distriktsrekord',
@@ -72,8 +66,8 @@ export default function Header() {
         target={item.target}
         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
           isActive
-            ? 'text-vgbf-blue bg-blue-50'
-            : 'text-gray-700 hover:text-vgbf-blue hover:bg-gray-50'
+            ? 'text-yellow-300 bg-blue-800'
+            : 'text-white hover:text-yellow-300 hover:bg-blue-800'
         }`}
         onClick={() => isMobile && setIsMenuOpen(false)}
       >
