@@ -19,8 +19,8 @@ export default function SponsorsSection() {
         const data = await response.json()
         // Only show active sponsors, sorted by priority
         const activeSponsors = data.data
-          .filter((sponsor: Sponsor) => sponsor.isActive)
-          .sort((a: Sponsor, b: Sponsor) => a.priority - b.priority)
+          ?.filter((sponsor: Sponsor) => sponsor.isActive)
+          ?.sort((a: Sponsor, b: Sponsor) => a.priority - b.priority) || []
         setSponsors(activeSponsors)
       }
     } catch (error) {

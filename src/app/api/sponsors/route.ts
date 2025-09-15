@@ -21,7 +21,24 @@ export async function GET(request: NextRequest) {
       return createUnauthorizedResponse()
     }
     
-    const sponsors = await getAllSponsors(includeInactive)
+    let sponsors
+    try {
+      sponsors = await getAllSponsors(includeInactive)
+    } catch (dbError) {
+      console.log('Database sponsors failed, using JSON fallback:', dbError)
+      // Fallback to JSON data
+      const fs = require('fs')
+      const path = require('path')
+      const jsonPath = path.join(process.cwd(), 'data', 'sponsors.json')
+      
+      if (fs.existsSync(jsonPath)) {
+        const jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'))
+        sponsors = includeInactive ? jsonData : jsonData.filter((s: any) => s.isActive !== false)
+      } else {
+        sponsors = []
+      }
+    }
+    
     return NextResponse.json({ success: true, data: sponsors })
   } catch (error) {
     console.error('Error fetching sponsors:', error)
