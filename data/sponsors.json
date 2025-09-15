@@ -1,0 +1,14 @@
+[
+  {
+    "id": "consid-2025",
+    "name": "Consid",
+    "description": "Consid är en ledande IT-konsultfirma som stödjer VGBF:s verksamhet.",
+    "website": "https://consid.se/",
+    "logoUrl": "/uploads/sponsors/1756975495715-5rsvt4-consid-se-logo-2.png",
+    "logoAlt": "Consid logotyp",
+    "priority": 1,
+    "isActive": true,
+    "addedDate": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-09-04T08:45:00.079Z"
+  }
+]
