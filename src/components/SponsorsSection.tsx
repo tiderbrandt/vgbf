@@ -34,13 +34,11 @@ export default function SponsorsSection() {
     return (
       <div>
         <h2 className="text-2xl font-bold text-vgbf-blue mb-6">Våra Sponsorer</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-white rounded-xl shadow-md border border-gray-100 p-4">
               <div className="animate-pulse">
-                <div className="h-24 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                <div className="h-16 bg-gray-200 rounded"></div>
               </div>
             </div>
           ))}
@@ -64,10 +62,10 @@ export default function SponsorsSection() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
         {sponsors.map((sponsor) => (
-          <article key={sponsor.id} className="group bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-2 transform transition-all duration-300">
-            <div className="p-6">
+          <article key={sponsor.id} className="group bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transform transition-all duration-300">
+            <div className="p-4">
               {sponsor.logoUrl ? (
                 sponsor.website ? (
                   <a 
@@ -75,9 +73,9 @@ export default function SponsorsSection() {
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="block hover:opacity-80 transition-opacity"
-                    title={sponsor.description || sponsor.name}
+                    title={sponsor.name}
                   >
-                    <div className="relative w-full h-24 mb-4 flex items-center justify-center">
+                    <div className="relative w-full h-16 flex items-center justify-center">
                       <Image
                         src={sponsor.logoUrl}
                         alt={sponsor.logoAlt || sponsor.name}
@@ -88,8 +86,8 @@ export default function SponsorsSection() {
                   </a>
                 ) : (
                   <div 
-                    className="relative w-full h-24 mb-4 flex items-center justify-center"
-                    title={sponsor.description || sponsor.name}
+                    className="relative w-full h-16 flex items-center justify-center"
+                    title={sponsor.name}
                   >
                     <Image
                       src={sponsor.logoUrl}
@@ -100,35 +98,10 @@ export default function SponsorsSection() {
                   </div>
                 )
               ) : (
-                <div className="h-24 mb-4 flex items-center justify-center bg-gradient-to-br from-vgbf-blue/5 to-vgbf-green/5 rounded-lg">
-                  <span className="text-2xl font-bold text-vgbf-blue">{sponsor.name.charAt(0)}</span>
+                <div className="h-16 flex items-center justify-center bg-gradient-to-br from-vgbf-blue/5 to-vgbf-green/5 rounded-lg">
+                  <span className="text-xl font-bold text-vgbf-blue">{sponsor.name.charAt(0)}</span>
                 </div>
               )}
-
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-vgbf-blue mb-3 group-hover:text-vgbf-green transition-colors duration-200 leading-tight">{sponsor.name}</h3>
-                {sponsor.description && (
-                  <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">{sponsor.description}</p>
-                )}
-                
-                <div className="flex items-center justify-center pt-2 border-t border-gray-100">
-                  {sponsor.website ? (
-                    <a
-                      href={sponsor.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-vgbf-blue font-semibold hover:text-vgbf-green transition-colors duration-200 group/link"
-                    >
-                      Besök webbplats
-                      <svg className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
-                  ) : (
-                    <span className="text-sm text-gray-500">Partner</span>
-                  )}
-                </div>
-              </div>
             </div>
           </article>
         ))}
