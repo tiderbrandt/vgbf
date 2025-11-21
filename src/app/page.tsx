@@ -7,9 +7,10 @@ import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <>
       <Header />
-      <Hero />
+      <main className="min-h-screen bg-white">
+        <Hero />
       
       {/* Om Västra Götalands Bågskytteförbund - Overview Section */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
@@ -156,6 +157,7 @@ export default function Home() {
       </section>
       
       <Footer />
-    </main>
+      </main>
+    </>
   )
 }
