@@ -95,7 +95,7 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-vgbf-blue text-white shadow-lg header-with-logo-bg">
+    <header className="bg-vgbf-blue text-white shadow-lg header-with-logo-bg">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           {/* Logo and Title */}
