@@ -48,3 +48,10 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+*.tsbuildinfo
+test-image.png
+server.log
+
+# Test and migration scripts (keep in source control but ignore temporary versions)
+*.test.local.js
+*.test.local.ts

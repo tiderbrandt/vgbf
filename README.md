@@ -277,6 +277,19 @@ Custom VGBF colors defined in `tailwind.config.js`:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+## 📚 Documentation
+
+Comprehensive documentation is available in the [`docs/`](./docs) directory:
+
+- **Architecture**: System design and code structure guides
+- **Deployment**: Production setup and deployment instructions
+- **Features**: Documentation for implemented features
+- **Migrations**: Database and infrastructure migration guides
+- **Troubleshooting**: Common issues and solutions
+- **Testing**: See [TESTING.md](./TESTING.md) for testing guidelines
+
+Visit the [Documentation Index](./docs/README.md) for the complete documentation catalog.
+
 ## License
 
 This project is licensed under the MIT License.
