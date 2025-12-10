@@ -27,14 +27,6 @@ const L = typeof window !== 'undefined' ? require('leaflet') : null
 
 // Load Leaflet CSS dynamically
 if (typeof window !== 'undefined' && L) {
-  // Only load Leaflet CSS when component is used
-  if (!document.querySelector('link[href*="leaflet.css"]')) {
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css'
-    document.head.appendChild(link)
-  }
-
   delete (L.Icon.Default.prototype as any)._getIconUrl
   L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
