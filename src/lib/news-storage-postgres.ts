@@ -51,17 +51,65 @@ function newsArticleToDbRow(article: Partial<NewsArticle>): any {
 }
 
 /**
- * Get all news articles
+ * Get all news articles (legacy support, prefers getNewsPreviews for list)
  */
 export async function getAllNews(): Promise<NewsArticle[]> {
   try {
     const result = await sql`SELECT * FROM news_articles WHERE is_published = true ORDER BY published_date DESC`
-    // Handle both pg Pool result (result.rows) and Neon direct array result
     const rows = Array.isArray(result) ? result : (result.rows || [])
     return rows.map(dbRowToNewsArticle)
   } catch (error) {
     console.error('Error getting all news:', error)
     throw new Error('Failed to fetch news articles')
+  }
+}
+
+/**
+ * Get news previews (lightweight, no content)
+ */
+export async function getNewsPreviews(): Promise<NewsArticle[]> {
+  try {
+    // Select all columns EXCEPT 'content' to reduce payload size
+    const result = await sql`
+      SELECT 
+        id, title, excerpt, published_date, author, slug, 
+        is_featured, image_url, image_alt, tags 
+      FROM news_articles 
+      WHERE is_published = true 
+      ORDER BY published_date DESC
+    `
+    const rows = Array.isArray(result) ? result : (result.rows || [])
+    
+    // Map manually to avoid missing fields issue in dbRowToNewsArticle if we strictly required content
+    // But our mapper handles empty content fine, so we can reuse it or make a lightweight one.
+    // dbRowToNewsArticle sets content to '' if missing, which is perfect for previews.
+    return rows.map(dbRowToNewsArticle)
+  } catch (error) {
+    console.error('Error getting news previews:', error)
+    throw new Error('Failed to fetch news previews')
+  }
+}
+
+/**
+ * Get related news (excluding current, sharing tags is a bonus but for now just recent)
+ */
+export async function getRelatedNews(currentSlug: string, limit: number = 3): Promise<NewsArticle[]> {
+  try {
+    const result = await sql`
+      SELECT 
+       id, title, excerpt, published_date, author, slug, 
+        is_featured, image_url, image_alt, tags
+      FROM news_articles 
+      WHERE is_published = true 
+      AND slug != ${currentSlug}
+      ORDER BY published_date DESC 
+      LIMIT ${limit}
+    `
+    const rows = Array.isArray(result) ? result : (result.rows || [])
+    return rows.map(dbRowToNewsArticle)
+  } catch (error) {
+    console.error('Error getting related news:', error)
+    return [] // Return empty array instead of failing completely
   }
 }
 

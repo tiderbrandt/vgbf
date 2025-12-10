@@ -11,37 +11,48 @@ interface NewsClientProps {
 
 export default function NewsClient({ initialNews }: NewsClientProps) {
   const [news] = useState<NewsArticle[]>(initialNews)
-  
+
+  const ITEMS_PER_PAGE = 9
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState('')
   const [filterAuthor, setFilterAuthor] = useState('')
+  const [filterTag, setFilterTag] = useState('')
   const [filterFeatured, setFilterFeatured] = useState<'all' | 'featured' | 'normal'>('all')
   const [sortBy, setSortBy] = useState<'date-desc' | 'date-asc' | 'title'>('date-desc')
+  const [currentPage, setCurrentPage] = useState(1)
 
-  // Get unique authors for filter dropdown
-  const authors = useMemo(() => {
+  // Get unique authors and tags for filter dropdowns
+  const { authors, tags } = useMemo(() => {
     const uniqueAuthors = Array.from(new Set(news.map(article => article.author).filter(Boolean)))
-    return uniqueAuthors.sort()
+    const uniqueTags = Array.from(new Set(news.flatMap(article => article.tags || []).filter(Boolean)))
+    return {
+      authors: uniqueAuthors.sort(),
+      tags: uniqueTags.sort()
+    }
   }, [news])
 
   // Filter and sort news articles
   const filteredAndSortedNews = useMemo(() => {
     let filtered = news.filter(article => {
       // Search filter
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
         article.content.toLowerCase().includes(searchTerm.toLowerCase())
-      
+
       // Author filter
       const matchesAuthor = filterAuthor === '' || article.author === filterAuthor
-      
+
       // Featured filter
-      const matchesFeatured = filterFeatured === 'all' || 
+      const matchesFeatured = filterFeatured === 'all' ||
         (filterFeatured === 'featured' && article.featured) ||
         (filterFeatured === 'normal' && !article.featured)
-      
-      return matchesSearch && matchesAuthor && matchesFeatured
+
+      // Tag filter
+      const matchesTag = filterTag === '' || (article.tags && article.tags.includes(filterTag))
+
+      return matchesSearch && matchesAuthor && matchesFeatured && matchesTag
     })
 
     // Sort articles
@@ -59,21 +70,35 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
     })
 
     return filtered
-  }, [news, searchTerm, filterAuthor, filterFeatured, sortBy])
+  }, [news, searchTerm, filterAuthor, filterFeatured, filterTag, sortBy])
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAndSortedNews.length / ITEMS_PER_PAGE)
+  const currentNews = filteredAndSortedNews.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  )
+
+  // Reset page when filters change
+  useMemo(() => {
+    setCurrentPage(1)
+  }, [searchTerm, filterAuthor, filterFeatured, filterTag, sortBy])
 
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm('')
     setFilterAuthor('')
+    setFilterTag('')
     setFilterFeatured('all')
     setSortBy('date-desc')
+    setCurrentPage(1)
   }
 
   return (
     <div className="space-y-6">
       {/* Search and Filter Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {/* Search Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -101,6 +126,23 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
               <option value="">Alla författare</option>
               {authors.map(author => (
                 <option key={author} value={author}>{author}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Tag Filter */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Kategori/Tag
+            </label>
+            <select
+              value={filterTag}
+              onChange={(e) => setFilterTag(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
+            >
+              <option value="">Alla kategorier</option>
+              {tags.map(tag => (
+                <option key={tag} value={tag}>{tag}</option>
               ))}
             </select>
           </div>
@@ -141,8 +183,8 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
         {/* Filter Summary and Clear Button */}
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
           <div className="text-sm text-gray-600">
-            Visar {filteredAndSortedNews.length} av {news.length} nyheter
-            {(searchTerm || filterAuthor || filterFeatured !== 'all' || sortBy !== 'date-desc') && (
+            Visar {currentNews.length} av {filteredAndSortedNews.length} (Totalt {news.length})
+            {(searchTerm || filterAuthor || filterTag || filterFeatured !== 'all' || sortBy !== 'date-desc') && (
               <button
                 onClick={clearFilters}
                 className="ml-2 text-vgbf-blue hover:text-blue-700 underline"
@@ -156,7 +198,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
 
       {/* News Grid */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredAndSortedNews.map((article: NewsArticle) => (
+        {currentNews.map((article: NewsArticle) => (
           <article key={article.id} className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200">
             {article.imageUrl && (
               <div className="relative h-48">
@@ -187,7 +229,7 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
               <p className="text-gray-600 mb-4 line-clamp-3">{article.excerpt}</p>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-500">Av: {article.author}</span>
-                <Link 
+                <Link
                   href={`/nyheter/${article.slug}`}
                   className="text-vgbf-blue hover:text-blue-700 font-medium inline-flex items-center transition-colors duration-200"
                 >
@@ -200,13 +242,49 @@ export default function NewsClient({ initialNews }: NewsClientProps) {
         {filteredAndSortedNews.length === 0 && (
           <div className="col-span-full text-center py-12">
             <p className="text-gray-600">
-              {searchTerm || filterAuthor || filterFeatured !== 'all' 
-                ? 'Inga nyheter matchar dina sökkriterier.' 
+              {searchTerm || filterAuthor || filterFeatured !== 'all'
+                ? 'Inga nyheter matchar dina sökkriterier.'
                 : 'Inga nyheter att visa för tillfället.'}
             </p>
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 mt-8">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Föregående
+          </button>
+
+          <div className="flex space-x-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-10 h-10 rounded-md flex items-center justify-center ${currentPage === page
+                  ? 'bg-vgbf-blue text-white'
+                  : 'border border-gray-300 hover:bg-gray-50'
+                  }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Nästa
+          </button>
+        </div>
+      )}
     </div>
   )
 }

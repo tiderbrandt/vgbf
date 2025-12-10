@@ -3,7 +3,7 @@ import Footer from '@/components/Footer'
 import Hero from '@/components/Hero'
 import NewsClient from '@/components/NewsClient'
 import { Metadata } from 'next'
-import { getAllNews } from '@/lib/news-storage-postgres'
+import { getNewsPreviews } from '@/lib/news-storage-postgres'
 
 export const metadata: Metadata = {
   title: 'Nyheter - Västra Götalands Bågskytteförbund',
@@ -16,13 +16,13 @@ export const revalidate = 0
 export const fetchCache = 'force-no-store'
 
 export default async function NewsPage() {
-  const news = await getAllNews()
+  const news = await getNewsPreviews()
 
   return (
     <main className="min-h-screen bg-white">
       <Header />
-      
-      <Hero 
+
+      <Hero
         title="Nyheter"
         subtitle="Håll dig uppdaterad med de senaste nyheterna från Västra Götalands Bågskytteförbund"
         description="Upptäck aktuella händelser, tävlingsresultat och viktiga meddelanden från distriktet."
