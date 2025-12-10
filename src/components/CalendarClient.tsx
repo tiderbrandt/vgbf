@@ -364,7 +364,7 @@ export default function CalendarClient({ initialEvents, initialYear, initialMont
             </div>
 
             {/* Calendar Grid */}
-            <div className="grid grid-cols-7">
+            <div className="grid grid-cols-7" suppressHydrationWarning>
               {getDaysInMonth().map((day, index) => {
                 const isCurrentMonth = day.getMonth() === month
                 const isToday = isClient && day.toDateString() === new Date().toDateString()
@@ -376,6 +376,7 @@ export default function CalendarClient({ initialEvents, initialYear, initialMont
                     className={`min-h-[120px] p-2 border-r border-b ${
                       isCurrentMonth ? 'bg-white' : 'bg-gray-50'
                     } ${isToday ? 'bg-blue-50' : ''}`}
+                    suppressHydrationWarning
                   >
                     <div className={`text-sm font-medium mb-1 ${
                       isCurrentMonth ? 'text-gray-900' : 'text-gray-400'
