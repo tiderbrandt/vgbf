@@ -3,6 +3,7 @@ import Footer from '@/components/Footer'
 import Hero from '@/components/Hero'
 import NewsClient from '@/components/NewsClient'
 import { Metadata } from 'next'
+import { getAllNews } from '@/lib/news-storage-postgres'
 
 export const metadata: Metadata = {
   title: 'Nyheter - Västra Götalands Bågskytteförbund',
@@ -15,6 +16,8 @@ export const revalidate = 0
 export const fetchCache = 'force-no-store'
 
 export default async function NewsPage() {
+  const news = await getAllNews()
+
   return (
     <main className="min-h-screen bg-white">
       <Header />
@@ -33,7 +36,7 @@ export default async function NewsPage() {
           <p className="text-gray-600 mt-2">Aktuella nyheter och meddelanden från förbundet.</p>
         </div>
 
-        <NewsClient />
+        <NewsClient initialNews={news} />
       </section>
 
       <Footer />
