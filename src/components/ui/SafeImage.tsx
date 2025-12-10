@@ -34,13 +34,18 @@ export default function SafeImage({
   // Use regular img tag for external URLs to avoid Next.js Image optimization issues
   if (src.startsWith('http')) {
     return (
-      <img
-        src={imageSrc}
-        alt={alt}
-        className={className}
-        onError={handleError}
-        style={width && height ? { width, height } : undefined}
-      />
+      <div className={`relative ${className}`} style={width && height ? { width, height } : undefined}>
+        <Image
+          src={imageSrc}
+          alt={alt}
+          fill={!width && !height}
+          width={width}
+          height={height}
+          className={!width && !height ? className : undefined}
+          onError={handleError}
+          unoptimized
+        />
+      </div>
     )
   }
 

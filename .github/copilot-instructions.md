@@ -1,169 +1,213 @@
-<!-- Use this file to provide workspace-specific custom instructions to Copilot. For more details, visit https://code.visualstudio.com/docs/copilot/copilot-customization#_use-a-githubcopilotinstructionsmd-file -->
+# VGBF - Coding Agent Instructions
 
-# VGBF Project - GitHub Copilot Instructions
+**Repository**: Production archery federation website at [vgbf.vercel.app](https://vgbf.vercel.app)  
+**Stack**: Next.js 14.2.32 (App Router) + TypeScript + PostgreSQL (Neon) + Tailwind CSS  
+**Size**: ~50 pages, ~200 components, ~3,000 files (including node_modules)
 
-## Project Overview
+## Quick Start & Build Commands
 
-**Västra Götalands Bågskytteförbund (VGBF)** - A production-ready archery federation website built with modern web technologies.
+```bash
+# Install dependencies (Node.js 18+)
+npm install
 
-- **Status**: ✅ Live in Production at [vgbf.vercel.app](https://vgbf.vercel.app)
-- **Purpose**: Archery federation website with news, events, competitions, clubs, and admin management
-- **Repository**: https://github.com/tiderbrandt/vgbf
+# Development server (localhost:3000)
+npm run dev
 
-## Tech Stack & Architecture
+# Production build (MUST pass before deployment)
+npm run build
 
-### Core Technologies
-- **Framework**: Next.js 14.2.32 (App Router with Server Components)
-- **Language**: TypeScript (strict mode enabled)
-- **Styling**: Tailwind CSS with custom VGBF design system
-- **Database**: PostgreSQL (Neon serverless in production)
-- **Storage**: Vercel Blob for image uploads
-- **Deployment**: Vercel with automatic deployments
-- **Authentication**: JWT-based admin authentication
+# Tests (Jest + React Testing Library)
+npm test                    # Run all tests
+npm run test:watch          # Watch mode
+npm run test:coverage       # Coverage report
+npm run test:api           # API tests only
 
-### Key Design Principles
-1. **Server-First**: Prefer React Server Components over Client Components
-2. **Type Safety**: Always use TypeScript with proper typing
-3. **Performance**: Optimize images, cache API calls, use database connection pooling
-4. **Security**: SQL injection protection, XSS prevention, secure JWT handling
-5. **Mobile-First**: Responsive design with Tailwind breakpoints
-
-## Project Structure
-
-```
-/src
-├── app/                    # Next.js App Router pages & API routes
-│   ├── admin/             # Admin dashboard & management interfaces
-│   ├── api/               # API endpoints (news, calendar, clubs, etc.)
-│   ├── calendar/          # Event calendar pages
-│   ├── clubs/             # Club directory & profiles
-│   ├── competitions/      # Competition listings
-│   └── records/           # District records
-├── components/            # React components
-│   ├── admin/            # Admin-specific components
-│   ├── calendar/         # Calendar components
-│   └── ...               # Other feature components
-├── lib/                  # Utility functions & database
-│   ├── db.ts            # PostgreSQL connection & queries
-│   └── ...              # Other utilities
-└── types/               # TypeScript type definitions
-
-/docs                    # Project documentation (organized by category)
-/database               # SQL schemas & migration scripts
-/scripts                # Deployment & setup scripts
-/data                   # JSON data files (legacy/backup)
+# Lint (MUST pass)
+npm run lint
 ```
 
-## Coding Standards
+**Critical**: `npm run build` MUST succeed before any PR. Next.js build errors are common - see troubleshooting below.
 
-### TypeScript Guidelines
-- Always define proper types and interfaces
-- Avoid `any` type - use `unknown` if type is truly unknown
-- Use type imports: `import type { ... }`
-- Export types alongside components when needed
+## Environment Variables Required
 
-### React Component Guidelines
-- **Server Components by default** - only use Client Components when needed:
-  - User interactions (onClick, onChange, etc.)
-  - Browser APIs (localStorage, window)
-  - React hooks (useState, useEffect)
-- Use proper error boundaries and Suspense boundaries
-- Implement loading states for async operations
-- Handle errors gracefully with user-friendly messages
+```bash
+# .env.local (required for local development)
+DATABASE_URL="postgresql://..." # Neon PostgreSQL connection string
+JWT_SECRET="..."                # Admin authentication
+BLOB_READ_WRITE_TOKEN="..."    # Vercel Blob (optional)
+USE_PG_LOCAL=0                  # 0=Neon (default), 1=local pg
+```
 
-### Database & API Guidelines
-- **Always use parameterized queries** to prevent SQL injection
-- Use connection pooling (already configured in `lib/db.ts`)
-- Handle database errors gracefully
-- Return proper HTTP status codes from API routes
-- Validate all input data on the server side
-- Use proper TypeScript types for API responses
+**Production** (Vercel): Set in Vercel dashboard → Settings → Environment Variables
 
-### Styling Guidelines
-- Use Tailwind CSS utility classes
-- Follow mobile-first responsive design
-- Use VGBF color palette:
-  - Primary (Blue): `#003366` / `bg-vgbf-blue`
-  - Secondary (Green): `#006633` / `bg-vgbf-green`
-- Maintain consistent spacing using Tailwind's spacing scale
-- Use semantic HTML elements
+## Architecture & Key Patterns
 
-## Common Patterns
+### 1. Database Access Pattern (CRITICAL)
+**Always use the storage layer pattern** - never query database directly in components/routes:
 
-### Database Queries
 ```typescript
-import { query } from '@/lib/db';
+// ✅ CORRECT: Use storage layer
+import * as newsStorage from '@/lib/news-storage-postgres'
+const articles = await newsStorage.getAllNews()
 
-// Always use parameterized queries
-const result = await query(
-  'SELECT * FROM table WHERE id = $1',
-  [id]
-);
+// ❌ WRONG: Direct database queries
+import { sql } from '@/lib/database'
+const result = await sql`SELECT * FROM news`
 ```
 
-### API Route Structure
+**Storage files**: `src/lib/*-storage-postgres.ts` (news, clubs, calendar, competitions, records, etc.)  
+**Database helper**: `src/lib/database.ts` exports `sql` tagged template function
+
+### 2. API Route Pattern
+
 ```typescript
-export async function GET(request: Request) {
+// src/app/api/[resource]/route.ts
+export async function GET(request: NextRequest) {
   try {
-    // Validate input
-    // Query database
-    // Return Response
-    return Response.json(data);
+    const data = await storage.getAll() // Use storage layer
+    return Response.json(data)
   } catch (error) {
-    console.error('Error:', error);
-    return Response.json(
-      { error: 'Error message' },
-      { status: 500 }
-    );
+    console.error('Error:', error)
+    return Response.json({ error: 'Message' }, { status: 500 })
   }
+}
+
+// DELETE/PUT require auth check
+export async function DELETE(request: NextRequest) {
+  const authError = await verifyAdmin(request)
+  if (authError) return authError
+  // ... rest of logic
 }
 ```
 
-### Admin Authentication
-- Check JWT token in API routes using `lib/auth.ts`
-- Protect admin routes with middleware
-- Always verify user permissions before mutations
+### 3. Component Types (Server vs Client)
 
-## Important Notes
+**Default to Server Components**. Only add `'use client'` when:
+- Using React hooks (useState, useEffect, useContext)
+- Handling browser events (onClick, onChange)
+- Using browser APIs (window, localStorage)
 
-### File Organization
-- **Documentation**: All docs in `/docs` directory (organized by category)
-- **Scripts**: Setup/deployment scripts in `/scripts`
-- **Migrations**: Database scripts in `/database`
-- **Tests**: Test files co-located with components in `__tests__` directories
+```typescript
+// ✅ Server Component (default)
+export default async function Page() {
+  const data = await storage.getData() // Direct async
+  return <div>{data}</div>
+}
 
-### Environment Variables
-Required variables (see `.env.example`):
-- `DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - For admin authentication
-- `BLOB_READ_WRITE_TOKEN` - Vercel Blob storage
-- External API keys for RSS feeds, calendars, etc.
+// ✅ Client Component (when needed)
+'use client'
+import { useState } from 'react'
+export default function Interactive() {
+  const [state, setState] = useState()
+  return <button onClick={() => setState()}>Click</button>
+}
+```
 
-### External Integrations
-- **RSS Feeds**: External archery news integration
-- **ICS Calendar**: External calendar event parsing
-- **Competition Data**: Integration with archery competition APIs
+### 4. TypeScript Imports
+```typescript
+// ✅ Use path aliases
+import { NewsArticle } from '@/types'
+import * as storage from '@/lib/news-storage-postgres'
 
-## Testing
-- Use Jest + React Testing Library
-- Test files in `src/__tests__/`
-- Run tests: `npm test`
-- See `TESTING.md` for detailed testing guidelines
+// ✅ Type imports for types
+import type { NextRequest } from 'next/server'
+```
 
-## Deployment
-- Automatic deployment to Vercel on push to `main`
-- Production URL: https://vgbf.vercel.app
-- See `docs/deployment/` for deployment documentation
+## Project Structure (Where to Make Changes)
 
-## When Making Changes
+```
+src/
+├── app/
+│   ├── api/[resource]/route.ts    # API endpoints (GET/POST/PUT/DELETE)
+│   ├── admin/[resource]/          # Admin pages (JWT protected)
+│   ├── [resource]/                # Public pages
+│   └── page.tsx                   # Homepage
+├── components/
+│   ├── admin/                     # Admin UI components
+│   └── [Feature]*.tsx             # Feature components
+├── lib/
+│   ├── [resource]-storage-postgres.ts  # Database access layer
+│   ├── database.ts                     # DB connection helper
+│   └── auth.ts                         # JWT verification
+├── types/
+│   └── index.ts                   # TypeScript definitions
+└── __tests__/                     # Test files
 
-1. **Database Changes**: Create migration scripts in `/database`
-2. **New Features**: Update relevant documentation in `/docs`
-3. **API Changes**: Ensure backward compatibility or update clients
-4. **Type Changes**: Update type definitions in `/src/types`
-5. **Admin Features**: Ensure proper authentication checks
+database/
+├── schema.sql                     # Database schema
+└── *.sql                          # Migration scripts
 
-## Need Help?
-- Check `/docs/README.md` for documentation index
-- Review `/docs/troubleshooting/` for common issues
-- See `/docs/architecture/` for system design patterns
+docs/                              # Extensive documentation
+```
+
+## Common Build Errors & Fixes
+
+### Error: "Module not found" or "Cannot find module '@/lib/...'"
+**Fix**: Check `tsconfig.json` has `"baseUrl": "."` and `"paths": {"@/*": ["./src/*"]}`
+
+### Error: Database connection failed in build
+**Fix**: Database queries in components must be in Server Components or API routes, not Client Components
+
+### Error: "Hydration failed" or "Text content does not match"
+**Cause**: Server/client rendering mismatch  
+**Fix**: Ensure Server Components don't use client-only APIs. Use `suppressHydrationWarning` for dynamic content like dates
+
+### Error: Image optimization failed
+**Fix**: Check `next.config.js` `remotePatterns` includes the image domain (Cloudinary, Vercel Blob)
+
+### Test Failures: "Cannot use import statement outside a module"
+**Fix**: Already configured in `jest.config.js` with `babel-jest`. If persists, check `transformIgnorePatterns`
+
+## Security Requirements (CRITICAL)
+
+1. **SQL Injection Prevention**: Storage layer uses parameterized queries via Neon's `sql` tagged template
+2. **Admin Routes**: ALL mutations (POST/PUT/DELETE) must call `verifyAdmin(request)` from `@/lib/auth`
+3. **XSS Prevention**: React escapes by default. Use `dangerouslySetInnerHTML` only for trusted content
+4. **Environment Variables**: Never commit `.env.local`. Use `process.env.VARIABLE_NAME`
+
+## Styling & UI Guidelines
+
+**Tailwind CSS only** - no CSS modules or styled-components
+
+```tsx
+// VGBF color palette
+<div className="bg-vgbf-blue">    // Primary: #003366
+<div className="bg-vgbf-green">   // Secondary: #006633  
+<div className="bg-vgbf-gold">    // Accent: #FFD700
+
+// Mobile-first responsive
+<div className="p-4 md:p-8 lg:p-12"> // Base → medium → large
+```
+
+## Testing Requirements
+
+- **API tests**: Mock storage layer, test all CRUD operations
+- **Component tests**: Use React Testing Library, test user interactions
+- **Coverage target**: 80%+ for new features
+- See `TESTING.md` for detailed guidelines
+
+## Deployment & CI/CD
+
+- **Platform**: Vercel (automatic on push to `main`)
+- **Build validation**: Next.js build must pass
+- **Environment**: Production env vars in Vercel dashboard
+- **Preview deployments**: Auto-created for PRs
+
+## Key Documentation Files
+
+- `README.md` - Setup, features, structure
+- `TESTING.md` - Test patterns, coverage requirements
+- `docs/architecture/` - System design, refactoring plans
+- `docs/deployment/` - Deployment procedures
+- `docs/troubleshooting/` - Common issues & solutions
+- `database/schema.sql` - Database schema reference
+
+## Decision-Making Priorities
+
+1. **Security first**: Validate auth, prevent injection, protect data
+2. **Type safety**: Strict TypeScript, no `any` types
+3. **Performance**: Server Components, optimize images, cache where appropriate
+4. **Maintainability**: Follow existing patterns, update docs for major changes
+5. **Mobile-first**: Responsive design, test on mobile breakpoints
+
+**When uncertain**: Search `docs/` directory or examine similar existing implementations in the codebase before proceeding.

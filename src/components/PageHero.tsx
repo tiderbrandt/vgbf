@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 interface PageHeroProps {
   title: string
   description?: string
@@ -18,10 +20,12 @@ export default function PageHero({
       {/* Background image if provided */}
       {featuredImage && (
         <div className="absolute inset-0 z-0">
-          <img 
+          <Image 
             src={featuredImage} 
             alt={featuredImageAlt || title}
-            className="w-full h-full object-cover opacity-20"
+            fill
+            className="object-cover opacity-20"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-vgbf-blue/80 to-vgbf-red/80"></div>
         </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { getRecentNews } from '@/lib/news-storage-postgres'
 import { ExternalNewsItem, NewsArticle } from '@/types'
 
@@ -83,11 +84,12 @@ export default async function EnhancedNewsSection() {
                   <article key={item.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                     {item.imageUrl && (
                       <div className="relative h-48 w-full">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <Image
                           src={item.imageUrl}
                           alt={item.imageAlt || item.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       </div>
                     )}
