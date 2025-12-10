@@ -49,11 +49,12 @@ const EVENT_TYPE_LABELS = {
 
 interface CalendarClientProps {
   initialEvents: CalendarEvent[]
-  serverDate?: string
+  initialYear: number
+  initialMonth: number
 }
 
-export default function CalendarClient({ initialEvents, serverDate }: CalendarClientProps) {
-  const [currentDate, setCurrentDate] = useState(serverDate ? new Date(serverDate) : new Date())
+export default function CalendarClient({ initialEvents, initialYear, initialMonth }: CalendarClientProps) {
+  const [currentDate, setCurrentDate] = useState(new Date(initialYear, initialMonth, 1))
   const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
@@ -208,7 +209,9 @@ export default function CalendarClient({ initialEvents, serverDate }: CalendarCl
   }
 
   const getEventsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0]
+    // Use local date string to match the visual calendar grid
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    
     const localEvents = events.filter(event => {
       // Parse event dates properly - they come as ISO strings from API
       const eventStart = new Date(event.date).toISOString().split('T')[0]

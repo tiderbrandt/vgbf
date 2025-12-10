@@ -12,7 +12,9 @@ export const metadata = {
 export default async function CalendarPage() {
   // Fetch initial events on the server
   const initialEvents = await getAllCalendarEvents()
-  const today = new Date().toISOString()
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = now.getMonth()
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -24,7 +26,7 @@ export default async function CalendarPage() {
           subtitle="Håll koll på vad som händer i distriktet"
         />
         
-        <CalendarClient initialEvents={initialEvents} serverDate={today} />
+        <CalendarClient initialEvents={initialEvents} initialYear={year} initialMonth={month} />
       </main>
       
       <Footer />
