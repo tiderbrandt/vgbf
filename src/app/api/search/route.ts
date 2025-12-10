@@ -23,9 +23,9 @@ export async function GET(request: NextRequest) {
       `,
       // Search Competitions
       sql`
-        SELECT id, name as title, 'competition' as type 
+        SELECT id, title, 'competition' as type 
         FROM competitions 
-        WHERE name ILIKE ${searchTerm} OR location ILIKE ${searchTerm}
+        WHERE title ILIKE ${searchTerm} OR location ILIKE ${searchTerm}
         LIMIT 5
       `,
       // Search Clubs
