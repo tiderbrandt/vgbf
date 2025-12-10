@@ -14,19 +14,6 @@ const nextConfig = {
                 hostname: 'cloudinary.com',
                 port: '',
                 pathname: '/**',
-            },
-            // Legacy Vercel Blob domains (for existing images)
-            {
-                protocol: 'https',
-                hostname: '*.public.blob.vercel-storage.com',
-                port: '',
-                pathname: '/**',
-            },
-            {
-                protocol: 'https',
-                hostname: 'vercel-storage.com',
-                port: '',
-                pathname: '/**',
             }
         ],
     },
