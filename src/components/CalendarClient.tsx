@@ -58,6 +58,7 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
   const [selectedEvent, setSelectedEvent] = useState<DisplayEvent | null>(null)
   const [view, setView] = useState<'month' | 'list'>('month')
   const [showExternal, setShowExternal] = useState(true)
+  const [selectedTypes, setSelectedTypes] = useState<string[]>(Object.keys(EVENT_TYPE_LABELS))
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -65,6 +66,86 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
   // Helper function to check if event is external
   const isExternalEvent = (event: DisplayEvent): event is ExternalCompetition => {
     return 'isExternal' in event && event.isExternal === true
+  }
+
+  const toggleType = (type: string) => {
+    setSelectedTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    )
+  }
+
+  // Helper to generate Google Calendar URL
+  const getGoogleCalendarUrl = (event: DisplayEvent) => {
+    const title = encodeURIComponent(event.title)
+    const details = encodeURIComponent(event.description || '')
+    const location = encodeURIComponent(event.location || '')
+    
+    let start = new Date(event.date)
+    let end = event.endDate ? new Date(event.endDate) : new Date(event.date)
+    
+    if (!isExternalEvent(event) && event.time) {
+      const [hours, minutes] = event.time.split(':')
+      start.setHours(parseInt(hours), parseInt(minutes))
+      
+      if (event.endTime) {
+        const [endHours, endMinutes] = event.endTime.split(':')
+        end.setHours(parseInt(endHours), parseInt(endMinutes))
+      } else {
+        end.setHours(start.getHours() + 1)
+      }
+    } else {
+      // All day event
+      end.setDate(end.getDate() + 1)
+    }
+    
+    const formatDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '')
+    
+    return `https://www.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${formatDate(start)}/${formatDate(end)}`
+  }
+
+  // Helper to download ICS file
+  const downloadIcs = (event: DisplayEvent) => {
+    let start = new Date(event.date)
+    let end = event.endDate ? new Date(event.endDate) : new Date(event.date)
+    
+    if (!isExternalEvent(event) && event.time) {
+      const [hours, minutes] = event.time.split(':')
+      start.setHours(parseInt(hours), parseInt(minutes))
+      
+      if (event.endTime) {
+        const [endHours, endMinutes] = event.endTime.split(':')
+        end.setHours(parseInt(endHours), parseInt(endMinutes))
+      } else {
+        end.setHours(start.getHours() + 1)
+      }
+    } else {
+      end.setDate(end.getDate() + 1)
+    }
+
+    const formatDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, '')
+    
+    const content = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      `DTSTART:${formatDate(start)}`,
+      `DTEND:${formatDate(end)}`,
+      `SUMMARY:${event.title}`,
+      `DESCRIPTION:${event.description || ''}`,
+      `LOCATION:${event.location || ''}`,
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\n')
+
+    const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' })
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.setAttribute('download', `${event.title}.ics`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   useEffect(() => {
@@ -125,10 +206,11 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
       // Parse event dates properly - they come as ISO strings from API
       const eventStart = new Date(event.date).toISOString().split('T')[0]
       const eventEnd = event.endDate ? new Date(event.endDate).toISOString().split('T')[0] : eventStart
-      return dateStr >= eventStart && dateStr <= eventEnd
+      const type = event.type || 'other'
+      return dateStr >= eventStart && dateStr <= eventEnd && selectedTypes.includes(type)
     })
     
-    const extEvents = showExternal ? externalCompetitions.filter(comp => {
+    const extEvents = (showExternal && selectedTypes.includes('competition')) ? externalCompetitions.filter(comp => {
       const eventStart = comp.date
       const eventEnd = comp.endDate || comp.date
       return dateStr >= eventStart && dateStr <= eventEnd
@@ -187,12 +269,39 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
   return (
     <div className="bg-gray-50">
       <div className="container mx-auto px-4 py-8">
-        {/* View Toggle and External Events Toggle */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex space-x-2">
+        {/* Filters */}
+        <div className="mb-6 flex flex-wrap gap-2 items-center">
+          {Object.entries(EVENT_TYPE_LABELS).map(([type, label]) => (
+            <button
+              key={type}
+              onClick={() => toggleType(type)}
+              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors border ${
+                selectedTypes.includes(type)
+                  ? EVENT_TYPE_COLORS[type as keyof typeof EVENT_TYPE_COLORS]
+                  : 'bg-white text-gray-400 border-gray-200'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+          <div className="h-6 w-px bg-gray-300 mx-2 hidden md:block"></div>
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showExternal}
+              onChange={(e) => setShowExternal(e.target.checked)}
+              className="mr-2 h-4 w-4 text-vgbf-blue focus:ring-vgbf-blue border-gray-300 rounded"
+            />
+            <span className="text-sm text-gray-700">Visa rikstävlingar</span>
+          </label>
+        </div>
+
+        {/* View Toggle and Navigation */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+          <div className="flex space-x-2 w-full md:w-auto">
             <button
               onClick={() => setView('month')}
-              className={`px-4 py-2 rounded ${view === 'month' 
+              className={`flex-1 md:flex-none px-4 py-2 rounded ${view === 'month' 
                 ? 'bg-vgbf-blue text-white' 
                 : 'bg-white text-gray-700 border'
               }`}
@@ -201,7 +310,7 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
             </button>
             <button
               onClick={() => setView('list')}
-              className={`px-4 py-2 rounded ${view === 'list' 
+              className={`flex-1 md:flex-none px-4 py-2 rounded ${view === 'list' 
                 ? 'bg-vgbf-blue text-white' 
                 : 'bg-white text-gray-700 border'
               }`}
@@ -210,40 +319,27 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
             </button>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={showExternal}
-                onChange={(e) => setShowExternal(e.target.checked)}
-                className="mr-2 h-4 w-4 text-vgbf-blue focus:ring-vgbf-blue border-gray-300 rounded"
-              />
-              <span className="text-sm text-gray-700">Visa rikstävlingar</span>
-            </label>
-            
-            {view === 'month' && (
-              <>
-                <button
-                  onClick={() => navigateMonth('prev')}
-                  className="p-2 rounded hover:bg-gray-200"
-                >
-                  ←
-                </button>
+          {view === 'month' && (
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigateMonth('prev')}
+                className="p-2 rounded hover:bg-gray-200"
+              >
+                ←
+              </button>
+              <div className="text-center">
                 <h2 className="text-xl font-semibold">
                   {MONTHS[month]} {year}
                 </h2>
-                <div className="text-sm text-gray-500">
-                  ({events.length} händelser)
-                </div>
-                <button
-                  onClick={() => navigateMonth('next')}
-                  className="p-2 rounded hover:bg-gray-200"
-                >
-                  →
-                </button>
-              </>
-            )}
-          </div>
+              </div>
+              <button
+                onClick={() => navigateMonth('next')}
+                className="p-2 rounded hover:bg-gray-200"
+              >
+                →
+              </button>
+            </div>
+          )}
         </div>
 
         {view === 'month' && (
@@ -323,58 +419,90 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
 
         {view === 'list' && (
           <div className="space-y-4">
-            {events
+            {[...events, ...(showExternal ? externalCompetitions : [])]
               .filter(event => {
                 // Filter for future events, handling timezone properly
                 const eventDate = new Date(event.date)
                 const today = new Date()
                 today.setHours(0, 0, 0, 0) // Reset time to start of day
-                return eventDate >= today
+                
+                // Filter by type
+                const isExternal = isExternalEvent(event)
+                const type = isExternal ? 'competition' : (event.type || 'other')
+                
+                return eventDate >= today && selectedTypes.includes(type)
               })
               .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
               .map(event => {
-                const eventType = (event.type || 'other') as keyof typeof EVENT_TYPE_COLORS
-                const eventTypeLabel = EVENT_TYPE_LABELS[eventType] || eventType
-                const eventTypeColor = EVENT_TYPE_COLORS[eventType] || EVENT_TYPE_COLORS.other
+                const isExternal = isExternalEvent(event)
+                const eventType = isExternal ? 'competition' : (event.type || 'other')
+                const eventTypeLabel = EVENT_TYPE_LABELS[eventType as keyof typeof EVENT_TYPE_LABELS] || eventType
+                const eventTypeColor = EVENT_TYPE_COLORS[eventType as keyof typeof EVENT_TYPE_COLORS] || EVENT_TYPE_COLORS.other
                 
                 return (
                   <div key={event.id} className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex justify-between items-start mb-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start mb-4 gap-4">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mt-1">
                           <span className={`px-2 py-1 rounded text-xs ${eventTypeColor}`}>
-                            {eventTypeLabel}
+                            {isExternal && '🏆 '}{eventTypeLabel}
                           </span>
                           <span>{formatDate(event.date, event.endDate)}</span>
-                          <span>{formatTime(event.time, event.endTime)}</span>
+                          <span>{!isExternal && event.time ? formatTime(event.time, event.endTime) : 'Heldag'}</span>
                           {event.location && <span>📍 {event.location}</span>}
                         </div>
+                      </div>
+                      <div className="flex space-x-2 shrink-0">
+                        <button
+                          onClick={() => downloadIcs(event)}
+                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                          title="Ladda ner ICS"
+                        >
+                          📅
+                        </button>
+                        <a
+                          href={getGoogleCalendarUrl(event)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded"
+                          title="Lägg till i Google Kalender"
+                        >
+                          G
+                        </a>
                       </div>
                     </div>
                     
                     <p className="text-gray-700 mb-4">{event.description}</p>
                     
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-gray-600">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                      <div className="text-sm text-gray-600 w-full sm:w-auto">
                         {event.organizer && (
                           <span>Arrangör: {event.organizer}</span>
                         )}
                       </div>
                       
-                      {event.registrationRequired && event.registrationUrl && (
-                        <a
-                          href={event.registrationUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-vgbf-green text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                      <div className="flex space-x-2 w-full sm:w-auto justify-end">
+                        {!isExternal && event.registrationRequired && event.registrationUrl && (
+                          <a
+                            href={event.registrationUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="bg-vgbf-green text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-sm"
+                          >
+                            Anmäl dig
+                          </a>
+                        )}
+                        <button
+                          onClick={() => setSelectedEvent(event)}
+                          className="text-vgbf-blue hover:underline text-sm px-4 py-2"
                         >
-                          Anmäl dig
-                        </a>
-                      )}
+                          Mer info
+                        </button>
+                      </div>
                     </div>
                     
-                    {event.maxParticipants && (
+                    {!isExternal && event.maxParticipants && (
                       <div className="mt-4 text-sm text-gray-600">
                         Anmälda: {event.currentParticipants || 0}/{event.maxParticipants}
                       </div>
@@ -383,7 +511,14 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
                 )
               })}
             
-            {events.length === 0 && (
+            {[...events, ...(showExternal ? externalCompetitions : [])].filter(e => {
+               const eventDate = new Date(e.date)
+               const today = new Date()
+               today.setHours(0, 0, 0, 0)
+               const isExternal = isExternalEvent(e)
+               const type = isExternal ? 'competition' : (e.type || 'other')
+               return eventDate >= today && selectedTypes.includes(type)
+            }).length === 0 && (
               <div className="text-center py-8">
                 <p className="text-gray-600">Inga evenemang hittades för denna period.</p>
               </div>
@@ -453,7 +588,7 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
                 </div>
               )}
               
-              <div className="flex space-x-3">
+              <div className="flex flex-wrap gap-3">
                 {!isExternalEvent(selectedEvent) && selectedEvent.registrationRequired && selectedEvent.registrationUrl && (
                   <a
                     href={selectedEvent.registrationUrl}
@@ -473,6 +608,21 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
                     Kontakta arrangör
                   </a>
                 )}
+
+                <button
+                  onClick={() => downloadIcs(selectedEvent)}
+                  className="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors"
+                >
+                  <span className="mr-2">📅</span> Spara
+                </button>
+                <a
+                  href={getGoogleCalendarUrl(selectedEvent)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 transition-colors"
+                >
+                  <span className="mr-2">G</span> Google
+                </a>
               </div>
             </div>
           </div>
