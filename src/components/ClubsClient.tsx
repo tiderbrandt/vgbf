@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Filter, Target, MapPin, Users, Search } from 'lucide-react'
 import ClubsMap from '@/components/ClubsMap'
 import { Club } from '@/types'
 
@@ -14,10 +15,16 @@ export default function ClubsClient({ initialClubs }: ClubsClientProps) {
   const [clubs] = useState<Club[]>(initialClubs)
   const [searchTerm, setSearchTerm] = useState('')
   const [locationFilter, setLocationFilter] = useState('all')
+  const [activityFilter, setActivityFilter] = useState('all')
   const [welcomingNewFilter, setWelcomingNewFilter] = useState(false)
 
   // Get unique locations for filter
   const locations = Array.from(new Set(clubs.map(club => club.city))).sort()
+
+  // Get unique activities for filter
+  const allActivities = Array.from(
+    new Set(clubs.flatMap(club => club.activities || []))
+  ).sort()
 
   // Filter clubs based on search and filters
   const filteredClubs = clubs.filter(club => {
@@ -32,9 +39,10 @@ export default function ClubsClient({ initialClubs }: ClubsClientProps) {
                          description.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesLocation = locationFilter === 'all' || club.city === locationFilter
+    const matchesActivity = activityFilter === 'all' || (club.activities && club.activities.includes(activityFilter))
     const matchesWelcoming = !welcomingNewFilter || club.welcomesNewMembers
     
-    return matchesSearch && matchesLocation && matchesWelcoming
+    return matchesSearch && matchesLocation && matchesActivity && matchesWelcoming
   })
 
   return (
@@ -44,14 +52,14 @@ export default function ClubsClient({ initialClubs }: ClubsClientProps) {
         {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="grid md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
-                Sök klubbar
+            <div className="md:col-span-1">
+              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Search className="w-4 h-4" /> Sök klubbar
               </label>
               <input
                 id="search"
                 type="text"
-                placeholder="Sök på namn, ort eller beskrivning..."
+                placeholder="Namn, ort..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
@@ -59,8 +67,8 @@ export default function ClubsClient({ initialClubs }: ClubsClientProps) {
             </div>
             
             <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
-                Ort
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <MapPin className="w-4 h-4" /> Ort
               </label>
               <select
                 id="location"
@@ -74,16 +82,35 @@ export default function ClubsClient({ initialClubs }: ClubsClientProps) {
                 ))}
               </select>
             </div>
+
+            <div>
+              <label htmlFor="activity" className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Target className="w-4 h-4" /> Aktivitet
+              </label>
+              <select
+                id="activity"
+                value={activityFilter}
+                onChange={(e) => setActivityFilter(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
+              >
+                <option value="all">Alla aktiviteter</option>
+                {allActivities.map(activity => (
+                  <option key={activity} value={activity}>{activity}</option>
+                ))}
+              </select>
+            </div>
             
             <div className="flex items-end">
-              <label className="flex items-center">
+              <label className="flex items-center cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors w-full">
                 <input
                   type="checkbox"
                   checked={welcomingNewFilter}
                   onChange={(e) => setWelcomingNewFilter(e.target.checked)}
-                  className="mr-2 text-vgbf-blue focus:ring-vgbf-blue"
+                  className="mr-2 text-vgbf-blue focus:ring-vgbf-blue rounded"
                 />
-                <span className="text-sm text-gray-700">Välkomnar nya medlemmar</span>
+                <span className="text-sm text-gray-700 flex items-center gap-2">
+                  <Users className="w-4 h-4" /> Välkomnar nya
+                </span>
               </label>
             </div>
           </div>

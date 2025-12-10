@@ -92,8 +92,18 @@ export default function ClubsMap({ clubs }: ClubsMapProps) {
   useEffect(() => {
     setIsClient(true)
     
-    // Add coordinates to clubs based on their city
+    // Add coordinates to clubs based on their city or existing coordinates
     const enrichedClubs: ClubWithCoordinates[] = clubs.map(club => {
+      // Use existing coordinates if available
+      if (club.latitude && club.longitude) {
+        return {
+          ...club,
+          lat: club.latitude,
+          lng: club.longitude
+        }
+      }
+
+      // Fallback to city coordinates
       const coords = cityCoordinates[club.city]
       if (coords) {
         // Add small random offset to avoid overlapping markers
