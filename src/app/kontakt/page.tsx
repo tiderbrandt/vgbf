@@ -1,57 +1,16 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Hero from '@/components/Hero'
-import { ContactData } from '@/types'
+import { getAllContactData } from '@/lib/contact-storage-postgres'
 
-export default function KontaktPage() {
-  const [contactData, setContactData] = useState<ContactData | null>(null)
-  const [loading, setLoading] = useState(true)
+export const metadata = {
+  title: 'Kontakt | VGBF',
+  description: 'Kontakta Västra Götalands Bågskytteförbund. Här hittar du kontaktuppgifter, adresser och svar på vanliga frågor.',
+}
 
-  useEffect(() => {
-    fetchContactData()
-  }, [])
+export default async function KontaktPage() {
+  const contactData = await getAllContactData()
 
-  const fetchContactData = async () => {
-    try {
-      const response = await fetch('/api/contact')
-      const result = await response.json()
-      
-      if (result.success) {
-        setContactData(result.data)
-      }
-    } catch (error) {
-      console.error('Error fetching contact data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-white">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p>Laddar kontaktinformation...</p>
-        </div>
-        <Footer />
-      </main>
-    )
-  }
-
-  if (!contactData) {
-    return (
-      <main className="min-h-screen bg-white">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p>Kunde inte ladda kontaktinformation.</p>
-        </div>
-        <Footer />
-      </main>
-    )
-  }
   return (
     <main className="min-h-screen bg-white">
       <Header />
@@ -145,7 +104,7 @@ export default function KontaktPage() {
                 .map((faq) => (
                   <div key={faq.id}>
                     <h3 className="font-medium text-gray-900 mb-2">{faq.question}</h3>
-                    <p className="text-gray-600" dangerouslySetInnerHTML={{ __html: faq.answer.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-vgbf-blue hover:underline">$1</a>') }} />
+                    <p className="text-gray-600" dangerouslySetInnerHTML={{ __html: faq.answer.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="" class="text-vgbf-blue hover:underline"></a>') }} />
                   </div>
                 ))}
             </div>

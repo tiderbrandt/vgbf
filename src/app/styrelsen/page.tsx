@@ -1,57 +1,15 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import Hero from '@/components/Hero'
-import { BoardData } from '@/types'
+import { getAllBoardData } from '@/lib/board-storage-postgres'
 
-export default function StylesenPage() {
-  const [boardData, setBoardData] = useState<BoardData | null>(null)
-  const [loading, setLoading] = useState(true)
+export const metadata = {
+  title: 'Styrelsen | VGBF',
+  description: 'Styrelsen för Västra Götalands Bågskytteförbund. Här hittar du kontaktuppgifter till styrelseledamöter och funktionärer.',
+}
 
-  useEffect(() => {
-    fetchBoardData()
-  }, [])
-
-  const fetchBoardData = async () => {
-    try {
-      const response = await fetch('/api/board')
-      const result = await response.json()
-      
-      if (result.success) {
-        setBoardData(result.data)
-      }
-    } catch (error) {
-      console.error('Error fetching board data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-white">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p>Laddar styrelsedata...</p>
-        </div>
-        <Footer />
-      </main>
-    )
-  }
-
-  if (!boardData) {
-    return (
-      <main className="min-h-screen bg-white">
-        <Header />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <p>Kunde inte ladda styrelsedata.</p>
-        </div>
-        <Footer />
-      </main>
-    )
-  }
+export default async function StyrelsenPage() {
+  const boardData = await getAllBoardData()
 
   return (
     <main className="min-h-screen bg-white">
