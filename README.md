@@ -3,7 +3,7 @@
 <div align="center">
   <img src="public/vgbf-logo.png" alt="VGBF Logo" width="120" />
   <p>
-    <em>The official digital platform for the West Götaland Archery Federation.</em>
+    <em>The official digital platform for the Västra Götaland Archery Federation.</em>
   </p>
 </div>
 
