@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import GlobalSearch from './GlobalSearch'
 
 interface MenuItem {
   id: string
@@ -117,9 +118,13 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-6 items-center">
+          <nav className="hidden lg:flex space-x-4 items-center">
             {/* Static navigation items */}
             {staticNavigation.map((item) => renderMenuItem(item, false))}
+            
+            <div className="pl-2">
+              <GlobalSearch />
+            </div>
             
             {isAdminPage && isAuthenticated && (
               <button
@@ -133,7 +138,7 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden"
+            className="lg:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,8 +149,11 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <nav className="md:hidden pb-4">
+          <nav className="lg:hidden pb-4">
             <div className="flex flex-col space-y-2">
+              <div className="mb-4 px-1">
+                <GlobalSearch />
+              </div>
               {/* Static navigation items */}
               {staticNavigation.map((item) => renderMenuItem(item, true))}
               
