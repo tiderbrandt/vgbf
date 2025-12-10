@@ -9,7 +9,7 @@ import {
   getClubsWelcomingNewMembers,
   searchClubs
 } from '@/lib/clubs-storage-postgres' // Switched to PostgreSQL
-import { verifyAdminToken, verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
+import { withAuth } from '@/lib/api/withAuth'
 
 // PostgreSQL implementation - v1
 export async function GET(request: NextRequest) {
@@ -58,46 +58,28 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    return createUnauthorizedResponse()
-  }
-
-  try {
-    const body = await request.json()
-    
-    // Validate required fields
-    const requiredFields = ['name', 'description', 'location', 'email', 'city', 'activities', 'welcomesNewMembers']
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          { success: false, error: `Missing required field: ${field}` },
-          { status: 400 }
-        )
-      }
+export const POST = withAuth(async (request: NextRequest) => {
+  const body = await request.json()
+  
+  // Validate required fields
+  const requiredFields = ['name', 'description', 'location', 'email', 'city', 'activities', 'welcomesNewMembers']
+  for (const field of requiredFields) {
+    if (!body[field]) {
+      return NextResponse.json(
+        { success: false, error: `Missing required field: ${field}` },
+        { status: 400 }
+      )
     }
-
-    const newClub = await addClub(body)
-    return NextResponse.json(
-      { success: true, data: newClub },
-      { status: 201 }
-    )
-  } catch (error) {
-    console.error('Error creating club:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to create club' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    return createUnauthorizedResponse()
   }
 
+  const newClub = await addClub(body)
+  return NextResponse.json(
+    { success: true, data: newClub },
+    { status: 201 }
+  )
+})
+
+export const PUT = withAuth(async (request: NextRequest) => {
   try {
     console.log('PUT /api/clubs - Starting update process')
     
@@ -169,40 +151,27 @@ export async function PUT(request: NextRequest) {
       { status }
     )
   }
-}
+})
 
-export async function DELETE(request: NextRequest) {
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    return createUnauthorizedResponse()
-  }
+export const DELETE = withAuth(async (request: NextRequest) => {
+  const body = await request.json()
+  const { id } = body
 
-  try {
-    const body = await request.json()
-    const { id } = body
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'Club ID is required' },
-        { status: 400 }
-      )
-    }
-
-    const deleted = await deleteClub(id)
-    
-    if (!deleted) {
-      return NextResponse.json(
-        { success: false, error: 'Club not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({ success: true, message: 'Club deleted successfully' })
-  } catch (error) {
-    console.error('Error deleting club:', error)
+  if (!id) {
     return NextResponse.json(
-      { success: false, error: 'Failed to delete club' },
-      { status: 500 }
+      { success: false, error: 'Club ID is required' },
+      { status: 400 }
     )
   }
-}
+
+  const deleted = await deleteClub(id)
+  
+  if (!deleted) {
+    return NextResponse.json(
+      { success: false, error: 'Club not found' },
+      { status: 404 }
+    )
+  }
+
+  return NextResponse.json({ success: true, message: 'Club deleted successfully' })
+})

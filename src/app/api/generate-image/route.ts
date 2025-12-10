@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyAdminAuth } from '@/lib/auth'
+import { withAuth } from '@/lib/api/withAuth'
 import { getSettings } from '@/lib/settings-storage-postgres'
 
 // Force this route to be dynamic
@@ -12,20 +12,10 @@ interface GenerateImageRequest {
   size?: '1024x1024' | '1152x896' | '1216x832' | '1344x768' | '1536x640'
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   try {
     console.log('AI Image Generation API called')
     
-    // Verify authentication
-    const isAuthenticated = verifyAdminAuth(request)
-    if (!isAuthenticated) {
-      console.log('Authentication failed')
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
     console.log('Authentication successful')
 
     let body: GenerateImageRequest
@@ -104,7 +94,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-}
+})
 
 // Hugging Face Stable Diffusion image generation
 async function generateWithHuggingFace(apiKey: string, prompt: string) {
@@ -115,7 +105,7 @@ async function generateWithHuggingFace(apiKey: string, prompt: string) {
     })
 
     // Using Stable Diffusion XL model via Hugging Face Inference API
-    const response = await fetch('https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0', {
+    const response = await fetch('https://router.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,

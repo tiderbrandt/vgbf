@@ -10,6 +10,7 @@ import AdminBackButton from '@/components/AdminBackButton'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { Club } from '@/types'
 import { useToast } from '@/contexts/ToastContext'
+import { useFormState, useStringArrayField, useArrayField } from '@/hooks'
 
 export default function EditClubPage() {
   const router = useRouter()
@@ -17,8 +18,9 @@ export default function EditClubPage() {
   const { success, error } = useToast()
   const [club, setClub] = useState<Club | null>(null)
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [formData, setFormData] = useState({
+  
+  // Initialize form state with our custom hook
+  const { formData, updateField, updateFields, isSubmitting: saving, submit } = useFormState({
     name: '',
     description: '',
     location: '',
@@ -42,6 +44,22 @@ export default function EditClubPage() {
     imageAlt: '',
   })
 
+  // Use array field hooks for managing dynamic arrays
+  const activitiesField = useStringArrayField(
+    formData.activities,
+    (activities) => updateField('activities', activities)
+  )
+  
+  const facilitiesField = useStringArrayField(
+    formData.facilities,
+    (facilities) => updateField('facilities', facilities)
+  )
+  
+  const trainingTimesField = useArrayField(
+    formData.trainingTimes,
+    (trainingTimes) => updateField('trainingTimes', trainingTimes)
+  )
+
   const [newActivity, setNewActivity] = useState('')
   const [newFacility, setNewFacility] = useState('')
   const [newTraining, setNewTraining] = useState({ day: '', time: '', type: '' })
@@ -59,7 +77,7 @@ export default function EditClubPage() {
       if (data.success && data.data) {
         const clubData = data.data
         setClub(clubData)
-        setFormData({
+        updateFields({
           name: clubData.name || '',
           description: clubData.description || '',
           location: clubData.location || '',
@@ -97,89 +115,56 @@ export default function EditClubPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaving(true)
+    
+    await submit(async (data) => {
+      try {
+        const clubData: Partial<Club> = {
+          id: params.id as string,
+          ...data,
+          memberCount: data.memberCount ? parseInt(data.memberCount) : undefined,
+          trainingTimes: data.trainingTimes.filter(t => t.day && t.time),
+        }
 
-    try {
-      const clubData: Partial<Club> = {
-        id: params.id as string,
-        ...formData,
-        memberCount: formData.memberCount ? parseInt(formData.memberCount) : undefined,
-        trainingTimes: formData.trainingTimes.filter(t => t.day && t.time),
+        const response = await fetch('/api/clubs', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Cookies.get('auth-token')}`,
+          },
+          body: JSON.stringify(clubData),
+        })
+
+        const responseData = await response.json()
+        if (responseData.success) {
+          success('Klubb uppdaterad!', `${club?.name} har uppdaterats framgångsrikt.`)
+          router.push('/admin/clubs')
+        } else {
+          error('Fel vid uppdatering', responseData.error || 'Ett oväntat fel inträffade.')
+        }
+      } catch (err) {
+        console.error('Error updating club:', err)
+        error('Fel vid uppdatering', 'Ett oväntat fel inträffade vid uppdatering av klubben.')
       }
-
-      const response = await fetch('/api/clubs', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('auth-token')}`,
-        },
-        body: JSON.stringify(clubData),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        success('Klubb uppdaterad!', `${club?.name} har uppdaterats framgångsrikt.`)
-        router.push('/admin/clubs')
-      } else {
-        error('Fel vid uppdatering', data.error || 'Ett oväntat fel inträffade.')
-      }
-    } catch (err) {
-      console.error('Error updating club:', err)
-      error('Fel vid uppdatering', 'Ett oväntat fel inträffade vid uppdatering av klubben.')
-    } finally {
-      setSaving(false)
-    }
+    })
   }
 
-  const addActivity = () => {
-    if (newActivity.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        activities: [...prev.activities, newActivity.trim()]
-      }))
+  const handleAddActivity = () => {
+    if (activitiesField.addString(newActivity)) {
       setNewActivity('')
     }
   }
 
-  const removeActivity = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      activities: prev.activities.filter((_, i) => i !== index)
-    }))
-  }
-
-  const addFacility = () => {
-    if (newFacility.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        facilities: [...prev.facilities, newFacility.trim()]
-      }))
+  const handleAddFacility = () => {
+    if (facilitiesField.addString(newFacility)) {
       setNewFacility('')
     }
   }
 
-  const removeFacility = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      facilities: prev.facilities.filter((_, i) => i !== index)
-    }))
-  }
-
-  const addTrainingTime = () => {
+  const handleAddTrainingTime = () => {
     if (newTraining.day && newTraining.time) {
-      setFormData(prev => ({
-        ...prev,
-        trainingTimes: [...prev.trainingTimes, newTraining]
-      }))
+      trainingTimesField.add(newTraining)
       setNewTraining({ day: '', time: '', type: '' })
     }
-  }
-
-  const removeTrainingTime = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      trainingTimes: prev.trainingTimes.filter((_, i) => i !== index)
-    }))
   }
 
   const daysOfWeek = ['Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag']
@@ -250,7 +235,7 @@ export default function EditClubPage() {
                       id="name"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) => updateField('name', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -264,7 +249,7 @@ export default function EditClubPage() {
                       id="location"
                       required
                       value={formData.location}
-                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                      onChange={(e) => updateField('location', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -278,7 +263,7 @@ export default function EditClubPage() {
                       required
                       rows={4}
                       value={formData.description}
-                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) => updateField('description', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -291,7 +276,7 @@ export default function EditClubPage() {
                       type="text"
                       id="established"
                       value={formData.established}
-                      onChange={(e) => setFormData(prev => ({ ...prev, established: e.target.value }))}
+                      onChange={(e) => updateField('established', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -304,7 +289,7 @@ export default function EditClubPage() {
                       type="number"
                       id="memberCount"
                       value={formData.memberCount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, memberCount: e.target.value }))}
+                      onChange={(e) => updateField('memberCount', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -324,7 +309,7 @@ export default function EditClubPage() {
                       id="email"
                       required
                       value={formData.email}
-                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) => updateField('email', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -337,7 +322,7 @@ export default function EditClubPage() {
                       type="tel"
                       id="phone"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      onChange={(e) => updateField('phone', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -350,7 +335,7 @@ export default function EditClubPage() {
                       type="text"
                       id="contactPerson"
                       value={formData.contactPerson}
-                      onChange={(e) => setFormData(prev => ({ ...prev, contactPerson: e.target.value }))}
+                      onChange={(e) => updateField('contactPerson', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -363,7 +348,7 @@ export default function EditClubPage() {
                       type="url"
                       id="website"
                       value={formData.website}
-                      onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                      onChange={(e) => updateField('website', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -382,7 +367,7 @@ export default function EditClubPage() {
                       type="text"
                       id="address"
                       value={formData.address}
-                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      onChange={(e) => updateField('address', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -395,7 +380,7 @@ export default function EditClubPage() {
                       type="text"
                       id="postalCode"
                       value={formData.postalCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value }))}
+                      onChange={(e) => updateField('postalCode', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -409,7 +394,7 @@ export default function EditClubPage() {
                       id="city"
                       required
                       value={formData.city}
-                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      onChange={(e) => updateField('city', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
                   </div>
@@ -421,7 +406,7 @@ export default function EditClubPage() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Klubblogga</h3>
                 <div className="space-y-4">
                   <ImageUpload
-                    onImageUploaded={(url, alt) => setFormData(prev => ({ ...prev, imageUrl: url, imageAlt: alt }))}
+                    onImageUploaded={(url, alt) => updateFields({ imageUrl: url, imageAlt: alt })}
                     currentImageUrl={formData.imageUrl}
                     currentImageAlt={formData.imageAlt}
                     contentType="clubs"
@@ -440,11 +425,11 @@ export default function EditClubPage() {
                       onChange={(e) => setNewActivity(e.target.value)}
                       placeholder="Lägg till aktivitet (t.ex. Utomhusbågskytte)"
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addActivity())}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddActivity())}
                     />
                     <button
                       type="button"
-                      onClick={addActivity}
+                      onClick={handleAddActivity}
                       className="bg-vgbf-blue text-white px-4 py-2 rounded-lg hover:bg-vgbf-green transition-colors"
                     >
                       Lägg till
@@ -456,7 +441,7 @@ export default function EditClubPage() {
                         {activity}
                         <button
                           type="button"
-                          onClick={() => removeActivity(index)}
+                          onClick={() => activitiesField.remove(index)}
                           className="hover:text-red-200"
                         >
                           ×
@@ -478,11 +463,11 @@ export default function EditClubPage() {
                       onChange={(e) => setNewFacility(e.target.value)}
                       placeholder="Lägg till facilitet (t.ex. Utomhusbana 50m)"
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFacility())}
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddFacility())}
                     />
                     <button
                       type="button"
-                      onClick={addFacility}
+                      onClick={handleAddFacility}
                       className="bg-vgbf-green text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                     >
                       Lägg till
@@ -494,7 +479,7 @@ export default function EditClubPage() {
                         {facility}
                         <button
                           type="button"
-                          onClick={() => removeFacility(index)}
+                          onClick={() => facilitiesField.remove(index)}
                           className="hover:text-red-200"
                         >
                           ×
@@ -536,7 +521,7 @@ export default function EditClubPage() {
                     />
                     <button
                       type="button"
-                      onClick={addTrainingTime}
+                      onClick={handleAddTrainingTime}
                       className="bg-vgbf-gold text-vgbf-blue px-4 py-2 rounded-lg hover:bg-yellow-300 transition-colors"
                     >
                       Lägg till
@@ -551,7 +536,7 @@ export default function EditClubPage() {
                         </span>
                         <button
                           type="button"
-                          onClick={() => removeTrainingTime(index)}
+                          onClick={() => trainingTimesField.remove(index)}
                           className="text-red-600 hover:text-red-800"
                         >
                           Ta bort
@@ -574,7 +559,7 @@ export default function EditClubPage() {
                       type="text"
                       id="membershipFee"
                       value={formData.membershipFee}
-                      onChange={(e) => setFormData(prev => ({ ...prev, membershipFee: e.target.value }))}
+                      onChange={(e) => updateField('membershipFee', e.target.value)}
                       placeholder="t.ex. 500 kr/år"
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
@@ -589,7 +574,7 @@ export default function EditClubPage() {
                         <input
                           type="radio"
                           checked={formData.welcomesNewMembers}
-                          onChange={() => setFormData(prev => ({ ...prev, welcomesNewMembers: true }))}
+                          onChange={() => updateField('welcomesNewMembers', true)}
                           className="mr-2"
                         />
                         Ja
@@ -598,7 +583,7 @@ export default function EditClubPage() {
                         <input
                           type="radio"
                           checked={!formData.welcomesNewMembers}
-                          onChange={() => setFormData(prev => ({ ...prev, welcomesNewMembers: false }))}
+                          onChange={() => updateField('welcomesNewMembers', false)}
                           className="mr-2"
                         />
                         Nej
@@ -620,7 +605,7 @@ export default function EditClubPage() {
                       type="url"
                       id="facebook"
                       value={formData.facebook}
-                      onChange={(e) => setFormData(prev => ({ ...prev, facebook: e.target.value }))}
+                      onChange={(e) => updateField('facebook', e.target.value)}
                       placeholder="https://facebook.com/..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />
@@ -634,7 +619,7 @@ export default function EditClubPage() {
                       type="url"
                       id="instagram"
                       value={formData.instagram}
-                      onChange={(e) => setFormData(prev => ({ ...prev, instagram: e.target.value }))}
+                      onChange={(e) => updateField('instagram', e.target.value)}
                       placeholder="https://instagram.com/..."
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     />

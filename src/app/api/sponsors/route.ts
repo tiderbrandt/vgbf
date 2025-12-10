@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllSponsors, addSponsor, updateSponsor, deleteSponsor } from '@/lib/sponsors-storage-postgres'
 import { Sponsor } from '@/types'
-import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
+import { verifyAdminAuth } from '@/lib/auth'
+import { withAuth } from '@/lib/api/withAuth'
 
 // Force this route to be dynamic for admin operations
 export const dynamic = 'force-dynamic'
@@ -18,7 +19,10 @@ export async function GET(request: NextRequest) {
     
     // For admin requests that want inactive sponsors, verify authentication
     if (includeInactive && !verifyAdminAuth(request)) {
-      return createUnauthorizedResponse()
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
     }
     
     const sponsors = await getAllSponsors(includeInactive)
@@ -32,129 +36,93 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   console.log('POST /api/sponsors called')
   
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    console.log('POST sponsors auth failed')
-    return createUnauthorizedResponse()
-  }
+  const body = await request.json()
+  const { name, description, website, logoUrl, logoAlt, priority, isActive } = body
 
-  try {
-    const body = await request.json()
-    const { name, description, website, logoUrl, logoAlt, priority, isActive } = body
+  console.log('Adding sponsor:', { name })
 
-    console.log('Adding sponsor:', { name })
-
-    if (!name) {
-      return NextResponse.json(
-        { success: false, error: 'Name is required' },
-        { status: 400 }
-      )
-    }
-
-    const sponsorData = {
-      name,
-      description: description || '',
-      website: website || '',
-      logoUrl: logoUrl || '',
-      logoAlt: logoAlt || '',
-      priority: priority || 99,
-      isActive: isActive !== undefined ? isActive : true,
-      addedDate: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-
-    const newSponsor = await addSponsor(sponsorData)
-    return NextResponse.json({ success: true, data: newSponsor })
-  } catch (error) {
-    console.error('Error creating sponsor:', error)
+  if (!name) {
     return NextResponse.json(
-      { success: false, error: 'Failed to create sponsor' },
-      { status: 500 }
+      { success: false, error: 'Name is required' },
+      { status: 400 }
     )
   }
-}
 
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json()
-    const { id, name, description, website, logoUrl, logoAlt, priority, isActive } = body
+  const sponsorData = {
+    name,
+    description: description || '',
+    website: website || '',
+    logoUrl: logoUrl || '',
+    logoAlt: logoAlt || '',
+    priority: priority || 99,
+    isActive: isActive !== undefined ? isActive : true,
+    addedDate: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
 
-    if (!id || !name) {
-      return NextResponse.json(
-        { success: false, error: 'ID and name are required' },
-        { status: 400 }
-      )
-    }
+  const newSponsor = await addSponsor(sponsorData)
+  return NextResponse.json({ success: true, data: newSponsor })
+})
 
-    const updateData = {
-      name,
-      description: description || '',
-      website: website || '',
-      logoUrl: logoUrl || '',
-      logoAlt: logoAlt || '',
-      priority: priority || 99,
-      isActive: isActive !== undefined ? isActive : true,
-      updatedAt: new Date().toISOString()
-    }
+export const PUT = withAuth(async (request: NextRequest) => {
+  const body = await request.json()
+  const { id, name, description, website, logoUrl, logoAlt, priority, isActive } = body
 
-    const updatedSponsor = await updateSponsor(id, updateData)
-    
-    if (!updatedSponsor) {
-      return NextResponse.json(
-        { success: false, error: 'Sponsor not found' },
-        { status: 404 }
-      )
-    }
-    
-    return NextResponse.json({ success: true, data: updatedSponsor })
-  } catch (error) {
-    console.error('Error updating sponsor:', error)
+  if (!id || !name) {
     return NextResponse.json(
-      { success: false, error: 'Failed to update sponsor' },
-      { status: 500 }
+      { success: false, error: 'ID and name are required' },
+      { status: 400 }
     )
   }
-}
 
-export async function DELETE(request: NextRequest) {
+  const updateData = {
+    name,
+    description: description || '',
+    website: website || '',
+    logoUrl: logoUrl || '',
+    logoAlt: logoAlt || '',
+    priority: priority || 99,
+    isActive: isActive !== undefined ? isActive : true,
+    updatedAt: new Date().toISOString()
+  }
+
+  const updatedSponsor = await updateSponsor(id, updateData)
+  
+  if (!updatedSponsor) {
+    return NextResponse.json(
+      { success: false, error: 'Sponsor not found' },
+      { status: 404 }
+    )
+  }
+  
+  return NextResponse.json({ success: true, data: updatedSponsor })
+})
+
+export const DELETE = withAuth(async (request: NextRequest) => {
   console.log('DELETE /api/sponsors called')
   
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    console.log('DELETE sponsors auth failed')
-    return createUnauthorizedResponse()
-  }
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
 
-  try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+  console.log('Deleting sponsor with ID:', id)
 
-    console.log('Deleting sponsor with ID:', id)
-
-    if (!id) {
-      return NextResponse.json(
-        { success: false, error: 'ID is required' },
-        { status: 400 }
-      )
-    }
-
-    const deleted = await deleteSponsor(id)
-    if (!deleted) {
-      return NextResponse.json(
-        { success: false, error: 'Sponsor not found' },
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json({ success: true, message: 'Sponsor deleted successfully' })
-  } catch (error) {
-    console.error('Error deleting sponsor:', error)
+  if (!id) {
     return NextResponse.json(
-      { success: false, error: 'Failed to delete sponsor' },
-      { status: 500 }
+      { success: false, error: 'ID is required' },
+      { status: 400 }
     )
   }
-}
+
+  const deleted = await deleteSponsor(id)
+  if (!deleted) {
+    return NextResponse.json(
+      { success: false, error: 'Sponsor not found' },
+      { status: 404 }
+    )
+  }
+
+  return NextResponse.json({ success: true, message: 'Sponsor deleted successfully' })
+})

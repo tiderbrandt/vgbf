@@ -13,7 +13,7 @@ import {
   deleteFAQItem
 } from '@/lib/contact-storage-postgres'
 import { ContactData } from '@/types'
-import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
+import { withAuth } from '@/lib/api/withAuth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,124 +28,96 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+export const PUT = withAuth(async (request: NextRequest) => {
   console.log('PUT /api/contact called')
   
-  // Check authentication
-  if (!verifyAdminAuth(request)) {
-    console.log('PUT contact auth failed')
-    return createUnauthorizedResponse()
-  }
+  const body = await request.json()
+  const { type, data } = body
 
-  try {
-    const body = await request.json()
-    const { type, data } = body
+  let result: ContactData | null = null
 
-    let result: ContactData | null = null
-
-    switch (type) {
-      case 'mainContact':
-        result = await updateMainContact(data)
-        break
-      case 'postalAddress':
-        result = await updatePostalAddress(data)
-        break
-      case 'organizationNumber':
-        result = await updateOrganizationNumber(data)
-        break
-      case 'quickLink':
-        if (data.id) {
-          result = await updateQuickLink(data.id, data)
-        } else {
-          result = await addQuickLink(data)
-        }
-        break
-      case 'faqItem':
-        if (data.id) {
-          result = await updateFAQItem(data.id, data)
-        } else {
-          result = await addFAQItem(data)
-        }
-        break
-      case 'fullUpdate':
-        result = await saveContactData(data)
-        break
-      default:
-        return NextResponse.json(
-          { success: false, error: 'Invalid update type' },
-          { status: 400 }
-        )
-    }
-
-    if (result === null) {
+  switch (type) {
+    case 'mainContact':
+      result = await updateMainContact(data)
+      break
+    case 'postalAddress':
+      result = await updatePostalAddress(data)
+      break
+    case 'organizationNumber':
+      result = await updateOrganizationNumber(data)
+      break
+    case 'quickLink':
+      if (data.id) {
+        result = await updateQuickLink(data.id, data)
+      } else {
+        result = await addQuickLink(data)
+      }
+      break
+    case 'faqItem':
+      if (data.id) {
+        result = await updateFAQItem(data.id, data)
+      } else {
+        result = await addFAQItem(data)
+      }
+      break
+    case 'fullUpdate':
+      result = await saveContactData(data)
+      break
+    default:
       return NextResponse.json(
-        { success: false, error: 'Item not found' },
-        { status: 404 }
-      )
-    }
-
-    console.log('Contact data updated successfully')
-    return NextResponse.json({ success: true, data: result })
-  } catch (error) {
-    console.error('Error updating contact data:', error)
-    return NextResponse.json(
-      { success: false, error: 'Failed to update contact data' },
-      { status: 500 }
-    )
-  }
-}
-
-export async function DELETE(request: NextRequest) {
-  console.log('DELETE /api/contact called')
-  
-  // Check authentication
-  if (!verifyAdminAuth(request)) {
-    console.log('DELETE contact auth failed')
-    return createUnauthorizedResponse()
-  }
-
-  try {
-    const { searchParams } = new URL(request.url)
-    const type = searchParams.get('type')
-    const id = searchParams.get('id')
-
-    if (!type || !id) {
-      return NextResponse.json(
-        { success: false, error: 'Type and ID are required' },
+        { success: false, error: 'Invalid update type' },
         { status: 400 }
       )
-    }
+  }
 
-    let result: ContactData | null = null
-
-    switch (type) {
-      case 'quickLink':
-        result = await deleteQuickLink(id)
-        break
-      case 'faqItem':
-        result = await deleteFAQItem(id)
-        break
-      default:
-        return NextResponse.json(
-          { success: false, error: 'Invalid delete type' },
-          { status: 400 }
-        )
-    }
-
-    if (result === null) {
-      return NextResponse.json(
-        { success: false, error: 'Item not found' },
-        { status: 404 }
-      )
-    }
-
-    console.log('Contact item deleted successfully')
-    return NextResponse.json({ success: true, data: result })
-  } catch (error) {
-    console.error('Error deleting contact item:', error)
+  if (result === null) {
     return NextResponse.json(
-      { success: false, error: 'Failed to delete contact item' },
-      { status: 500 }
+      { success: false, error: 'Item not found' },
+      { status: 404 }
     )
   }
-}
+
+  console.log('Contact data updated successfully')
+  return NextResponse.json({ success: true, data: result })
+})
+
+export const DELETE = withAuth(async (request: NextRequest) => {
+  console.log('DELETE /api/contact called')
+  
+  const { searchParams } = new URL(request.url)
+  const type = searchParams.get('type')
+  const id = searchParams.get('id')
+
+  if (!type || !id) {
+    return NextResponse.json(
+      { success: false, error: 'Type and ID are required' },
+      { status: 400 }
+    )
+  }
+
+  let result: ContactData | null = null
+
+  switch (type) {
+    case 'quickLink':
+      result = await deleteQuickLink(id)
+      break
+    case 'faqItem':
+      result = await deleteFAQItem(id)
+      break
+    default:
+      return NextResponse.json(
+        { success: false, error: 'Invalid delete type' },
+        { status: 400 }
+      )
+  }
+
+  if (result === null) {
+    return NextResponse.json(
+      { success: false, error: 'Item not found' },
+      { status: 404 }
+    )
+  }
+
+  console.log('Contact item deleted successfully')
+  return NextResponse.json({ success: true, data: result })
+})

@@ -8,6 +8,7 @@ import AdminBackButton from '@/components/AdminBackButton'
 import { Competition } from '@/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
+import { useFormState } from '@/hooks'
 
 type Props = {
   params: { id: string }
@@ -17,7 +18,9 @@ export default function EditCompetitionPage({ params }: Props) {
   const router = useRouter()
   const { success, error } = useToast()
   const [loading, setLoading] = useState(true)
-  const [formData, setFormData] = useState({
+  
+  // Initialize form state with our custom hook
+  const { formData, updateField, updateFields, isSubmitting: saving, submit } = useFormState({
     title: '',
     description: '',
     date: '',
@@ -36,7 +39,7 @@ export default function EditCompetitionPage({ params }: Props) {
     imageUrl: '',
     imageAlt: '',
   })
-  const [saving, setSaving] = useState(false)
+  
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [originalCompetition, setOriginalCompetition] = useState<Competition | null>(null)
 
@@ -48,7 +51,7 @@ export default function EditCompetitionPage({ params }: Props) {
         const competition = data.data.find((c: Competition) => c.id === params.id)
         if (competition) {
           setOriginalCompetition(competition)
-          setFormData({
+          updateFields({
             title: competition.title,
             description: competition.description,
             date: competition.date,
@@ -74,7 +77,7 @@ export default function EditCompetitionPage({ params }: Props) {
             if (savedDraft) {
               try {
                 const draft = JSON.parse(savedDraft)
-                setFormData(draft)
+                updateFields(draft)
               } catch (error) {
                 console.error('Error loading draft:', error)
               }
@@ -92,58 +95,49 @@ export default function EditCompetitionPage({ params }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [params.id, router])
+  }, [params.id, router, updateFields])
 
   // Load competition
   useEffect(() => {
     loadCompetition()
   }, [loadCompetition])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaving(true)
     
-    try {
-      const competitionData: Partial<Competition> = {
-        ...formData,
-        equipment: formData.equipment.split(',').map(item => item.trim()).filter(Boolean),
-        maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : undefined,
-        id: params.id,
-      }
-
-      const response = await fetch('/api/competitions', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(competitionData),
-      })
-      
-      const data = await response.json()
-      if (data.success) {
-        // Clear draft
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(`competition-edit-${params.id}`)
+    await submit(async (data) => {
+      try {
+        const competitionData: Partial<Competition> = {
+          ...data,
+          equipment: data.equipment.split(',').map(item => item.trim()).filter(Boolean),
+          maxParticipants: data.maxParticipants ? parseInt(data.maxParticipants) : undefined,
+          id: params.id,
         }
-        alert('Tävling uppdaterad!')
-        router.push('/admin')
-      } else {
-        alert('Fel vid uppdatering: ' + data.error)
+
+        const response = await fetch('/api/competitions', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(competitionData),
+        })
+        
+        const responseData = await response.json()
+        if (responseData.success) {
+          // Clear draft
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(`competition-edit-${params.id}`)
+          }
+          alert('Tävling uppdaterad!')
+          router.push('/admin')
+        } else {
+          alert('Fel vid uppdatering: ' + responseData.error)
+        }
+      } catch (error) {
+        console.error('Error updating competition:', error)
+        alert('Fel vid uppdatering av tävling')
       }
-    } catch (error) {
-      console.error('Error updating competition:', error)
-      alert('Fel vid uppdatering av tävling')
-    } finally {
-      setSaving(false)
-    }
+    })
   }
 
   const saveDraft = () => {
@@ -156,7 +150,7 @@ export default function EditCompetitionPage({ params }: Props) {
 
   const resetToOriginal = () => {
     if (originalCompetition) {
-      setFormData({
+      updateFields({
         title: originalCompetition.title,
         description: originalCompetition.description,
         date: originalCompetition.date,
@@ -241,7 +235,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="title"
                     name="title"
                     value={formData.title}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('title', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. DM Utomhus 2025"
@@ -257,7 +251,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="organizer"
                     name="organizer"
                     value={formData.organizer}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('organizer', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. Göteborgs Bågskytteklubb"
@@ -273,7 +267,7 @@ export default function EditCompetitionPage({ params }: Props) {
                   id="description"
                   name="description"
                   value={formData.description}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('description', e.target.value)}
                   required
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
@@ -291,7 +285,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="date"
                     name="date"
                     value={formData.date}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('date', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   />
@@ -306,7 +300,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="registrationDeadline"
                     name="registrationDeadline"
                     value={formData.registrationDeadline}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('registrationDeadline', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   />
                 </div>
@@ -320,7 +314,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="location"
                     name="location"
                     value={formData.location}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('location', e.target.value)}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. Göteborg"
@@ -337,7 +331,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="category"
                     name="category"
                     value={formData.category}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('category', e.target.value as Competition['category'])}
                     required
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   >
@@ -357,7 +351,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="status"
                     name="status"
                     value={formData.status}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('status', e.target.value as Competition['status'])}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   >
                     <option value="upcoming">Kommande</option>
@@ -373,7 +367,7 @@ export default function EditCompetitionPage({ params }: Props) {
                 </label>
                 <ImageUpload
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
-                    setFormData(prev => ({ ...prev, imageUrl, imageAlt }))
+                    updateFields({ imageUrl, imageAlt })
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
@@ -390,7 +384,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="maxParticipants"
                     name="maxParticipants"
                     value={formData.maxParticipants}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('maxParticipants', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. 100"
                   />
@@ -405,7 +399,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="fee"
                     name="fee"
                     value={formData.fee}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('fee', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="t.ex. 300 SEK"
                   />
@@ -422,7 +416,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="registrationUrl"
                     name="registrationUrl"
                     value={formData.registrationUrl}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('registrationUrl', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="https://..."
                   />
@@ -437,7 +431,7 @@ export default function EditCompetitionPage({ params }: Props) {
                     id="resultsUrl"
                     name="resultsUrl"
                     value={formData.resultsUrl}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('resultsUrl', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="https://..."
                   />
@@ -453,7 +447,7 @@ export default function EditCompetitionPage({ params }: Props) {
                   id="contactEmail"
                   name="contactEmail"
                   value={formData.contactEmail}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('contactEmail', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   placeholder="tavling@klubb.se"
                 />
@@ -468,7 +462,7 @@ export default function EditCompetitionPage({ params }: Props) {
                   id="equipment"
                   name="equipment"
                   value={formData.equipment}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('equipment', e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   placeholder="t.ex. Recurve bow, Arrows, Finger tab"
                 />
@@ -482,7 +476,7 @@ export default function EditCompetitionPage({ params }: Props) {
                   id="rules"
                   name="rules"
                   value={formData.rules}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('rules', e.target.value)}
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   placeholder="Beskriv regler, vad deltagarna behöver veta, vilka klasser som finns, etc..."

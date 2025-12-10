@@ -10,6 +10,7 @@ import AdminBackButton from '@/components/AdminBackButton'
 import { NewsArticle } from '@/types'
 import ImageUpload from '@/components/admin/ImageUpload'
 import { useToast } from '@/contexts/ToastContext'
+import { useFormState } from '@/hooks'
 
 type Props = {
   params: { id: string }
@@ -19,7 +20,9 @@ export default function EditNewsPage({ params }: Props) {
   const router = useRouter()
   const { success, error } = useToast()
   const [loading, setLoading] = useState(true)
-  const [formData, setFormData] = useState({
+  
+  // Initialize form state with our custom hook
+  const { formData, updateField, updateFields, isSubmitting: saving, submit } = useFormState({
     title: '',
     excerpt: '',
     content: '',
@@ -29,7 +32,7 @@ export default function EditNewsPage({ params }: Props) {
     imageUrl: '',
     imageAlt: '',
   })
-  const [saving, setSaving] = useState(false)
+  
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [originalNews, setOriginalNews] = useState<NewsArticle | null>(null)
 
@@ -41,7 +44,7 @@ export default function EditNewsPage({ params }: Props) {
         const news = data.data.find((n: NewsArticle) => n.id === params.id)
         if (news) {
           setOriginalNews(news)
-          setFormData({
+          updateFields({
             title: news.title,
             excerpt: news.excerpt,
             content: news.content,
@@ -58,7 +61,7 @@ export default function EditNewsPage({ params }: Props) {
             if (savedDraft) {
               try {
                 const draft = JSON.parse(savedDraft)
-                setFormData(draft)
+                updateFields(draft)
               } catch (error) {
                 console.error('Error loading draft:', error)
               }
@@ -76,7 +79,7 @@ export default function EditNewsPage({ params }: Props) {
     } finally {
       setLoading(false)
     }
-  }, [params.id, error, router])
+  }, [params.id, error, router, updateFields])
 
   // Load news article
   useEffect(() => {
@@ -97,54 +100,45 @@ export default function EditNewsPage({ params }: Props) {
     return () => clearInterval(interval)
   }, [formData, params.id, originalNews])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
-    }))
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaving(true)
     
-    try {
-      const newsData: Partial<NewsArticle> = {
-        ...formData,
-        tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-        slug: formData.title.toLowerCase()
-          .replace(/[åäö]/g, (char) => ({ 'å': 'a', 'ä': 'a', 'ö': 'o' }[char] || char))
-          .replace(/[^a-z0-9]/g, '-')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, ''),
-        id: params.id,
-      }
+    await submit(async (data) => {
+      try {
+        const newsData: Partial<NewsArticle> = {
+          ...data,
+          tags: data.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+          slug: data.title.toLowerCase()
+            .replace(/[åäö]/g, (char) => ({ 'å': 'a', 'ä': 'a', 'ö': 'o' }[char] || char))
+            .replace(/[^a-z0-9]/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-|-$/g, ''),
+          id: params.id,
+        }
 
-      const response = await fetch('/api/news', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Cookies.get('auth-token')}`,
-        },
-        body: JSON.stringify(newsData),
-      })
-      
-      const data = await response.json()
-      if (data.success) {
-        // Clear draft
-        localStorage.removeItem(`news-edit-${params.id}`)
-        success('Nyhet uppdaterad!', 'Nyheten har uppdaterats framgångsrikt.')
-        router.push('/admin')
-      } else {
-        error('Fel vid uppdatering', data.error || 'Ett oväntat fel inträffade.')
+        const response = await fetch('/api/news', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Cookies.get('auth-token')}`,
+          },
+          body: JSON.stringify(newsData),
+        })
+        
+        const responseData = await response.json()
+        if (responseData.success) {
+          // Clear draft
+          localStorage.removeItem(`news-edit-${params.id}`)
+          success('Nyhet uppdaterad!', 'Nyheten har uppdaterats framgångsrikt.')
+          router.push('/admin')
+        } else {
+          error('Fel vid uppdatering', responseData.error || 'Ett oväntat fel inträffade.')
+        }
+      } catch (err) {
+        console.error('Error updating news:', err)
+        error('Fel vid uppdatering', 'Ett oväntat fel inträffade vid uppdatering av nyheten.')
       }
-    } catch (err) {
-      console.error('Error updating news:', err)
-      error('Fel vid uppdatering', 'Ett oväntat fel inträffade vid uppdatering av nyheten.')
-    } finally {
-      setSaving(false)
-    }
+    })
   }
 
   const saveDraft = () => {
@@ -155,7 +149,7 @@ export default function EditNewsPage({ params }: Props) {
 
   const resetToOriginal = () => {
     if (originalNews) {
-      setFormData({
+      updateFields({
         title: originalNews.title,
         excerpt: originalNews.excerpt,
         content: originalNews.content,
@@ -228,7 +222,7 @@ export default function EditNewsPage({ params }: Props) {
                   id="title"
                   name="title"
                   value={formData.title}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('title', e.target.value)}
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent text-lg"
                   placeholder="Skriv en engagerande rubrik..."
@@ -243,7 +237,7 @@ export default function EditNewsPage({ params }: Props) {
                   id="excerpt"
                   name="excerpt"
                   value={formData.excerpt}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('excerpt', e.target.value)}
                   required
                   rows={3}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
@@ -257,7 +251,7 @@ export default function EditNewsPage({ params }: Props) {
                 </label>
                 <ImageUpload
                   onImageUploaded={(imageUrl: string, imageAlt: string) => {
-                    setFormData(prev => ({ ...prev, imageUrl, imageAlt }))
+                    updateFields({ imageUrl, imageAlt })
                   }}
                   currentImageUrl={formData.imageUrl}
                   currentImageAlt={formData.imageAlt}
@@ -274,7 +268,7 @@ export default function EditNewsPage({ params }: Props) {
                   id="content"
                   name="content"
                   value={formData.content}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('content', e.target.value)}
                   required
                   rows={15}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
@@ -292,7 +286,7 @@ export default function EditNewsPage({ params }: Props) {
                     id="author"
                     name="author"
                     value={formData.author}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('author', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                     placeholder="Ditt namn..."
                   />
@@ -307,7 +301,7 @@ export default function EditNewsPage({ params }: Props) {
                     id="tags"
                     name="tags"
                     value={formData.tags}
-                    onChange={handleChange}
+                    onChange={(e) => updateField('tags', e.target.value)}
                     placeholder="t.ex. Tävling, Utbildning, Viktigt"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vgbf-blue focus:border-transparent"
                   />
@@ -320,7 +314,7 @@ export default function EditNewsPage({ params }: Props) {
                   id="featured"
                   name="featured"
                   checked={formData.featured}
-                  onChange={handleChange}
+                  onChange={(e) => updateField('featured', e.target.checked)}
                   className="h-5 w-5 text-vgbf-blue focus:ring-vgbf-blue border-gray-300 rounded"
                 />
                 <label htmlFor="featured" className="ml-3 block text-sm font-medium text-gray-700">

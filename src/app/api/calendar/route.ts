@@ -8,7 +8,8 @@ import {
   deleteCalendarEvent as deleteEvent 
 } from '@/lib/calendar-storage-postgres'
 import { CalendarEvent } from '@/types'
-import { verifyAdminAuth, createUnauthorizedResponse } from '@/lib/auth'
+import { verifyAdminAuth } from '@/lib/auth'
+import { withAuth } from '@/lib/api/withAuth'
 
 export async function GET(request: NextRequest) {
   try {
@@ -51,116 +52,74 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest) => {
   console.log('POST /api/calendar called')
   
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    console.log('POST calendar auth failed')
-    return createUnauthorizedResponse()
-  }
-
-  try {
-    const eventData = await request.json()
-    
-    console.log('Adding calendar event:', { title: eventData.title })
-    
-    // Basic validation
-    if (!eventData.title || !eventData.date || !eventData.time) {
-      return NextResponse.json(
-        { error: 'Title, date, and time are required' }, 
-        { status: 400 }
-      )
-    }
-    
-    const newEvent = await addEvent(eventData)
-    return NextResponse.json(newEvent, { status: 201 })
-  } catch (error) {
-    console.error('Error creating calendar event:', error)
+  const eventData = await request.json()
+  
+  console.log('Adding calendar event:', { title: eventData.title })
+  
+  // Basic validation
+  if (!eventData.title || !eventData.date || !eventData.time) {
     return NextResponse.json(
-      { error: 'Failed to create event' }, 
-      { status: 500 }
+      { error: 'Title, date, and time are required' }, 
+      { status: 400 }
     )
   }
-}
+  
+  const newEvent = await addEvent(eventData)
+  return NextResponse.json(newEvent, { status: 201 })
+})
 
-export async function PUT(request: NextRequest) {
+export const PUT = withAuth(async (request: NextRequest) => {
   console.log('PUT /api/calendar called')
   
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    console.log('PUT calendar auth failed')
-    return createUnauthorizedResponse()
-  }
-
-  try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
-    
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Event ID is required' }, 
-        { status: 400 }
-      )
-    }
-    
-    const updates = await request.json()
-    const updatedEvent = await updateEvent(id, updates)
-    
-    if (!updatedEvent) {
-      return NextResponse.json(
-        { error: 'Event not found' }, 
-        { status: 404 }
-      )
-    }
-    
-    return NextResponse.json(updatedEvent)
-  } catch (error) {
-    console.error('Error updating calendar event:', error)
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+  
+  if (!id) {
     return NextResponse.json(
-      { error: 'Failed to update event' }, 
-      { status: 500 }
+      { error: 'Event ID is required' }, 
+      { status: 400 }
     )
   }
-}
+  
+  const updates = await request.json()
+  const updatedEvent = await updateEvent(id, updates)
+  
+  if (!updatedEvent) {
+    return NextResponse.json(
+      { error: 'Event not found' }, 
+      { status: 404 }
+    )
+  }
+  
+  return NextResponse.json(updatedEvent)
+})
 
-export async function DELETE(request: NextRequest) {
+export const DELETE = withAuth(async (request: NextRequest) => {
   console.log('DELETE /api/calendar called')
   
-  // Check authentication using both header and cookie
-  if (!verifyAdminAuth(request)) {
-    console.log('DELETE calendar auth failed')
-    return createUnauthorizedResponse()
-  }
-
-  try {
-    const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
-    
-    console.log('Deleting calendar event with ID:', id)
-    
-    if (!id) {
-      return NextResponse.json(
-        { error: 'Event ID is required' }, 
-        { status: 400 }
-      )
-    }
-    
-    const success = await deleteEvent(id)
-    
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Event not found' }, 
-        { status: 404 }
-      )
-    }
-    
-    return NextResponse.json({ message: 'Event deleted successfully' })
-  } catch (error) {
-    console.error('Error deleting calendar event:', error)
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+  
+  console.log('Deleting calendar event with ID:', id)
+  
+  if (!id) {
     return NextResponse.json(
-      { error: 'Failed to delete event' }, 
-      { status: 500 }
+      { error: 'Event ID is required' }, 
+      { status: 400 }
     )
   }
-}
+  
+  const success = await deleteEvent(id)
+  
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Event not found' }, 
+      { status: 404 }
+    )
+  }
+  
+  return NextResponse.json({ message: 'Event deleted successfully' })
+})

@@ -35,7 +35,7 @@ export async function GET() {
     // Test the API with a simple prompt
     console.log('Calling Hugging Face API...')
     const response = await fetch(
-      'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0',
+      'https://router.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0',
       {
         method: 'POST',
         headers: {
