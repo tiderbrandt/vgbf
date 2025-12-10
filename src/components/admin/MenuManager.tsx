@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 
 interface MenuItem {
   id: string
@@ -34,7 +34,7 @@ export default function MenuManager() {
   const [showForm, setShowForm] = useState(false)
 
   // Load menus from API
-  const loadMenus = async () => {
+  const loadMenus = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/menus?menu_type=${selectedMenu}`)
@@ -47,11 +47,11 @@ export default function MenuManager() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedMenu])
 
   useEffect(() => {
     loadMenus()
-  }, [selectedMenu])
+  }, [loadMenus])
 
   // Move item up/down
   const moveItem = async (item: MenuItem, direction: 'up' | 'down') => {
