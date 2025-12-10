@@ -49,10 +49,17 @@ const EVENT_TYPE_LABELS = {
 
 interface CalendarClientProps {
   initialEvents: CalendarEvent[]
+  serverDate?: string
 }
 
-export default function CalendarClient({ initialEvents }: CalendarClientProps) {
-  const [currentDate, setCurrentDate] = useState(new Date())
+export default function CalendarClient({ initialEvents, serverDate }: CalendarClientProps) {
+  const [currentDate, setCurrentDate] = useState(serverDate ? new Date(serverDate) : new Date())
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const [events] = useState<CalendarEvent[]>(initialEvents)
   const [externalCompetitions, setExternalCompetitions] = useState<ExternalCompetition[]>([])
   const [selectedEvent, setSelectedEvent] = useState<DisplayEvent | null>(null)
@@ -357,7 +364,7 @@ export default function CalendarClient({ initialEvents }: CalendarClientProps) {
             <div className="grid grid-cols-7">
               {getDaysInMonth().map((day, index) => {
                 const isCurrentMonth = day.getMonth() === month
-                const isToday = day.toDateString() === new Date().toDateString()
+                const isToday = isClient && day.toDateString() === new Date().toDateString()
                 const dayEvents = getEventsForDate(day)
 
                 return (
