@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import CompetitionsMap from '@/components/CompetitionsMap'
+import CompetitionCard from '@/components/CompetitionCard'
 import { Competition } from '@/types'
 
 interface CompetitionsClientProps {
@@ -17,6 +17,7 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
   const [showExternal, setShowExternal] = useState(false)
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed'>('all')
   const [categoryFilter, setCategoryFilter] = useState<'all' | Competition['category']>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     if (showExternal && externalCompetitions.length === 0) {
@@ -40,64 +41,29 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
   }
 
   // Combine local and external competitions when showing external
-  const allCompetitions = showExternal 
+  const allCompetitions = useMemo(() => showExternal
     ? [...competitions, ...externalCompetitions]
     : competitions
+    , [competitions, externalCompetitions, showExternal])
 
-  const filteredCompetitions = allCompetitions.filter(competition => {
+  const filteredCompetitions = useMemo(() => allCompetitions.filter(competition => {
     const statusMatch = filter === 'all' || competition.status === filter
     const categoryMatch = categoryFilter === 'all' || competition.category === categoryFilter
-    return statusMatch && categoryMatch
-  })
 
-  const getStatusBadge = (status: Competition['status']) => {
-    const styles = {
-      upcoming: 'bg-blue-100 text-blue-800',
-      ongoing: 'bg-green-100 text-green-800',
-      completed: 'bg-gray-100 text-gray-800'
-    }
-    
-    const labels = {
-      upcoming: 'Kommande',
-      ongoing: 'Pågående',
-      completed: 'Avslutad'
-    }
+    // Search filter
+    const searchLower = searchQuery.toLowerCase()
+    const searchMatch = searchQuery === '' ||
+      competition.title.toLowerCase().includes(searchLower) ||
+      competition.location.toLowerCase().includes(searchLower) ||
+      competition.organizer.toLowerCase().includes(searchLower)
 
-    return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles[status]}`}>
-        {labels[status]}
-      </span>
-    )
-  }
-
-  const getCategoryBadge = (category: Competition['category']) => {
-    const styles = {
-      outdoor: 'bg-green-100 text-green-800',
-      indoor: 'bg-purple-100 text-purple-800',
-      '3d': 'bg-orange-100 text-orange-800',
-      field: 'bg-yellow-100 text-yellow-800',
-      other: 'bg-gray-100 text-gray-800'
-    }
-    
-    const labels = {
-      outdoor: 'Utomhus',
-      indoor: 'Inomhus',
-      '3d': '3D',
-      field: 'Fält',
-      other: 'Övrigt'
-    }
-
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[category]}`}>
-        {labels[category]}
-      </span>
-    )
-  }
+    return statusMatch && categoryMatch && searchMatch
+  }), [allCompetitions, filter, categoryFilter, searchQuery])
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-6xl mx-auto">
-        
+
         {/* Quick Links */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <Link
@@ -108,7 +74,7 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
             <h3 className="text-xl font-bold text-vgbf-blue mb-2">Kommande tävlingar</h3>
             <p className="text-gray-600">Se alla tävlingar som kommer att äga rum</p>
           </Link>
-          
+
           <Link
             href="/tavlingar/pagaende"
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
@@ -117,7 +83,7 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
             <h3 className="text-xl font-bold text-vgbf-blue mb-2">Pågående tävlingar</h3>
             <p className="text-gray-600">Följ tävlingar som pågår just nu</p>
           </Link>
-          
+
           <Link
             href="/tavlingar/avslutade"
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-center"
@@ -130,61 +96,73 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Status:</span>
-              <button
-                onClick={() => setFilter('all')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filter === 'all' ? 'bg-vgbf-blue text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Alla
-              </button>
-              <button
-                onClick={() => setFilter('upcoming')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filter === 'upcoming' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Kommande
-              </button>
-              <button
-                onClick={() => setFilter('ongoing')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filter === 'ongoing' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Pågående
-              </button>
-              <button
-                onClick={() => setFilter('completed')}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                  filter === 'completed' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Avslutade
-              </button>
+          <div className="flex flex-col gap-6">
+
+            {/* Top row: Status & Categories */}
+            <div className="flex flex-wrap gap-6 items-center justify-between">
+              <div className="flex gap-2 flex-wrap">
+                <span className="font-medium text-gray-700 self-center">Status:</span>
+                <button
+                  onClick={() => setFilter('all')}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${filter === 'all' ? 'bg-vgbf-blue text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  Alla
+                </button>
+                <button
+                  onClick={() => setFilter('upcoming')}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${filter === 'upcoming' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  Kommande
+                </button>
+                <button
+                  onClick={() => setFilter('ongoing')}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${filter === 'ongoing' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  Pågående
+                </button>
+                <button
+                  onClick={() => setFilter('completed')}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${filter === 'completed' ? 'bg-gray-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                >
+                  Avslutade
+                </button>
+              </div>
+
+              <div className="flex gap-2 items-center">
+                <span className="font-medium text-gray-700">Kategori:</span>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value as typeof categoryFilter)}
+                  className="px-3 py-1 rounded border border-gray-300 text-sm focus:ring-2 focus:ring-vgbf-blue focus:border-transparent outline-none"
+                >
+                  <option value="all">Alla kategorier</option>
+                  <option value="outdoor">Utomhus</option>
+                  <option value="indoor">Inomhus</option>
+                  <option value="3d">3D</option>
+                  <option value="field">Fält</option>
+                  <option value="other">Övrigt</option>
+                </select>
+              </div>
             </div>
 
-            <div className="flex gap-2">
-              <span className="font-medium text-gray-700">Kategori:</span>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value as typeof categoryFilter)}
-                className="px-3 py-1 rounded border border-gray-300 text-sm"
-              >
-                <option value="all">Alla kategorier</option>
-                <option value="outdoor">Utomhus</option>
-                <option value="indoor">Inomhus</option>
-                <option value="3d">3D</option>
-                <option value="field">Fält</option>
-                <option value="other">Övrigt</option>
-              </select>
-            </div>
+            {/* Bottom row: Search & External Toggle */}
+            <div className="flex flex-wrap gap-4 items-center justify-between border-t pt-4">
+              <div className="relative w-full md:w-96">
+                <input
+                  type="text"
+                  placeholder="Sök tävling, plats eller arrangör..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-vgbf-blue focus:border-transparent outline-none"
+                />
+                <span className="absolute left-3 top-2.5 text-gray-400">🔍</span>
+              </div>
 
-            <div className="flex gap-2 items-center">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={showExternal}
@@ -219,7 +197,7 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
             <div className="text-gray-400 text-6xl mb-4">🏹</div>
             <h3 className="text-xl font-semibold text-gray-700 mb-2">Inga tävlingar hittades</h3>
             <p className="text-gray-500">
-              {filter === 'all' && categoryFilter === 'all' 
+              {filter === 'all' && categoryFilter === 'all' && searchQuery === ''
                 ? 'Det finns inga tävlingar att visa just nu.'
                 : 'Inga tävlingar matchar dina filterkriterier.'
               }
@@ -228,81 +206,7 @@ export default function CompetitionsClient({ initialCompetitions }: Competitions
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCompetitions.map((competition) => (
-              <div key={competition.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                {competition.imageUrl && (
-                  <Image
-                    src={competition.imageUrl}
-                    alt={competition.imageAlt || competition.title}
-                    width={400}
-                    height={192}
-                    className="w-full h-48 object-cover"
-                  />
-                )}
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-bold text-vgbf-blue">{competition.title}</h3>
-                      {competition.isExternal && (
-                        <div className="mt-1">
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                            🔗 Rikstävling
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {getStatusBadge(competition.status)}
-                      {getCategoryBadge(competition.category)}
-                    </div>
-                  </div>
-                  
-                  <p className="text-gray-600 mb-4 line-clamp-3">{competition.description}</p>
-                  
-                  <div className="space-y-2 text-sm text-gray-600 mb-4">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">📅 Datum:</span>
-                      {new Date(competition.date).toLocaleDateString('sv-SE')}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">📍 Plats:</span>
-                      {competition.location}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">👥 Arrangör:</span>
-                      {competition.organizer}
-                    </div>
-                    {competition.fee && (
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">💰 Avgift:</span>
-                        {competition.fee}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    {competition.registrationUrl && (
-                      <a
-                        href={competition.registrationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-vgbf-green text-white text-center py-2 px-4 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                      >
-                        Anmäl dig
-                      </a>
-                    )}
-                    {competition.resultsUrl && (
-                      <a
-                        href={competition.resultsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-vgbf-blue text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                      >
-                        Se resultat
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <CompetitionCard key={competition.id} competition={competition} />
             ))}
           </div>
         )}

@@ -13,7 +13,7 @@ function parseJsonArray(value: any) {
   if (typeof value === 'string' && value.trim() === '') return []
   try {
     if (typeof value === 'string') return JSON.parse(value)
-  } catch (_) {}
+  } catch (_) { }
   return []
 }
 
@@ -74,14 +74,14 @@ function competitionToDbRow(competition: Partial<Competition>): any {
 export async function getAllCompetitions(): Promise<Competition[]> {
   try {
     const result = await sql`SELECT * FROM competitions ORDER BY start_date ASC`
-    console.log('getAllCompetitions result:', { 
+    console.log('getAllCompetitions result:', {
       resultType: typeof result,
       isArray: Array.isArray(result),
       length: result?.length || 0,
       hasRows: !!result?.rows,
-      rowCount: result?.rows?.length || result?.length || 0 
+      rowCount: result?.rows?.length || result?.length || 0
     })
-    
+
     // Handle both Neon format (direct array) and pg format (result.rows)
     let competitions: any[]
     if (Array.isArray(result)) {
@@ -110,14 +110,14 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
       WHERE start_date >= CURRENT_DATE AND status = 'upcoming'
       ORDER BY start_date ASC
     `
-    console.log('getUpcomingCompetitions result:', { 
+    console.log('getUpcomingCompetitions result:', {
       resultType: typeof result,
       isArray: Array.isArray(result),
       length: result?.length || 0,
       hasRows: !!result?.rows,
-      rowCount: result?.rows?.length || result?.length || 0 
+      rowCount: result?.rows?.length || result?.length || 0
     })
-    
+
     // Handle both Neon format (direct array) and pg format (result.rows)
     let competitions: any[]
     if (Array.isArray(result)) {
@@ -135,6 +135,25 @@ export async function getUpcomingCompetitions(): Promise<Competition[]> {
     return [] // Return empty array instead of throwing during build
   }
 }/**
+ * Get ongoing competitions
+ */
+export async function getOngoingCompetitions(): Promise<Competition[]> {
+  try {
+    const result = await sql`
+      SELECT * FROM competitions 
+      WHERE status = 'ongoing'
+      ORDER BY start_date ASC
+    `
+    // Handle both Neon format (direct array) and pg format (result.rows)
+    const competitions = Array.isArray(result) ? result : (result.rows || [])
+    return competitions.map(dbRowToCompetition)
+  } catch (error) {
+    console.error('Error getting ongoing competitions:', error)
+    return []
+  }
+}
+
+/**
  * Get past/completed competitions
  */
 export async function getPastCompetitions(): Promise<Competition[]> {
@@ -144,14 +163,14 @@ export async function getPastCompetitions(): Promise<Competition[]> {
       WHERE start_date < CURRENT_DATE OR status = 'completed'
       ORDER BY start_date DESC
     `
-    console.log('getPastCompetitions result:', { 
+    console.log('getPastCompetitions result:', {
       resultType: typeof result,
       isArray: Array.isArray(result),
       length: result?.length || 0,
       hasRows: !!result?.rows,
-      rowCount: result?.rows?.length || result?.length || 0 
+      rowCount: result?.rows?.length || result?.length || 0
     })
-    
+
     // Handle both Neon format (direct array) and pg format (result.rows)
     let competitions: any[]
     if (Array.isArray(result)) {
@@ -177,13 +196,13 @@ export async function getCompetitionById(id: string): Promise<Competition | null
   try {
     console.log('getCompetitionById: Starting query for ID:', id)
     const result = await sql`SELECT * FROM competitions WHERE id = ${id}`
-    
+
     // Enhanced debugging for Neon vs pg format
     console.log('getCompetitionById: Result type:', typeof result)
     console.log('getCompetitionById: Is array:', Array.isArray(result))
     console.log('getCompetitionById: Length:', result?.length)
     console.log('getCompetitionById: Has rows property:', !!result?.rows)
-    
+
     // Handle both Neon format (direct array) and pg format (result.rows)
     let competitions: any[]
     if (Array.isArray(result)) {
@@ -194,7 +213,7 @@ export async function getCompetitionById(id: string): Promise<Competition | null
       console.log('getCompetitionById: Unexpected result format')
       return null
     }
-    
+
     if (competitions.length > 0) {
       console.log('getCompetitionById: Found competition data:', competitions[0])
       const competition = dbRowToCompetition(competitions[0])
@@ -217,10 +236,10 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
   try {
     const id = uuidv4()
     const dbData = competitionToDbRow({ ...competitionData, id })
-    
+
     console.log('Adding competition with data:', dbData)
     console.log('Generated UUID:', id)
-    
+
     // Insert based on actual schema columns (without registration_deadline and rules as they don't exist)
     const insertResult = await sql`
       INSERT INTO competitions (
@@ -237,7 +256,7 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
       )
     `
     console.log('Insert successful, rowCount:', insertResult.rowCount)
-    
+
     // Return the competition object directly from the data we just inserted
     // instead of trying to retrieve it from the database
     const newCompetition: Competition = {
@@ -263,7 +282,7 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
       rules: undefined,
       isExternal: competitionData.isExternal || false
     }
-    
+
     console.log('Successfully created competition:', { id: newCompetition.id, title: newCompetition.title })
     return newCompetition
   } catch (error) {
@@ -278,29 +297,29 @@ export async function addCompetition(competitionData: Omit<Competition, 'id'>): 
 export async function updateCompetition(id: string, competitionData: Partial<Competition>): Promise<Competition | null> {
   try {
     const dbData = competitionToDbRow(competitionData)
-    
+
     // Build dynamic update query
     const updateFields: string[] = []
     const values: any[] = []
-    
+
     Object.entries(dbData).forEach(([key, value]) => {
       if (value !== undefined) {
         updateFields.push(`${key} = $${values.length + 1}`)
         values.push(value)
       }
     })
-    
+
     if (updateFields.length === 0) {
       return await getCompetitionById(id)
     }
-    
+
     values.push(id) // Add id as the last parameter
     const whereClause = `id = $${values.length}`
-    
+
     const updateQuery = `UPDATE competitions SET ${updateFields.join(', ')} WHERE ${whereClause}`
-    
+
     await sql.query(updateQuery, values)
-    
+
     return await getCompetitionById(id)
   } catch (error) {
     console.error('Error updating competition:', error)
