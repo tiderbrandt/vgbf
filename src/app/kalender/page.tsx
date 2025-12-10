@@ -21,7 +21,6 @@ export default async function CalendarPage() {
         <Hero 
           title="Kalender" 
           subtitle="Håll koll på vad som händer i distriktet"
-          backgroundImage="/images/hero-calendar.jpg"
         />
         
         <CalendarClient initialEvents={initialEvents} />
